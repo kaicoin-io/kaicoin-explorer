@@ -1,0 +1,113 @@
+<% include views/template/header.ejs %>
+
+<main class="mdl-layout__content">
+
+    <div class="page-content">
+        <% include views/template/search_area.ejs %>
+        <div class="x-overflow">
+            <table id="summary_table" class="mdl-data-table mdl-js-data-table match-parent-table">
+                <thead>
+                <tr>
+                    <th>Status</th><th>Chain Name</th><th>Blocks</th><th>Peers</th><th>Net Hash</th>
+                    <th>Difficulty</th><th>CurrentBlockSize</th><th>Streams</th><th>Transactions</th><th>Blocktime</th><th>Addresses</th>
+                    <th>Start</th><th>Age</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><span class="label label-success">&nbsp;&nbsp;&nbsp;</span></td>
+                    <td><a href="/summary"><%=summary.chainname%></a></td>
+                    <td><a href="/blocks"><%=summary.blocks%></a></td>
+                    <td><%=summary.connections%></td>
+                    <td><%=Math.floor(summary.networkhashps/1024/1024*100)/100%> MH/s</td>
+                    <td><%=summary.difficulty%></td>
+                    <td><%=summary.currentblocksize%></td>
+                    <td><a href="/streams">1</a></td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section--center mdl-grid mdl-grid--no-spacing mtd-2-2div-header-wrapper">
+            <div class="mdl-cell mdl-cell--6-col-desktop mdl-cell--6-col-tablet mdl-cell--6-col-phone">
+                <div class="mdl-list__item">
+                    <span class="mdl-list__item-primary-content">
+                      <h5><i class="fas fa-fighter-jet"></i>&nbsp;Latest Transactions</h5>
+                    </span>
+                    <a class="mdl-list__item-secondary-action" href="/txs"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"><i class="fas fa-angle-double-right"></i></button></a>
+                </div>
+                <div id="recent-txs" class="x-overflow">
+                    <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp match-parent-table">
+                        <thead>
+                        <tr>
+                            <th>Type</th><th>TX ID</th><th>Amount</th><th>Confirm</th><th>Time</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% for(var i=0; i<txs.length; i++) { %>
+                            <tr>
+                                <td>
+                                    <% if (txs[i].txtype==='mine') { %><span class="label label-info"><%=txs[i].txtype%></span>
+                                    <% } else if (txs[i].txtype==='send') { %><span class="label label-primary"><%=txs[i].txtype%></span>
+                                    <% } else { %><span class="label label-success"><%=txs[i].txtype%></span><% } %>
+                                </td>
+                                <td class="left-align mtd-txs-cell-txhash">
+                                    <a class="mtd-middle-chars" href="/tx/<%=txs[i].txid%>"><%=txs[i].txid%></a>
+                                    <br><span class="mtd-small-chars" style="line-height: 16px;overflow-x: hidden;">
+                                        <!-- mine, mempool, send -->
+                                        <% if (txs[i].txtype==='send' && typeof(txs[i].vout[1])!=='undefined') { %>From: <%=txs[i].vout[1].scriptPubKey.addresses[0]%> -> <% } %>
+                                        <% if (txs[i].txtype==='send' || txs[i].txtype==='mine') { %><i class="fas fa-arrow-right"></i> <%=txs[i].vout[0].scriptPubKey.addresses[0]%><% } %>
+                                    </span>
+                                </td>
+                                <td class="mtd-middle-chars"><%=txs[i].vout[0].value%> KAI</td>
+                                <td><span class="label label-info"><%=txs[i].confirmations%></span></td>
+                                <td class="mtd-middle-chars"><%=txs[i].date%></td>
+                            </tr>
+                        <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="mdl-cell mdl-cell--6-col-desktop mdl-cell--6-col-tablet mdl-cell--6-col-phone">
+                <div class="mdl-list__item">
+                    <span class="mdl-list__item-primary-content">
+                      <h5><i class="fas fa-th"></i>&nbsp;Latest Blocks</h5>
+                    </span>
+                    <a class="mdl-list__item-secondary-action" href="/blocks"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"><i class="fas fa-angle-double-right"></i></button></a>
+                </div>
+                <div id="recent-blocks" class="x-overflow">
+                    <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp match-parent-table">
+                        <thead>
+                        <tr>
+                            <th>Block</th><th>Miner</th><th>TXNS</th><th>Size</th><th>Confirm</th><th>Time</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% for(var i=0; i<blocks.length; i++) { %>
+                        <tr>
+                            <td><a class="no-underline" href="/block/<%=blocks[i].hash%>">
+                                    <span class="label label-info"><%=blocks[i].height%></span></a></td>
+                            <td class="left-align">
+                                <a class="mtd-middle-chars" href="/block/<%=blocks[i].hash%>"><%=blocks[i].miner%></a></td>
+                            <td><%=blocks[i].txcount%></td>
+                            <td><%=blocks[i].size%></td>
+                            <td><span class="label label-info"><%=blocks[i].confirmations%></span></td>
+                            <td class="mtd-dt-short"><%=blocks[i].date%></td>
+                        </tr>
+                        <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</main>
+
+<% include views/template/footer.ejs %>

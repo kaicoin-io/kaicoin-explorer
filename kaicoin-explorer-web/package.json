@@ -1,0 +1,26 @@
+{
+  "name": "kaicoin-explorer",
+  "version": "0.8.5",
+  "private": true,
+  "main": "index.js",
+  "author": {
+    "name": "Sungjoon Kim",
+    "email": "methodtweak@naver.com",
+    "url": "https://github.com/method76"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/method76",
+  "dependencies": {
+    "fastify-plugin": "^0.2.2",
+    "socket.io": "^2.1.0"
+  },
+  "devDependencies": {
+    "debug": "~2.6.9",
+    "ejs": "~2.5.7",
+    "fastify": "^1.1.1",
+    "fastify-static": "^0.8.0",
+    "point-of-view": "^1.0.0",
+    "rethinkdb": "^2.3.3",
+    "multichain-api": "^1.0.0-alpha.9"
+  }
+}
