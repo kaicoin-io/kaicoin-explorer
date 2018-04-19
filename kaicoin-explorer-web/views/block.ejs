@@ -1,39 +1,45 @@
 <% include views/template/header.ejs %>
 
-<main class="mdl-layout__content">
+<main class="mdl-layout__content mtd-page-block">
 
     <% include views/template/search_area.ejs %>
 
-    <section class="section--center mdl-grid mdl-grid--no-spacing">
-        <header class="mtd-table-blocks mdl-cell mdl-cell--2-col-desktop mdl-cell--2-col-tablet mdl-cell--2-col-phone mdl-color-text--white">
-        </header>
-        <div class="mdl-card mdl-cell mdl-cell--10-col-desktop mdl-cell--10-col-tablet mdl-cell--10-col-phone mtd-pad-verttop">
+    <div class="mdl-grid">
+
+        <header></header>
+
+        <div class="mdl-card mtd-pad-verttop">
+
             <div class="mdl-card__supporting-text">
-                <h4>Block Details</h4>
-                <table id="table-chain-main" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+
+                <div class="mtd-card-title-wrapper">
+                    <h4>Block&nbsp;</h4><div class="mtd-title-page-nav"><%=q%></div>
+                </div>
+
+                <table id="table-chain-main" class="mdl-data-table mdl-shadow--2dp">
                     <tbody>
                     <tr>
                         <th>Block Height</th><td class="mdl-data-table__cell--non-numeric"><span class="label label-info"><%=item.height%></span></td>
-                        <th>Confirmations</th><td class="mdl-data-table__cell--non-numeric"><span class="label label-info"><%=item.confirmations%></span></td>
+                        <th>Block Size</th><td class="mdl-data-table__cell--non-numeric"><%=item.size%></td>
                     </tr>
                     <tr>
-                        <th>Block Size</th><td class="mdl-data-table__cell--non-numeric"><%=item.size%></td>
+                        <th>Confirmations</th><td class="mdl-data-table__cell--non-numeric"><span class="label label-info"><%=item.confirmations%></span></td>
                         <th>Nonce</th><td class="mdl-data-table__cell--non-numeric"><%=item.nonce%></td>
                     </tr>
                     <tr>
                         <th>Block Hash</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><%=item.hash%></td>
                     </tr>
                     <tr>
-                        <th>Miner</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><a href="/address/<%=item.miner%>"><%=item.miner%></a></td>
+                        <th>Miner</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><a href="#"><%=item.miner%></a></td>
                     </tr>
                     <tr>
                         <th>Transaction Merkle Root</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><%=item.merkleroot%></td>
                     </tr>
                     <tr>
-                        <th>Time</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><%=Math.floor((new Date().getTime()-item.time*1000)/1000/60/60/24)%> days ago (<%=item.time%>)</td>
+                        <th>Time</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><%=item.date%> (<%=item.time%>)</td>
                     </tr>
                     <tr>
-                        <th>Transactions <span class="label label-info"><%=item.tx.length%></span></th><td colspan="3" class="mdl-data-table__cell--non-numeric"><% for(var i=0; i<item.tx.length; i++) { %><p><a href="/tx/<%=item.tx[i]%>"><%=item.tx[i]%></a></p><% } %></td>
+                        <th class="mtd-cell-txs">Transactions &nbsp;&nbsp;<span class="label label-info"><%=item.tx.length%></span></th><td colspan="3" class="mtd-cell-txs mdl-data-table__cell--non-numeric"><% for(var i=0; i<item.tx.length; i++) { %><p><a href="/tx/<%=item.tx[i]%>"><%=item.tx[i]%></a></p><% } %></td>
                     </tr>
                     <tr>
                         <th>Previous Block</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><a href="/block/<%=item.previousblockhash%>"><%=item.previousblockhash%></a></td>
@@ -42,30 +48,26 @@
                         <th>Next Block</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><a href="/block/<%=item.nextblockhash%>"><%=item.nextblockhash%></a></td>
                     </tr>
                     </tbody>
+
                 </table>
+
             </div>
-            <div>
-                <!-- Accent-colored raised button with ripple -->
-                <ul class="mtd-buttons-area">
-                    <li>
-                        <a <% if(typeof(item.previousblockhash)!='undefined'){ %> href="/block/<%=item.previousblockhash%>"<% } else { %> href="javascript:void(0);"<% } %>>
-                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"<% if(typeof(item.previousblockhash)=='undefined'){ %> disabled<% } %>><i class="material-icons">keyboard_arrow_left</i>PREV</button></button>
-                        </a>
-                    </li>
-                    <li>
-                        <a <% if(typeof(item.nextblockhash)!='undefined'){ %> href="/block/<%=item.nextblockhash%>"<% } else { %> href="javascript:void(0);"<% } %>>
-                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"<% if(typeof(item.nextblockhash)=='undefined'){ %> disabled<% } %>>NEXT<i class="material-icons">keyboard_arrow_right</i></button>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/blocks">
-                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored"><i class="material-icons">list</i>&nbsp;LIST</button>
-                        </a>
-                    </li>
-                </ul>
+
+            <br>
+            <div class="mdl-card__actions mdl-card--border">
+                <div class="mtd-button-wrapper">
+                    <a href="/"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-arrow-up"></i>&nbsp;HOME</button></a>
+                    <a <% if(typeof(item.previousblockhash)!='undefined'){ %> href="/block/<%=item.previousblockhash%>"<% } else { %> href="javascript:void(0);"<% } %>>
+                        <button class="mdl-button mdl-js-button mdl-js-ripple-effect"<% if(typeof(item.previousblockhash)=='undefined'){ %> disabled<% } %>><i class="material-icons">keyboard_arrow_left</i>PREV</button></button>
+                    </a>
+                    <a <% if(typeof(item.nextblockhash)!='undefined'){ %> href="/block/<%=item.nextblockhash%>"<% } else { %> href="javascript:void(0);"<% } %>>
+                        <button class="mdl-button mdl-js-button mdl-js-ripple-effect"<% if(typeof(item.nextblockhash)=='undefined'){ %> disabled<% } %>>NEXT<i class="material-icons">keyboard_arrow_right</i></button>
+                    </a>
+                    <a href="/blocks"><button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button&#45;&#45;kaicoin"><i class="material-icons">list</i>&nbsp;LIST</button></a>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
 
 </main>
 

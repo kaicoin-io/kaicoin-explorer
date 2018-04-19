@@ -1,15 +1,24 @@
 <% include views/template/header.ejs %>
 
 <!-- block height / miner / txns / age(ago) / fee used -->
-<main class="mdl-layout__content">
+<main class="mdl-layout__content mtd-page-tx">
+
     <% include views/template/search_area.ejs %>
-    <section class="section--center mdl-grid mdl-grid--no-spacing">
-        <header class="mtd-table-txs mdl-cell mdl-cell--2-col-desktop mdl-cell--2-col-tablet mdl-cell--2-col-phone mdl-color-text--white">
-        </header>
-        <div class="mdl-card mdl-cell mdl-cell--10-col-desktop mdl-cell--10-col-tablet mdl-cell--10-col-phone mtd-pad-verttop">
+
+    <div class="mdl-grid">
+
+        <header></header>
+
+        <div class="mdl-card mtd-pad-verttop">
+
             <div class="mdl-card__supporting-text">
-                <h4>Transactions</h4>
-                <table class="mdl-data-table mdl-js-data-table match-parent-table mdl-shadow--2dp">
+
+                <div class="mtd-card-title-wrapper">
+                    <h4>Transactions&nbsp;</h4><div class="mtd-title-page-nav"></div>
+                </div>
+
+                <div class="x-overflow">
+                <table class="mdl-data-table mdl-js-data-tablematch-parent mdl-shadow--2dp">
                     <thead>
                     <tr>
                         <th>Type</th><th>Confirm</th><th>TX ID</th><th>Transactions (from <i class="fas fa-arrow-right"></i> to)</th><th>Amount</th><th>Time</th>
@@ -26,34 +35,52 @@
                                 <% } else if (list[i].txtype==='send') { %><span class="label label-primary"><%=list[i].txtype%></span>
                                 <% } else { %><span class="label label-success"><%=list[i].txtype%></span><% } %>
                             </td>
-                            <td><span class="label label-info"><%=list[i].confirmations%></span></td>
-                            <td class="mdl-data-table__cell--non-numeric"><a class="mtd-middle-chars ellipse" href="/block/<%=list[i].txid%>"><%=list[i].txid%></a></td>
+                            <td class="center"><span class="label label-info"><%=list[i].confirmations%></span></td>
+                            <td class="mdl-data-table__cell--non-numeric"><a class="mtd-middle-chars ellipse" href="/tx/<%=list[i].txid%>"><%=list[i].txid%></a></td>
                             <td class="mdl-data-table__cell--non-numeric">
                                 <% if (list[i].txtype==='send' && typeof(list[i].vout[1])!=='undefined') { %>
-                                    <a class="mtd-middle-chars ellipse" href="/address/<%=list[i].miner%>"><%=list[i].vout[1].scriptPubKey.addresses[0]%></a>
+                                    <div><a class="mtd-middle-chars ellipse" href="#"><%=list[i].vout[1].scriptPubKey.addresses[0]%></a></div>
                                 <% } %>
                                 <% if ((list[i].txtype==='send' || list[i].txtype==='mine') && typeof(list[i].vout[0])!=='undefined') { %>
-                                    &nbsp;<i class="fas fa-arrow-right"></i>&nbsp;
-                                    <a class="mtd-middle-chars ellipse" href="/address/<%=list[i].miner%>"><%=list[i].vout[0].scriptPubKey.addresses[0]%></a>
+                                    <div>
+                                        <i class="fas fa-arrow-right"></i>&nbsp;<a class="mtd-middle-chars ellipse" href="#"><%=list[i].vout[0].scriptPubKey.addresses[0]%></a>
+                                    </div>
                                 <% } %>
                             </td>
-                            <td>
-                                <% if (typeof(list[i].vout)!=='undefined' && typeof(list[i].vout[0].value)!=='undefined') { %><%=list[i].vout[0].value%><% } %>
+                            <td class="mtd-text-right">
+                                <% if (typeof(list[i].vout)!=='undefined' && typeof(list[i].vout[0].value)!=='undefined') { %><%=list[i].vout[0].value%><% } %> KAI
                             </td>
-                            <td><%=list[i].date%></td>
+                            <td><i class="fas fa-arrow-down"></i>&nbsp;<%=list[i].date%></td>
                         </tr>
                         <% } %>
                     <% } %>
                     </tbody>
                 </table>
+                </div>
                 <br>
-                <div class="mtd-slider-pager">
-                    <!-- Default Slider -->
-                    <div><button class="mdl-button mdl-js-button">PAGES</button></div><input class="mdl-slider mdl-js-slider" type="range" min="0" max="<%=summary.blocks%>" value="<%=summary.blocks%>" tabindex="0">
+                <div class="mdl-card__actions mdl-card--border">
+                    <div class="mtd-slider-pager">
+                        <!-- Default Slider -->
+                        <ul>
+                            <li>
+                                <button class="mdl-button">0</button>
+                            </li>
+                            <li>
+                                <input class="mdl-slider mdl-js-slider" type="range" min="0" max="<%=summary.blocks%>" value="<%=summary.blocks%>" tabindex="0">
+                            </li>
+                            <li>
+                                <button class="mdl-button"><%=list[0].height%></button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mtd-button-wrapper">
+                        <a href="/"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-arrow-up"></i>&nbsp;HOME</button></a>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+
+    </div>
 
 </main>
 

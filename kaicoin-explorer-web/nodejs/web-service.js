@@ -50,7 +50,11 @@ module.exports = function() {
                         } else {
                             const now = new Date().getTime();
                             for (let i=0; i<list.length; i++) {
-                                list[i].date = toHumanReadableTimestamp(list[i].time*1000, now);
+                                if (count===LIST_COUNT_MAIN) {
+                                    list[i].date = toHumanReadableTimestampMain(list[i].time*1000, now);
+                                } else {
+                                    list[i].date = toHumanReadableTimestamp(list[i].time*1000, now);
+                                }
                             }
                             resolve(list);
                         }
@@ -74,6 +78,8 @@ module.exports = function() {
             self = this;
             return new Promise( function(resolve, reject) {
                 rpc(GetBlock(bhash)).then(res => {
+                    const now = new Date().getTime();
+                    res.result.date = toHumanReadableTimestampAgo(res.result.time*1000, now);
                     resolve(res.result);
                 }).catch(e => { onRpcError(e); reject(e); });
             });
@@ -115,7 +121,11 @@ module.exports = function() {
                         }
                         const now = new Date().getTime();
                         for (let i=0; i<res1.length; i++) {
-                            res1[i].date = toHumanReadableTimestamp(res1[i].time*1000, now);
+                            if (count===LIST_COUNT_MAIN) {
+                                res1[i].date = toHumanReadableTimestampMain(res1[i].time*1000, now);
+                            } else {
+                                res1[i].date = toHumanReadableTimestamp(res1[i].time*1000, now);
+                            }
                             if (typeof(res1[i].vin)!=='undefined' && typeof(res1[i].vin[0].coinbase)!=='undefined') {
                                 res1[i].txtype = 'mine';
                             } else if (typeof(res1[i].vin)!=='undefined') {
@@ -133,14 +143,125 @@ module.exports = function() {
         getRawTx: function(txid) {
             return new Promise( function(resolve, reject) {
                 rpc(GetRawTransaction(txid, 1)).then(res1 => {
-                    resolve(res1.result);
+
+                    // blockhash, confirmations, time, blocktime, hex, txid, version, locktime
+                    const result = res1.result;
+
+                    console.log('result ' + JSON.stringify(res1.result));
+                    let tx = {};
+                    tx.blockhash = result.blockhash;
+                    tx.txid = result.txid;
+                    tx.confirmations = result.confirmations;
+                    tx.fromaddress = '';
+                    tx.date = toHumanReadableTimestampAgo(result.time*1000, new Date().getTime());
+                    tx.time = typeof(result.time==='undefined')?0:result.time;
+                    if (typeof(result.vin[0].coinbase)!=='undefined') {
+                        tx.txtype = 'mine';
+                        tx.toaddress = result.vout[0].scriptPubKey.addresses[0];
+                        tx.value = result.vout[0].value;
+                    } else {
+                        // Todo: 여기서 또 분기 필요할 듯, 송금건/다중송금건/메시지ONLY 등..
+                        tx.txtype = 'send';
+                        if (typeof(result.vout[1])!=='undefined') {
+                            tx.fromaddress = result.vout[1].scriptPubKey.addresses[0];
+                        }
+                        tx.toaddress = result.vout[0].scriptPubKey.addresses[0];
+                        tx.value = result.vout[0].value;
+                    }
+                    resolve(tx);
                 }).catch(e => { onRpcError(e); reject(e); });
             });
         }
     };
 };
 
+function toHumanReadableTimestampMain(thattime, nowtime) {
+    let now = typeof(nowtime)!=='undefined'?nowtime:new Date().getTime();
+    const diff = (now - thattime)/1000;
+    const years = Math.floor(diff / (60 * 60 * 24 * 365));
+    const months = Math.floor(diff / (60 * 60 * 24 * 30));
+    const weeks = Math.floor(diff / (60 * 60 * 24 * 7));
+    const days = Math.floor(diff / (60 * 60 * 24));
+    const hours = Math.floor(diff / (60 * 60));
+    const mins = Math.floor(diff / 60);
+    const secs = Math.floor(diff);
+    let ret = "";
+    if (years>1) {
+        ret = years + "yrs";
+    } else if (years===1) {
+        ret = "1yrs";
+    } else if (months>1) {
+        ret = months + "mons";
+    } else if (months===1) {
+        ret = "1mon";
+    } else if (weeks>1) {
+        ret = weeks + "wks";
+    } else if (weeks===1) {
+        ret = "1wk";
+    } else if (days>1) {
+        ret = days + "days";
+    } else if (days===1) {
+        ret = "1day";
+    } else if (hours>1) {
+        ret = hours + "hrs";
+    } else if (hours===1) {
+        ret = "1hr";
+    } else if (mins>1) {
+        ret = mins + "mins";
+    } else if (mins===1) {
+        ret = "1min";
+    } else if (secs>2) {
+        ret = secs + "secs";
+    } else {
+        ret = "now";
+    }
+    return ret;
+}
+
 function toHumanReadableTimestamp(thattime, nowtime) {
+    let now = typeof(nowtime)!=='undefined'?nowtime:new Date().getTime();
+    const diff = (now - thattime)/1000;
+    const years = Math.floor(diff / (60 * 60 * 24 * 365));
+    const months = Math.floor(diff / (60 * 60 * 24 * 30));
+    const weeks = Math.floor(diff / (60 * 60 * 24 * 7));
+    const days = Math.floor(diff / (60 * 60 * 24));
+    const hours = Math.floor(diff / (60 * 60));
+    const mins = Math.floor(diff / 60);
+    const secs = Math.floor(diff);
+    let ret = "";
+    if (years>1) {
+        ret = years + " years";
+    } else if (years===1) {
+        ret = "last year";
+    } else if (months>1) {
+        ret = months + " months";
+    } else if (months===1) {
+        ret = "last month";
+    } else if (weeks>1) {
+        ret = weeks + " weeks";
+    } else if (weeks===1) {
+        ret = "last week";
+    } else if (days>1) {
+        ret = days + " days";
+    } else if (days===1) {
+        ret = "yesterday";
+    } else if (hours>1) {
+        ret = hours + " hours";
+    } else if (hours===1) {
+        ret = "1 hour";
+    } else if (mins>1) {
+        ret = mins + " mins";
+    } else if (mins===1) {
+        ret = "1 min";
+    } else if (secs>2) {
+        ret = secs + " secs";
+    } else {
+        ret = "just now";
+    }
+    return ret;
+}
+
+function toHumanReadableTimestampAgo(thattime, nowtime) {
     let now = typeof(nowtime)!=='undefined'?nowtime:new Date().getTime();
     const diff = (now - thattime)/1000;
     const years = Math.floor(diff / (60 * 60 * 24 * 365));
@@ -170,15 +291,16 @@ function toHumanReadableTimestamp(thattime, nowtime) {
     } else if (hours>1) {
         ret = hours + " hours ago";
     } else if (hours===1) {
-        ret = "1 hour ago";
+        ret = "an hour ago";
     } else if (mins>1) {
-        ret = mins + " mins ago";
+        ret = mins + " minutes ago";
     } else if (mins===1) {
-        ret = "1 min ago";
+        ret = "a minute ago";
     } else if (secs>2) {
-        ret = secs + " secs ago";
+        ret = secs + " seconds ago";
     } else {
         ret = "just now";
     }
     return ret;
 }
+

@@ -21,20 +21,17 @@ fastify.register(plugin, {
     includeViewExtension: true,
     templates: templatesFolder,
     options: { filename: resolve(templatesFolder) },
-    charset: 'utf-8' // sample usage, but specifying the same value already used as default
+    // sample usage, but specifying the same value already used as default
+    charset: 'utf-8'
 });
 
 fastify.get('/', (req, reply) => {
     service.connectDB().then(conn =>
         service.getSummary(conn).then(res1 => {
-            // console.log('res1 ' + JSON.stringify(res1));
             service.getBlocks(conn, LIST_COUNT_MAIN).then(res2 => {
-                // console.log('res2 ' + JSON.stringify(res2));
                 service.getTxs(conn, LIST_COUNT_MAIN).then(res3 => {
                     service.disconnectDB(conn);
-                    let result = {summary: res1, blocks: res2, txs: res3};
-                    console.log('result ' + JSON.stringify(result));
-                    reply.view('index', result);
+                    reply.view('index', {summary: res1, blocks: res2, txs: res3});
                 });
             });
         })
@@ -47,7 +44,7 @@ fastify.get('/summary', (req, reply) => {
             let date = new Date();
             date.setTime(res1["genesis-timestamp"]*1000);
             res1["genesis-datetime"] = date.format("yyyy.MM.dd HH:mm:ss");
-            reply.view('chain', {item: res1});
+            reply.view('summary', {item: res1});
         }, function(e) {
             console.error('failed to connect to blockchain' + e);
         });
@@ -56,40 +53,40 @@ fastify.get('/summary', (req, reply) => {
 
 /**
  * 검색 64자는
- 1) 블록해시 000000000fcd910cf007d3c3ddcd94cc9d30b72029f1c5114b7a144f97a42cbb
- 2) TX해시 a4dc6969669519d1abfd2d4f051a9f2200c981a915cedd271d300ef30e4c6f13
- => 블록해시 00000000 현재 0*8개
- 3) 1로 시작하고 38자는 주소 1D2WDbRBJzYHF9tRmyE2eCDixzuWJvacKZw1Pk
- 4) 정수 10자 이내는 블록 높이
+ * 1) 블록해시 000000000fcd910cf007d3c3ddcd94cc9d30b72029f1c5114b7a144f97a42cbb
+ * 2) TX해시 a4dc6969669519d1abfd2d4f051a9f2200c981a915cedd271d300ef30e4c6f13
+ *      => 블록해시 00000000 현재 0*8개
+ * 3) 1로 시작하고 38자는 주소 1D2WDbRBJzYHF9tRmyE2eCDixzuWJvacKZw1Pk
+ * 4) 정수 10자 이내는 블록 높이
  */
 fastify.get('/q/:q', (req, reply) => {
     const param = req.params.q;
     let json = reply.code(200).header('Content-Type', 'application/json');
     if (param.length>64) {
-        json.send({type: 'none'});
+        json.send({type: null});
     } else {
         const alphanumeric = /^[0-9a-zA-Z]+$/;
         if(param.match(alphanumeric)===false) {
-            json.send({type: 'none'});
+            json.send({type: null});
         } else {
             if (param.length===64) {
                 if (param.startsWith('0000')) {
                     // 블록해시 (추정)
-                    json.send({type: 'bhash'});
+                    json.send({type: 'block'});
                 } else {
                     // TX 해시
-                    json.send({type: 'thash'});
+                    json.send({type: 'tx'});
                 }
             } else if (param.length===38) {
                 // 주소
-                json.send({type: 'addr'});
+                json.send({type: 'address'});
             } else if (param.length<10) {
                 // 블록 높이
                 const numeric = /^\d+$/;
                 if(param.match(numeric)===false) {
-                    json.send({type: 'none'});
+                    json.send({type: null});
                 } else {
-                    json.send({type: 'bheight'});
+                    json.send({type: 'block'});
                 }
             } else {
                 json.send({type: 'none'});
@@ -98,7 +95,6 @@ fastify.get('/q/:q', (req, reply) => {
     }
 });
 
-// Todo: BLOCKS 화면과 TXS 화면에서 내 주소가 있으면 Address 링크 걸기
 fastify.get('/blocks', (req, reply) => {
     service.connectDB().then(conn => {
         service.getSummary(conn).then(res1 => {
@@ -118,7 +114,7 @@ fastify.get('/blocks', (req, reply) => {
 fastify.get('/block/:bhash', (req, reply) => {
     service.getBlock(req.params.bhash).then(res1 => {
         console.log('item ' + JSON.stringify(res1));
-        reply.view('block', {item: res1});
+        reply.view('block', {q: req.params.bhash, item: res1});
     }, function(e) {
         console.error('failed to connect to blockchain' + e);
     });
@@ -174,30 +170,7 @@ fastify.get('/tx/:txid', (req, reply) => {
     // 2) vout[0].scriptPubKey.addresses: 수신자
     // 2) vout[1].scriptPubKey.addresses: 전송자
     service.getRawTx(req.params.txid).then(res1 => {
-        console.log('tx.vout: ' + JSON.stringify(res1.vout));
-        let tx = {};
-        // blockhash, confirmations, time, blocktime, hex, txid, version, locktime
-        tx.blockhash = res1.blockhash;
-        tx.txid = res1.txid;
-        tx.confirmations = res1.confirmations;
-        tx.fromaddress = '';
-        tx.time = res1.time;
-        tx.date = toHumanReadableTimestamp(res1.time*1000, new Date().getTime());
-        if (typeof(res1.vin[0].coinbase)!=='undefined') {
-            tx.txtype = 'mine';
-            tx.toaddress = res1.vout[0].scriptPubKey.addresses[0];
-            tx.value = res1.vout[0].value;
-        } else {
-            // Todo: 여기서 또 분기 필요할 듯, 송금건/다중송금건/메시지ONLY 등..
-            tx.txtype = 'send';
-            if (typeof(res1.vout[1])!=='undefined') {
-                tx.fromaddress = res1.vout[1].scriptPubKey.addresses[0];
-            }
-            tx.toaddress = res1.vout[0].scriptPubKey.addresses[0];
-            tx.value = res1.vout[0].value;
-        }
-        // console.log('tx ' + JSON.stringify(tx));
-        reply.view('tx', {item: tx});
+        reply.view('tx', {item: res1});
     }, function(e) {
         console.error('failed to handle getRawTx ' + e);
     });
@@ -311,31 +284,31 @@ function toHumanReadableTimestamp(thattime, nowtime) {
     const secs = Math.floor(diff);
     let ret = "";
     if (years>1) {
-        ret = years + " years ago";
+        ret = years + " years";
     } else if (years===1) {
         ret = "last year";
     } else if (months>1) {
-        ret = months + " months ago";
+        ret = months + " months";
     } else if (months===1) {
         ret = "last month";
     } else if (weeks>1) {
-        ret = weeks + " weeks ago";
+        ret = weeks + " weeks";
     } else if (weeks===1) {
         ret = "last week";
     } else if (days>1) {
-        ret = days + " days ago";
+        ret = days + " days";
     } else if (days===1) {
         ret = "yesterday";
     } else if (hours>1) {
-        ret = hours + " hours ago";
+        ret = hours + " hours";
     } else if (hours===1) {
         ret = "an hour ago";
     } else if (mins>1) {
-        ret = mins + " minutes ago";
+        ret = mins + " minutes";
     } else if (mins===1) {
-        ret = "a minute ago";
+        ret = "a minute";
     } else if (secs>2) {
-        ret = secs + " seconds ago";
+        ret = secs + " seconds";
     } else {
         ret = "just now";
     }
