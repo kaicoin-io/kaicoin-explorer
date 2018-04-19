@@ -59,8 +59,8 @@
                                 <td class="left-align mtd-txs-cell-txhash">
                                     <a class="mtd-middle-chars" href="/tx/<%=txs[i].txid%>"><%=txs[i].txid%></a>
                                     <br><span class="mtd-small-chars" style="line-height: 16px;overflow-x: hidden;">
-                                        <!-- mine, mempool, send -->
-                                        <% if (txs[i].txtype==='send' && typeof(txs[i].vout[1])!=='undefined') { %>From: <%=txs[i].vout[1].scriptPubKey.addresses[0]%> -> <% } %>
+                                        <!-- mine, memp, send -->
+                                        <% if (txs[i].txtype==='send' && typeof(txs[i].vout[1])!=='undefined') { %><%=txs[i].vout[1].scriptPubKey.addresses[0]%><% } %>
                                         <% if (txs[i].txtype==='send' || txs[i].txtype==='mine') { %><i class="fas fa-arrow-right"></i> <%=txs[i].vout[0].scriptPubKey.addresses[0]%><% } %>
                                     </span>
                                 </td>
@@ -90,10 +90,9 @@
                         <tbody>
                         <% for(var i=0; i<blocks.length; i++) { %>
                         <tr>
-                            <td><a class="no-underline" href="/block/<%=blocks[i].hash%>">
-                                    <span class="label label-info"><%=blocks[i].height%></span></a></td>
+                            <td><a class="no-underline" href="/block/<%=blocks[i].hash%>"><span class="label label-info"><%=blocks[i].height%></span></a></td>
                             <td class="left-align">
-                                <a class="mtd-middle-chars" href="/block/<%=blocks[i].hash%>"><%=blocks[i].miner%></a></td>
+                                <a href="javascript:alert('<div class=ellipse><%=blocks[i].miner%></div><img src=https://api.qrserver.com/v1/create-qr-code/?size=232x232&data=<%=blocks[i].miner%>>');"><img src="/res/img/ic-qr.png" /></a>&nbsp;<a class="mtd-middle-chars" href="/address/<%=blocks[i].miner%>"><%=blocks[i].miner%></a></td>
                             <td><%=blocks[i].txcount%></td>
                             <td><%=blocks[i].size%></td>
                             <td><span class="label label-info"><%=blocks[i].confirmations%></span></td>

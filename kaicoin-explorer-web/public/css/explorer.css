@@ -13,6 +13,9 @@ a, .mdl-card__supporting-text {
     color: rgba(0, 0, 0, .71);
 }
 a.mtd-middle-chars.mtd-label { color: #fff; }
+.mdl-dialog { border-radius: 6px; }
+.mdl-dialog .mdl-dialog__content { min-height: 252px; }
+
 .mdl-navigation__link i.fab { font-size: 26px; }
 .mdl-layout__drawer .mdl-navigation li a.mdl-navigation__link { padding: 16px 24px 16px 14px; }
 .mdl-layout__header-row .mdl-navigation__link i.fab { font-size: 26px; line-height: 64px; }

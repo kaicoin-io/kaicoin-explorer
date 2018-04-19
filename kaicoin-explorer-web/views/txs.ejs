@@ -12,33 +12,38 @@
                 <table class="mdl-data-table mdl-js-data-table match-parent-table mdl-shadow--2dp">
                     <thead>
                     <tr>
-                        <th>Type</th><th>Confirm</th><th>TX ID</th><th>From</th><th>To</th><th>Amount</th><th>Time</th>
+                        <th>Type</th><th>Confirm</th><th>TX ID</th><th>Transactions (from <i class="fas fa-arrow-right"></i> to)</th><th>Amount</th><th>Time</th>
                     </tr>
                     </thead>
                     <tbody>
                     <% if (typeof(list)==='undefined'||list.length<1) { %>
                         <tr><td colspan="8" class="mtd-td-empty">EMPTY TRANSACTION DATA</td></tr>
-                    <% } else { for(var i=0; i<list.length; i++) { %>
-                    <tr>
-                        <td>
-                            <% if (list[i].txtype==='mine') { %><span class="label label-info"><%=list[i].txtype%></span>
-                            <% } else if (list[i].txtype==='send') { %><span class="label label-primary"><%=list[i].txtype%></span>
-                            <% } else { %><span class="label label-success"><%=list[i].txtype%></span><% } %>
-                        </td>
-                        <td><span class="label label-info"><%=list[i].confirmations%></span></td>
-                        <td class="mdl-data-table__cell--non-numeric"><a class="mtd-middle-chars ellipse" href="/block/<%=list[i].txid%>"><%=list[i].txid%></a></td>
-                        <td class="mdl-data-table__cell--non-numeric">
-                            <a class="mtd-middle-chars ellipse" href="/address/<%=list[i].miner%>">
-                                <% if (list[i].txtype==='send' && typeof(list[i].vout[1])!=='undefined') { %>From: <%=list[i].vout[1].scriptPubKey.addresses[0]%><% } %>
-                            </a>
-                        </td>
-                        <td class="mdl-data-table__cell--non-numeric">
-                            <% if (list[i].txtype==='send' || list[i].txtype==='mine') { %><%=list[i].vout[0].scriptPubKey.addresses[0]%><% } %>
-                        </td>
-                        <td><%=list[i].size%></td>
-                        <td><%=list[i].date%></td>
-                    </tr>
-                    <% } }%>
+                    <% } else { %>
+                        <% for(var i=0; i<list.length; i++) { %>
+                        <tr>
+                            <td>
+                                <% if (list[i].txtype==='mine') { %><span class="label label-info"><%=list[i].txtype%></span>
+                                <% } else if (list[i].txtype==='send') { %><span class="label label-primary"><%=list[i].txtype%></span>
+                                <% } else { %><span class="label label-success"><%=list[i].txtype%></span><% } %>
+                            </td>
+                            <td><span class="label label-info"><%=list[i].confirmations%></span></td>
+                            <td class="mdl-data-table__cell--non-numeric"><a class="mtd-middle-chars ellipse" href="/block/<%=list[i].txid%>"><%=list[i].txid%></a></td>
+                            <td class="mdl-data-table__cell--non-numeric">
+                                <% if (list[i].txtype==='send' && typeof(list[i].vout[1])!=='undefined') { %>
+                                    <a class="mtd-middle-chars ellipse" href="/address/<%=list[i].miner%>"><%=list[i].vout[1].scriptPubKey.addresses[0]%></a>
+                                <% } %>
+                                <% if ((list[i].txtype==='send' || list[i].txtype==='mine') && typeof(list[i].vout[0])!=='undefined') { %>
+                                    &nbsp;<i class="fas fa-arrow-right"></i>&nbsp;
+                                    <a class="mtd-middle-chars ellipse" href="/address/<%=list[i].miner%>"><%=list[i].vout[0].scriptPubKey.addresses[0]%></a>
+                                <% } %>
+                            </td>
+                            <td>
+                                <% if (typeof(list[i].vout)!=='undefined' && typeof(list[i].vout[0].value)!=='undefined') { %><%=list[i].vout[0].value%><% } %>
+                            </td>
+                            <td><%=list[i].date%></td>
+                        </tr>
+                        <% } %>
+                    <% } %>
                     </tbody>
                 </table>
                 <br>

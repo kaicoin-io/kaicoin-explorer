@@ -25,7 +25,10 @@
                         <th>From Address</th><td colspan="5" class="mdl-data-table__cell--non-numeric"><a href="/address/<%=item.fromaddress%>"><%=item.fromaddress%></a></td>
                     </tr>
                     <tr>
-                        <th>To Address</th><td colspan="5" class="mdl-data-table__cell--non-numeric"><a href="/address/<%=item.toaddress%>"><%=item.toaddress%></a></td>
+                        <th>To Address</th>
+                        <td colspan="5" class="mdl-data-table__cell--non-numeric">
+                            <a href="javascript:alert('<div class=ellipse><%=item.toaddress%></div><img src=https://api.qrserver.com/v1/create-qr-code/?size=232x232&data=<%=item.toaddress%>>');"><img src="/res/img/ic-qr.png" /></a>&nbsp;<a href="/address/<%=item.toaddress%>"><%=item.toaddress%></a></td>
+                        </td>
                     </tr>
                     <tr>
                         <th>Time</th><td colspan="5" class="mdl-data-table__cell--non-numeric"><%=item.date%> (<%=item.time%>)</td>

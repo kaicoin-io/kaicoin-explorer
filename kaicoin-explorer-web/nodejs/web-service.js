@@ -116,7 +116,7 @@ module.exports = function() {
                         const now = new Date().getTime();
                         for (let i=0; i<res1.length; i++) {
                             res1[i].date = toHumanReadableTimestamp(res1[i].time*1000, now);
-                            if (typeof(res1[i].vin[0].coinbase)!=='undefined') {
+                            if (typeof(res1[i].vin)!=='undefined' && typeof(res1[i].vin[0].coinbase)!=='undefined') {
                                 res1[i].txtype = 'mine';
                             } else if (typeof(res1[i].vin)!=='undefined') {
                                 // Todo: 여기서 또 분기 필요할 듯, 송금건/다중송금건/메시지ONLY 등..
@@ -131,14 +131,9 @@ module.exports = function() {
             });
         },
         getRawTx: function(txid) {
-            const self = this;
             return new Promise( function(resolve, reject) {
                 rpc(GetRawTransaction(txid, 1)).then(res1 => {
-                    if (res1.error===null) {
-                        resolve(res1.result);
-                    } else {
-                        resolve([]);
-                    }
+                    resolve(res1.result);
                 }).catch(e => { onRpcError(e); reject(e); });
             });
         }
@@ -175,13 +170,13 @@ function toHumanReadableTimestamp(thattime, nowtime) {
     } else if (hours>1) {
         ret = hours + " hours ago";
     } else if (hours===1) {
-        ret = "an hour ago";
+        ret = "1 hour ago";
     } else if (mins>1) {
-        ret = mins + " minutes ago";
+        ret = mins + " mins ago";
     } else if (mins===1) {
-        ret = "a minute ago";
+        ret = "1 min ago";
     } else if (secs>2) {
-        ret = secs + " seconds ago";
+        ret = secs + " secs ago";
     } else {
         ret = "just now";
     }

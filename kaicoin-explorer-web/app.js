@@ -148,6 +148,7 @@ fastify.get('/txs', (req, reply) => {
         service.getSummary(conn).then(res1 => {
             service.getTxs(conn, LIST_COUNT_PER_PAGE).then(res2 => {
                 service.disconnectDB(conn);
+                console.log('res2 ' + JSON.stringify(res2));
                 let result = {summary: res1, list: res2};
                 reply.view('txs', result);
             });
@@ -155,10 +156,6 @@ fastify.get('/txs', (req, reply) => {
             console.error('failed to connect to blockchain' + e);
         });
     });
-});
-
-fastify.get('/MultiChain%20kaicoin/tx/:txid', (req, reply) => {
-    reply.redirect('/tx/' + req.params.txid);
 });
 
 fastify.get('/tx/:txid', (req, reply) => {
@@ -176,37 +173,46 @@ fastify.get('/tx/:txid', (req, reply) => {
     // 2) vout[n]: n, value, scriptPubKey(asm, hex, type[=pubkeyhash], reqSigs, addresses[])
     // 2) vout[0].scriptPubKey.addresses: 수신자
     // 2) vout[1].scriptPubKey.addresses: 전송자
-    service.getRawTx(req.params.txid).then(res1=> {
-        console.log('res1 ' + JSON.stringify(res1));
+    service.getRawTx(req.params.txid).then(res1 => {
+        console.log('tx.vout: ' + JSON.stringify(res1.vout));
         let tx = {};
         // blockhash, confirmations, time, blocktime, hex, txid, version, locktime
         tx.blockhash = res1.blockhash;
         tx.txid = res1.txid;
         tx.confirmations = res1.confirmations;
+        tx.fromaddress = '';
         tx.time = res1.time;
         tx.date = toHumanReadableTimestamp(res1.time*1000, new Date().getTime());
         if (typeof(res1.vin[0].coinbase)!=='undefined') {
             tx.txtype = 'mine';
-            tx.fromaddress = '';
             tx.toaddress = res1.vout[0].scriptPubKey.addresses[0];
             tx.value = res1.vout[0].value;
         } else {
             // Todo: 여기서 또 분기 필요할 듯, 송금건/다중송금건/메시지ONLY 등..
             tx.txtype = 'send';
-            tx.fromaddress = res1.vout[1].addresses[0];
-            tx.toaddress = res1.vout[0].addresses[0];
+            if (typeof(res1.vout[1])!=='undefined') {
+                tx.fromaddress = res1.vout[1].scriptPubKey.addresses[0];
+            }
+            tx.toaddress = res1.vout[0].scriptPubKey.addresses[0];
             tx.value = res1.vout[0].value;
         }
         // console.log('tx ' + JSON.stringify(tx));
         reply.view('tx', {item: tx});
+    }, function(e) {
+        console.error('failed to handle getRawTx ' + e);
     });
 });
 
-fastify.get('/chart', (req, reply) => {
-    reply.view('chart', {})
+/**
+ * for backward compatibility
+ */
+fastify.get('/MultiChain%20kaicoin/tx/:txid', (req, reply) => {
+    reply.redirect('/tx/' + req.params.txid);
 });
 
-// listblocks block heights, hashes, height ranges (e.g. 100-200) or -n for the most recent n blocks. Alternatively, pass an object {"starttime":...,"endtime":...}
+
+// listblocks block heights, hashes, height ranges (e.g. 100-200) or -n
+// for the most recent n blocks. Alternatively, pass an object {"starttime":...,"endtime":...}
 fastify.listen(3000, err => {
     if (err) throw err;
     console.log(`server listening on ${fastify.server.address().port}`);
