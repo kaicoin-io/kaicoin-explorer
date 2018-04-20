@@ -17,3 +17,6 @@ I. Ingredients
   5. Socket.io - to apply realtime data changes to UI:
     - https://socket.io/
     - https://www.npmjs.com/package/socket.io
+  6. Multichain API - easy to explore blockchain on Node.JS environment
+    - https://tilkal.github.io/multichain-api/
+    - https://www.npmjs.com/package/multichain-api
