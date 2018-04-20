@@ -17,11 +17,12 @@
                     <h4>Transaction&nbsp;</h4><div class="mtd-title-page-nav"><span id="current-position"><%=item.txid%></span></div>
                 </div>
 
+                <div class="x-overflow">
                 <table id="table-chain-main" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
                     <tbody>
                     <tr>
                         <th>TX Type</th><td class="mdl-data-table__cell--non-numeric"><span class="label label-info"><%=item.txtype%></span></td>
-                        <th>TX Time</th><td class="mdl-data-table__cell--non-numeric"><%=item.date%> (<%=item.time%>)</td>
+                        <th>TX Time</th><td class="mdl-data-table__cell--non-numeric"><% if (typeof(item.time)!=='undefined') { %><%=item.date%> (<%=item.time%>)<% } else { %>N/A<% } %></td>
                     </tr>
                     <tr>
                         <th>Confirmations</th><td class="mdl-data-table__cell--non-numeric"><span class="label label-info"><%=item.confirmations%></span></td>
@@ -34,7 +35,9 @@
                         <th>TX ID</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><%=item.txid%></td>
                     </tr>
                     <tr>
-                        <th>From Address</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><% if(item.fromaddress!=='') { %><a href="#"><%=item.fromaddress%></a><% } else { %>N/A<% } %></td>
+                        <th>From Address</th><td colspan="3" class="mdl-data-table__cell--non-numeric">
+                            <% if(typeof(item.fromaddress)!=='undefined') { %><a href="#"><%=item.fromaddress%></a><% } else { %>N/A<% } %>
+                        </td>
                     </tr>
                     <tr>
                         <th>To Address</th>
@@ -44,7 +47,9 @@
                     </tr>
                     </tbody>
                 </table>
+                </div>
             </div>
+
             <div class="mdl-card__actions mdl-card--border">
                 <div class="mtd-button-wrapper">
                     <a href="/"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-arrow-up"></i>&nbsp;HOME</button></a>

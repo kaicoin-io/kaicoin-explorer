@@ -163,29 +163,23 @@ module.exports = function() {
             return new Promise( function(resolve, reject) {
                 rpc(GetRawTransaction(txid, 1)).then(res1 => {
                     // blockhash, confirmations, time, blocktime, hex, txid, version, locktime
-                    console.log('tx raw ' + JSON.stringify(res1.result));
-                    const result = res1.result;
-                    console.log('tx ' + JSON.stringify(res1.result));
-                    let tx = {};
-                    tx.blockhash = result.blockhash;
-                    tx.txid = result.txid;
-                    tx.confirmations = result.confirmations;
-                    tx.fromaddress = '';
-                    tx.date = toHumanReadableTimestampAgo(result.time*1000, new Date().getTime());
-                    tx.time = typeof(result.time==='undefined')?0:result.time;
-                    if (typeof(result.vin[0].coinbase)!=='undefined') {
+                    let tx = res1.result;
+                    // tx.fromaddress = '';
+                    tx.date = toHumanReadableTimestampAgo(tx.time*1000, new Date().getTime());
+                    if (typeof(tx.vin[0].coinbase)!=='undefined') {
                         tx.txtype = 'mine';
-                        tx.toaddress = result.vout[0].scriptPubKey.addresses[0];
-                        tx.value = result.vout[0].value;
+                        tx.toaddress = tx.vout[0].scriptPubKey.addresses[0];
+                        tx.value = tx.vout[0].value;
                     } else {
                         // Todo: 여기서 또 분기 필요할 듯, 송금건/다중송금건/메시지ONLY 등..
                         tx.txtype = 'send';
-                        if (typeof(result.vout[1])!=='undefined') {
-                            tx.fromaddress = result.vout[1].scriptPubKey.addresses[0];
+                        if (typeof(tx.vout[1])!=='undefined') {
+                            tx.fromaddress = tx.vout[1].scriptPubKey.addresses[0];
                         }
-                        tx.toaddress = result.vout[0].scriptPubKey.addresses[0];
-                        tx.value = result.vout[0].value;
+                        tx.toaddress = tx.vout[0].scriptPubKey.addresses[0];
+                        tx.value = tx.vout[0].value;
                     }
+                    console.log('tx ' + JSON.stringify(tx));
                     resolve(tx);
                 }).catch(e => { onRpcError(e); reject(e); });
             });

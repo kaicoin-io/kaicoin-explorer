@@ -15,7 +15,7 @@
                 <div class="mtd-card-title-wrapper">
                     <h4>Blocks&nbsp;</h4><div class="mtd-title-page-nav"><span id="current-position"><% if (list.length>0) { %><%=list[0].height%><% } else { %>0<% } %></span> of <%=summary.blocks%></div>
                 </div>
-
+                <div class="x-overflow">
                 <table id="mtd-blocks-table" class="mdl-data-table mdl-js-data-tablematch-parent mdl-shadow--2dp">
                     <thead>
                     <tr>
@@ -31,7 +31,7 @@
                     <tr>
                         <td><span class="label label-info"><%=list[i].height%></span></td>
                         <td class="mdl-data-table__cell--non-numeric"><a class="mtd-middle-chars ellipse" href="/block/<%=list[i].height%>"><%=list[i].hash%></a></td>
-                        <td class="mdl-data-table__cell--non-numeric"><a class="mtd-middle-chars ellipse" href="#"><%=list[i].miner%></a></td>
+                        <td class="mdl-data-table__cell--non-numeric"><%=list[i].miner%></td>
                         <td><%=list[i].size%></td>
                         <td><span class="label label-info"><%=list[i].txcount%></span></td>
                         <td class="center"><span class="label label-info"><%=list[i].confirmations%></span></td>
@@ -40,7 +40,7 @@
                     <% } %>
                     </tbody>
                 </table>
-
+                </div>
                 <br>
                 <div class="mdl-card__actions mdl-card--border">
                     <a href="/" style="float: right;"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-arrow-up"></i>&nbsp;HOME</button></a>
