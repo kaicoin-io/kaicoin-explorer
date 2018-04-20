@@ -23,12 +23,8 @@ module.exports = function() {
 
     return {
         // getdifficulty getmininginfo getpeerinfo getinfo
-        connectDB: function() {
-            return r.connect(rethinkdb);
-        },
-        disconnectDB: function(conn) {
-            conn.close();
-        },
+        connectDB: function() { return r.connect(rethinkdb); },
+        disconnectDB: function(conn) { conn.close(); },
         getSummary: function(conn) {
             // console.log('getSummary');
             return new Promise( function(resolve, reject) {
@@ -40,42 +36,54 @@ module.exports = function() {
                 });
             });
         },
-        getBlocks: function(conn, count) {
+        getBlocks: function(conn, count, maxheight) {
+            const self = this;
             return new Promise( function(resolve, reject) {
-                r.table(table.TB_BLOCKS).orderBy({index: r.desc(table.PK_BLOCKS)}).limit(count).run(conn).then(cur1 => {
-                    cur1.toArray().then(function(list) {
-                        cur1.close();
-                        if (list.length<1) {
-                            resolve([]);
-                        } else {
-                            const now = new Date().getTime();
-                            for (let i=0; i<list.length; i++) {
-                                if (count===LIST_COUNT_MAIN) {
-                                    list[i].date = toHumanReadableTimestampMain(list[i].time*1000, now);
-                                } else {
-                                    list[i].date = toHumanReadableTimestamp(list[i].time*1000, now);
-                                }
-                            }
-                            resolve(list);
-                        }
-                    }).error(function (e){
-                        onCursorError(e, cur1, conn);
+                if (typeof(maxheight)!=='undefined') {
+                    console.log('pagenated ' + maxheight);
+                    r.table(table.TB_BLOCKS).orderBy({index: r.desc(table.PK_BLOCKS)}).filter(r.row(table.PK_BLOCKS).le(parseInt(maxheight, 10))).limit(count).run(conn).then(cur1 => {
+                        self.handleBlocks(conn, resolve, reject, cur1, count)
+                    }).error(function (e) {
+                        onDBError(e, conn);
                         reject(e);
                     });
-                }).error(function (e) {
-                    onDBError(e, conn);
-                    reject(e);
-                });
+                } else {
+                    r.table(table.TB_BLOCKS).orderBy({index: r.desc(table.PK_BLOCKS)}).limit(count).run(conn).then(cur1 => {
+                        self.handleBlocks(conn, resolve, reject, cur1, count)
+                    }).error(function (e) {
+                        onDBError(e, conn);
+                        reject(e);
+                    });
+                }
             });
         },
-        // { hash, miner, confirmations, size, height, version, merkleroot, tx:[]
-        //   time, nonce, bits, difficulty, chainwork, previousblockhash }
+        handleBlocks: function(conn, resolve, reject, cur1, count) {
+            cur1.toArray().then(function (list) {
+                cur1.close();
+                if (list.length < 1) {
+                    resolve([]);
+                } else {
+                    const now = new Date().getTime();
+                    for (let i = 0; i < list.length; i++) {
+                        if (count === LIST_COUNT_MAIN) {
+                            list[i].date = toHumanReadableTimestampMain(list[i].time * 1000, now);
+                        } else {
+                            list[i].date = toHumanReadableTimestamp(list[i].time * 1000, now);
+                        }
+                    }
+                    resolve(list);
+                }
+            }).error(function (e) {
+                onCursorError(e, cur1, conn);
+                reject(e);
+            });
+        },
         /**
          * Getting Block Info
          * @param bhash | bheight
+         * { hash, miner, confirmations, size, height, version, merkleroot, tx:[], time, nonce, bits, difficulty, chainwork, previousblockhash }
          */
         getBlock: function(bhash) {
-            self = this;
             return new Promise( function(resolve, reject) {
                 rpc(GetBlock(bhash)).then(res => {
                     const now = new Date().getTime();
@@ -105,6 +113,17 @@ module.exports = function() {
                 });
             });
         },
+        getRowCount: function(conn, tablename) {
+            const self = this;
+            return new Promise( function(resolve, reject) {
+                r.table(tablename).count().run(conn).then(count => {
+                    resolve(count);
+                }).error(function (e) {
+                    onDBError(e, conn);
+                    reject(e);
+                });
+            });
+        },
         getTxs: function(conn, count) {
             const self = this;
             return new Promise( function(resolve, reject) {
@@ -116,7 +135,7 @@ module.exports = function() {
                             // // "66db1d9c8a7203a26dbf62a957579328307e0d998deb8f2b66277c08772d5dee"],"error":null,"id":null}
                             console.warn('mem pool exists: ' + JSON.stringify(res2));
                             for (let i=0; i<res2.result.length; i++) {
-                                res1.push({txid: res2.result[i]});
+                                res1.unshift({txid: res2.result[i]});
                             }
                         }
                         const now = new Date().getTime();
@@ -143,11 +162,10 @@ module.exports = function() {
         getRawTx: function(txid) {
             return new Promise( function(resolve, reject) {
                 rpc(GetRawTransaction(txid, 1)).then(res1 => {
-
                     // blockhash, confirmations, time, blocktime, hex, txid, version, locktime
+                    console.log('tx raw ' + JSON.stringify(res1.result));
                     const result = res1.result;
-
-                    console.log('result ' + JSON.stringify(res1.result));
+                    console.log('tx ' + JSON.stringify(res1.result));
                     let tx = {};
                     tx.blockhash = result.blockhash;
                     tx.txid = result.txid;

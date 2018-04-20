@@ -12,9 +12,9 @@
   "homepage": "https://github.com/method76",
   "dependencies": {
     "debug": "~2.6.9",
-    "fastify": "^1.1.1",
+    "fastify": "^1.3.0",
+    "multichain-api": "^1.0.0-alpha.9",
     "node-schedule": "^1.3.0",
-    "rethinkdb": "^2.3.3",
-    "multichain-api": "^1.0.0-alpha.9"
+    "rethinkdb": "^2.3.3"
   }
 }

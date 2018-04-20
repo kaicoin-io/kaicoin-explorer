@@ -14,11 +14,11 @@
             <div class="mdl-card__supporting-text">
 
                 <div class="mtd-card-title-wrapper">
-                    <h4>Transactions&nbsp;</h4><div class="mtd-title-page-nav"></div>
+                    <h4>Transactions&nbsp;</h4><div class="mtd-title-page-nav"><span id="current-position"><%=count%></span> of <%=count%></div>
                 </div>
 
                 <div class="x-overflow">
-                <table class="mdl-data-table mdl-js-data-tablematch-parent mdl-shadow--2dp">
+                <table id="mtd-txs-table" class="mdl-data-table mdl-js-data-tablematch-parent mdl-shadow--2dp">
                     <thead>
                     <tr>
                         <th>Type</th><th>Confirm</th><th>TX ID</th><th>Transactions (from <i class="fas fa-arrow-right"></i> to)</th><th>Amount</th><th>Time</th>
@@ -48,7 +48,7 @@
                                 <% } %>
                             </td>
                             <td class="mtd-text-right">
-                                <% if (typeof(list[i].vout)!=='undefined' && typeof(list[i].vout[0].value)!=='undefined') { %><%=list[i].vout[0].value%><% } %> KAI
+                                <% if (typeof(list[i].vout)!=='undefined' && typeof(list[i].vout[0].value)!=='undefined') { %><%=Number(list[i].vout[0].value).toLocaleString()%><% } %> KAI
                             </td>
                             <td><i class="fas fa-arrow-down"></i>&nbsp;<%=list[i].date%></td>
                         </tr>
@@ -59,22 +59,9 @@
                 </div>
                 <br>
                 <div class="mdl-card__actions mdl-card--border">
-                    <div class="mtd-slider-pager">
-                        <!-- Default Slider -->
-                        <ul>
-                            <li>
-                                <button class="mdl-button">0</button>
-                            </li>
-                            <li>
-                                <input class="mdl-slider mdl-js-slider" type="range" min="0" max="<%=summary.blocks%>" value="<%=summary.blocks%>" tabindex="0">
-                            </li>
-                            <li>
-                                <button class="mdl-button"><%=list[0].height%></button>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="mtd-button-wrapper">
-                        <a href="/"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-arrow-up"></i>&nbsp;HOME</button></a>
+                    <a href="/" style="float: right;"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-arrow-up"></i>&nbsp;HOME</button></a>
+                    <div style="width: calc(100% - 105px); float: left;">
+                        <p class="range-field"><input id="pagenation-txs" type="range" class="mtd-pagination" min="0" max="<%=count%>" value="<%=count%>" /></p>
                     </div>
                 </div>
             </div>

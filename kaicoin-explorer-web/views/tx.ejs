@@ -14,7 +14,7 @@
             <div class="mdl-card__supporting-text">
 
                 <div class="mtd-card-title-wrapper">
-                    <h4>Transaction&nbsp;</h4><div class="mtd-title-page-nav"><%=item.txid%></div>
+                    <h4>Transaction&nbsp;</h4><div class="mtd-title-page-nav"><span id="current-position"><%=item.txid%></span></div>
                 </div>
 
                 <table id="table-chain-main" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
@@ -25,13 +25,13 @@
                     </tr>
                     <tr>
                         <th>Confirmations</th><td class="mdl-data-table__cell--non-numeric"><span class="label label-info"><%=item.confirmations%></span></td>
-                        <th>Amount</th><td class="mdl-data-table__cell--non-numeric"><%=item.value%></td>
-                    </tr>
-                    <tr>
-                        <th>TX ID</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><%=item.txid%></td>
+                        <th>Amount</th><td class="mdl-data-table__cell--non-numeric"><%=Number(item.value).toLocaleString()%> KAI</td>
                     </tr>
                     <tr>
                         <th>Block Hash</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><a href="/block/<%=item.blockhash%>"><%=item.blockhash%></a></td>
+                    </tr>
+                    <tr>
+                        <th>TX ID</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><%=item.txid%></td>
                     </tr>
                     <tr>
                         <th>From Address</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><% if(item.fromaddress!=='') { %><a href="#"><%=item.fromaddress%></a><% } else { %>N/A<% } %></td>

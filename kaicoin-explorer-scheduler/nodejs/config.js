@@ -20,14 +20,18 @@ rpc = RpcClient({
     username: 'multichainrpc',
     password: 'Ch68iSofMDXfWwnXbJR8dGW3Mk9sy88rBycudV8eNhAq' // Company
     //password: 'Hcf5hR3GvHyo9kek4t33V3nMmjagbyKataUGmNDt5riG' // Home
+    //password: '4RjQYeZq3M6GqtgYtvxDaR4jS19x7Hrb5cxAF9KxwRSe'  naver
 });
 
+// ubuntu: /root/.multichain/kaicoin/multichain.conf
 table = {
 
     TB_SUMMARY   : "TB_SUMMARY",
     TB_BLOCKS    : "TB_BLOCKS",
     TB_TXS       : "TB_TXS",
-    TB_LAST_SYNC : "TB_LAST_SYNC", // {chainname:$(chainname), blocksyncheight:$(height), txsyncheight:$(height)}
+    TB_LAST_SYNC : "TB_LAST_SYNC",   // {chainname:$(chainname), blocksyncheight:$(height), txsyncheight:$(height)}
+    TB_TXS       : "TB_ADDR_ACTIVE", // address
+    TB_TXS       : "TB_ADDR_HIST",   // type, fromaddr, toaddr, value, time
 
     TB_MINING    : "TB_MINING",
     TB_PRICE     : "TB_KAI_PRICE",
@@ -108,7 +112,7 @@ module.exports = function() {
             if (hasTable === false) {
                 console.log('creating table: ' + table.TB_TXS);
                 r.tableCreate(table.TB_TXS, {primaryKey: table.PK_TXS}).run(conn).then(res1 => {
-                    r.table(table.TB_TXS).indexCreate(IDX_).run(conn).then(res2 => {
+                    r.table(table.TB_TXS).indexCreate(table.IDX_TXS).run(conn).then(res2 => {
                         self.checkLastSyncTable(conn, tables, resolve);
                     });
                 });
