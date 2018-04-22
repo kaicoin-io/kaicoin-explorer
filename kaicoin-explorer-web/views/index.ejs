@@ -43,7 +43,7 @@
                     <table class="mdl-data-table mdl-js-data-table match-parent">
                         <thead>
                         <tr>
-                            <th>Block</th><th>Miner</th><th>TXNS</th><th>Size</th><th class="confirm"><i class="far fa-check-circle"></i></th><th class="time">Time</th>
+                            <th>Height</th><th>Miner</th><th>TXNS</th><th class="confirm"><i class="far fa-check-circle"></i></th><th>Size</th><th class="time">Time</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -52,9 +52,9 @@
                             <td><span class="label label-info"><%=blocks[i].height%></span></td>
                             <td class="left-align">
                                 <a href="javascript:alert('<div class=ellipse><%=blocks[i].miner%></div><img src=https://api.qrserver.com/v1/create-qr-code/?size=232x232&data=<%=blocks[i].miner%>>');"><img src="/res/img/ic-qr.png" /></a>&nbsp;<a class="mtd-middle-chars" href="/block/<%=blocks[i].height%>"><%=blocks[i].miner%></a></td>
-                            <td class="center"><%=blocks[i].txcount%></td>
-                            <td><%=blocks[i].size%></td>
+                            <td class="center"><span class="label label-info"><%=blocks[i].txcount%></span></td>
                             <td class="center confirm"><span class="label label-info"><%=blocks[i].confirmations%></span></td>
+                            <td><%=Number(blocks[i].size).toLocaleString()%></td>
                             <td class="time"><i class="fas fa-arrow-down"></i><%=blocks[i].date%></td>
                         </tr>
                         <% } %>

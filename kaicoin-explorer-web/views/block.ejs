@@ -25,7 +25,7 @@
                     </tr>
                     <tr>
                         <th>Confirmations</th><td class="mdl-data-table__cell--non-numeric"><span class="label label-info"><%=item.confirmations%></span></td>
-                        <th>Block Size</th><td class="mdl-data-table__cell--non-numeric"><%=item.size%> bytes</td>
+                        <th>Block Size</th><td class="mdl-data-table__cell--non-numeric"><%=Number(item.size).toLocaleString()%> bytes</td>
                     </tr>
                     <tr>
                         <th>Miner</th>
