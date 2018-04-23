@@ -41,3 +41,8 @@ II. Installation on Ubuntu (v16 recommended)
     - cd multichain-1.0.4
     - mv multichaind multichain-cli multichain-util /usr/local/bin (to make easily accessible on the command line)
   6. Upload files via SFTP/FTP
+  7. Start Services
+    1) start rethink DB
+      - sudo rethinkdb --daemon
+    2) start nodejs
+      - nohup node app.js start &
