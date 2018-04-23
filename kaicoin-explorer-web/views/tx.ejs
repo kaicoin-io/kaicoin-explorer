@@ -21,7 +21,11 @@
                 <table id="table-chain-main" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
                     <tbody>
                     <tr>
-                        <th>TX Type</th><td class="mdl-data-table__cell--non-numeric"><span class="label label-info"><%=item.txtype%></span></td>
+                        <th>TX Type</th><td class="mdl-data-table__cell--non-numeric">
+                            <% if (item.txtype==='mine') { %><span class="label label-info"><%=item.txtype%></span>
+                            <% } else if (item.txtype==='send') { %><span class="label label-primary"><%=item.txtype%></span>
+                            <% } else { %><span class="label label-success"><%=item.txtype%></span><% } %>
+                        </td>
                         <th>TX Time</th><td class="mdl-data-table__cell--non-numeric"><% if (typeof(item.time)!=='undefined') { %><%=item.date%> (<%=item.time%>)<% } else { %>N/A<% } %></td>
                     </tr>
                     <tr>
@@ -29,7 +33,7 @@
                         <th>Amount</th><td class="mdl-data-table__cell--non-numeric"><%=Number(item.value).toLocaleString()%> KAI</td>
                     </tr>
                     <tr>
-                        <th>Block Hash</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><a href="/block/<%=item.blockhash%>"><%=item.blockhash%></a></td>
+                        <th>Block Hash</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><% if(typeof(item.blockhash)!=='undefined') { %><a href="/block/<%=item.blockhash%>"><%=item.blockhash%></a><% } else { %>N/A<% } %></td>
                     </tr>
                     <tr>
                         <th>TX ID</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><%=item.txid%></td>

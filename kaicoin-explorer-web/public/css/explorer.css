@@ -74,8 +74,14 @@ a.mtd-label { color: #fff; }
     border-radius: .25em;
 }
 main.mdl-layout__content .mdl-grid {
-    border-top: 1px solid rgba(0,0,0,.12);
+    /*border-top: 1px solid rgba(0,0,0,.12);*/
 }
+.mtd-2-cols-wrapper .mdl-cell:first-of-type { padding-right: 16px; }
+@media (min-width: 840px) {
+    .mtd-2-cols-wrapper .mdl-cell--5-col:nth-of-type(2)
+    , .mtd-2-cols-wrapper .mdl-cell--5-col-desktop.mdl-cell--5-col-desktop:nth-of-type(2) {
+        width: calc(41.6666666667% + 16px);
+    }
 .label-success {
     background-color: #5cb85c;
 }
@@ -94,11 +100,15 @@ main.mdl-layout__content .mdl-grid {
     background-repeat: no-repeat;
     background-position: 0 60px;
 }
+.mtd-about-contents { background-color: #f2f2f2; }
+.mtd-title-about-wrapper { padding-bottom: 2px; }
 .mtd-summary-about p { margin: 0; }
-.mtd-summary-about { border-left: solid 3px #eeeeee; padding-left: 24px; line-height: 28px; margin-left: 9px; }
+.mtd-summary-about { border-left: solid 3px #dddddd; padding-left: 24px; line-height: 28px; margin-left: 9px; }
 .mtd-page-summ .mdl-card { }
 .mtd-small-chars { font-size: 10px; }
-
+.mtd-summary-table th {
+    width: 150px;
+}
 .mtd-pad-verttop { padding: 0 12px 0 0; vertical-align: top; }
 .page-content.mtd-page-index .mdl-data-table:first-of-type { border-right: 0; }
 
@@ -116,8 +126,9 @@ main.mdl-layout__content .mdl-grid {
 .mdl-data-table td { padding: 0 12px; font-size: 12px; border: 0; }
 .mdl-data-table td.center { text-align: center; }
 .mdl-data-table td.left { text-align: left; }
+.mdl-data-table td:last-of-type.left { padding-left: 9px; }
 .mdl-data-table td.confirm, .mdl-data-table th.confirm { text-align: center; padding-left: 0; padding-right: 9px; }
-/*.mdl-data-table td.time, .mdl-data-table th.time { padding-left: 0; }*/
+.mtd-pager-wrapper { width: calc(100% - 230px); float: right; padding-right: 24px; padding-left: 2px; }
 .mdl-data-table th.left-align, .mdl-data-table td.left-align { text-align: left; }
 .mdl-data-table th.mtd-text-right, .mdl-data-table td.mtd-text-right { text-align: right; }
 .mdl-data-table td.mtd-dt-short { font-size: 12px; }

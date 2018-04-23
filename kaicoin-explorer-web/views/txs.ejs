@@ -35,7 +35,11 @@
                                 <% } else if (list[i].txtype==='send') { %><span class="label label-primary"><%=list[i].txtype%></span>
                                 <% } else { %><span class="label label-success"><%=list[i].txtype%></span><% } %>
                             </td>
-                            <td class="center"><span class="label label-info"><%=list[i].confirmations%></span></td>
+                            <td class="center">
+                                <span class="label label-info">
+                                    <% if(typeof(list[i].confirmations)!=='undefined') { %><%=list[i].confirmations%><% } else { %>0<% } %>
+                                </span>
+                            </td>
                             <!-- TX ID -->
                             <td class="mdl-data-table__cell--non-numeric">
                                 <a class="mtd-middle-chars" href="/tx/<%=list[i].txid%>"><%=list[i].txid%></a>
@@ -51,7 +55,11 @@
                                 <% } %>
                             </td>
                             <td class="mtd-text-right">
-                                <% if (typeof(list[i].vout)!=='undefined' && typeof(list[i].vout[0].value)!=='undefined') { %><%=Number(list[i].vout[0].value).toLocaleString()%><% } %> KAI
+                                <% if (list[i].txtype==='memp') { %>
+                                    N/A
+                                <% } else { %>
+                                    <% if (typeof(list[i].vout)!=='undefined' && typeof(list[i].vout[0].value)!=='undefined') { %><%=Number(list[i].vout[0].value).toLocaleString()%><% } %> KAI
+                                <% } %>
                             </td>
                             <td class="left"><i class="fas fa-arrow-down"></i>&nbsp;<%=list[i].date%></td>
                         </tr>
@@ -64,7 +72,7 @@
                 <div class="mdl-card__actions mdl-card--border">
                     <button class="mdl-button mdl-js-button mdl-button--primary mtd-button-no-border">TXs at</button>
                     <a href="/" style="float: right;"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-arrow-up"></i>&nbsp;HOME</button></a>
-                    <div style="width: calc(100% - 220px); float: right; padding-right: 12px;">
+                    <div class="mtd-pager-wrapper">
                         <p class="range-field"><input id="pagenation-txs" type="range" class="mtd-pagination" min="0" max="<%=count%>" value="<%=count%>" /></p>
                     </div>
                 </div>

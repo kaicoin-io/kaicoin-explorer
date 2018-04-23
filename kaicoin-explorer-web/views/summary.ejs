@@ -10,16 +10,16 @@
 
         <div class="mdl-card mtd-pad-verttop match-parent">
 
-            <div class="mdl-card__supporting-text">
+            <div class="mdl-card__supporting-text mtd-title-about-wrapper">
 
                 <div class="mtd-card-title-wrapper">
-                    <h4>About</h4><div class="mtd-title-page-nav">&nbsp;</div>
+                    <h4>About</h4>
                 </div>
             </div>
-            <div class="mdl-card__supporting-text" style="padding-top: 0;">
+            <div class="mdl-card__supporting-text mtd-about-contents">
                 <div class="mtd-summary-about">
                     <p>Kaicoin Explorer is an open-source blockchain explorer.</p>
-                    <p>This project is still in progress, so if you felt any inconveniences at this time, please report feedback to our github.</p>
+                    <p>This project is still in progress. Please send your comments to Github if you have any inconvenience in using explorer.</p>
                     <br>
                     <p>Kaicoin Explorer is powered by: </p>
                     <ul id="mtd-powered-by" class="mdl-list">
@@ -28,43 +28,41 @@
                         <li class="mdl-list__item"><img src="/res/img/powered/ic-socket-io.png"></li>
                         <li class="mdl-list__item"><img src="/res/img/powered/ic-rethinkdb.png"></li>
                     </ul>
-                    <p>Also, thanks to our <a href="https://github.com/Tilkal/multichain-api" target="_blank">multichain-api</a> module contributors.</p>
-                    <br>
-                    <p>And you may find this on <a href="https://github.com/kaicoin-io/kaicoin-explorer" target="_blank">here</a>.</p>
+                    <p>Thanks to our <a href="https://github.com/Tilkal/multichain-api" target="_blank">multichain-api</a> module contributors, too.</p>
+                    <p>You can find the source code <a href="https://github.com/kaicoin-io/kaicoin-explorer" target="_blank">here</a>.</p>
                 </div>
             </div>
 
+            <!-- Issue & distribution -->
             <div class="mdl-card__supporting-text">
 
                 <div class="mtd-card-title-wrapper">
                     <h4>Summary</h4><div class="mtd-title-page-nav"></div>
                 </div>
-
                 <table id="table-chain-coded" class="mdl-data-table mdl-js-data-table">
                     <thead>
                     <tr>
                         <th>Total Supply</th><th>Circulating Supply</th><th>Block Reward</th>
-                        <!--<th>Market Cap in USD</th><th>Price in USD</th><th>Price in BTC</th>-->
                         <th>Peers</th><th>Total Network Hash</th><th>Difficulty</th>
-                        <th>Relay Fee</th><th>Pat TX Fee</th>
+                        <th>Relay Fee</th><th>Pay TX Fee</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
-                        <td>21,000,000,000</td>
-                        <td>13,000,000,000</td>
-                        <td>950 KAI</td>
-                        <td><%=item.connections%></td>
-                        <td><%=Math.floor(item.networkhashps/1024/1024*100)/100%> MH/s</td>
-                        <td><%=item.difficulty%></td>
-                        <td><%=item.relayfee%></td><td><%=item.paytxfee%></td>
-                    </tr>
-                    <tr>
-                        <td colspan="7"><a href="javascript:app.showQRPopup('<%=item.burnaddress%>', '<%=item.burnaddress%>');"><img src="/res/img/ic-qr.png" /></a>&nbsp;<%=item.burnaddress%></td>
+                        <td class="center">21,000,000,000</td>
+                        <td class="center">13,000,000,000</td>
+                        <td class="center">950 KAI</td>
+                        <td class="center"><%=item.connections%></td>
+                        <td class="center"><%=Math.floor(item.networkhashps/1024/1024*100)/100%> MH/s</td>
+                        <td class="center"><%=item.difficulty%></td>
+                        <td class="center"><%=item.relayfee%></td>
+                        <td class="center"><%=item.paytxfee%></td>
                     </tr>
                     </tbody>
                 </table>
                 <br>
+
+                <!-- Market Value -->
                 <div class="mtd-card-title-wrapper">
                     <h4>Market Value</h4><div class="mtd-title-page-nav"></div>
                 </div>
@@ -81,97 +79,131 @@
                     </tbody>
                 </table>
                 <br>
-                <div class="mtd-card-title-wrapper">
-                    <h4>Properties</h4><div class="mtd-title-page-nav"></div>
+
+                <!-- horizontal divider -->
+                <div class="mdl-grid mtd-2-cols-wrapper">
+
+                    <!-- first column: Chain properties -->
+                    <div class="mdl-cell mdl-cell--7-col">
+
+                        <div class="mtd-card-title-wrapper">
+                            <h4>Properties</h4><div class="mtd-title-page-nav"></div>
+                        </div>
+
+                        <table class="mdl-data-table mdl-js-data-table mtd-summary-table">
+                            <tbody>
+                            <tr>
+                                <th>Chain name</th>
+                                <td class="mdl-data-table__cell--non-numeric"><%=item.chainname%></td>
+                            </tr>
+                            <tr>
+                                <th>Testnet</th>
+                                <td class="mdl-data-table__cell--non-numeric"><%=item.testnet%></td>
+                            </tr>
+                            <tr>
+                                <th>Protocol Version</th>
+                                <td class="mdl-data-table__cell--non-numeric"><%=item.protocolversion%></td>
+                            </tr>
+                            <tr>
+                                <th>Wallet Version</th>
+                                <td class="mdl-data-table__cell--non-numeric"><%=item.walletversion%></td>
+                            </tr>
+                            <tr>
+                                <th>Wallet DB Version</th>
+                                <td class="mdl-data-table__cell--non-numeric"><%=item.walletdbversion%></td>
+                            </tr>
+                            <tr>
+                                <th>Burn Address</th>
+                                <td class="mdl-data-table__cell--non-numeric"><a href="javascript:app.showQRPopup('<%=item.burnaddress%>', '<%=item.burnaddress%>');"><img src="/res/img/ic-qr.png" /></a>&nbsp;<%=item.burnaddress%></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <br>
+
+                        <!-- Genesis block info. -->
+                        <div class="mtd-card-title-wrapper">
+                            <h4>Genesis Block</h4><div class="mtd-title-page-nav"></div>
+                        </div>
+
+                        <table class="mdl-data-table mdl-js-data-table mtd-summary-table">
+                            <tbody>
+                            <tr>
+                                <th>Public Key</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-pubkey']%></td>
+                            </tr>
+                            <tr>
+                                <th>Public Key Hash</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-hash']%></td>
+                            </tr>
+                            <tr>
+                                <th>Nonce</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-nonce']%></td>
+                            </tr>
+                            <tr>
+                                <th>Nbits</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-nbits']%></td>
+                            </tr>
+                            <tr>
+                                <th>Time</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-datetime']%> (<%=item['genesis-timestamp']%>)</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- second column: chain configuration parameters -->
+                    <div class="mdl-cell mdl-cell--5-col">
+
+                        <div class="mtd-card-title-wrapper">
+                            <h4>Parameters</h4><div class="mtd-title-page-nav"></div>
+                        </div>
+
+                        <table class="mdl-data-table mdl-js-data-table mtd-summary-table">
+                            <tbody>
+                            <tr>
+                                <th>Target Adjust Frequency</th>
+                                <td class="mdl-data-table__cell--non-numeric"><%=Number(item['target-adjust-freq']).toLocaleString()%></td>
+                            </tr>
+                            <tr>
+                                <th>Max Transaction Size</th>
+                                <td class="mdl-data-table__cell--non-numeric"><%=Number(item['max-std-tx-size']).toLocaleString()%></td>
+                            </tr>
+                            <tr>
+                                <th>Max OP Return Count</th>
+                                <td class="mdl-data-table__cell--non-numeric"><%=item['max-std-op-returns-count']%></td>
+                            </tr>
+                            <tr>
+                                <th>Max OP Return Size</th>
+                                <td class="mdl-data-table__cell--non-numeric"><%=Number(item['max-std-op-return-size']).toLocaleString()%></td>
+                            </tr>
+                            <tr>
+                                <th>Target Block Time</th>
+                                <td class="mdl-data-table__cell--non-numeric"><%=item['target-block-time']%></td>
+                            </tr>
+                            <tr>
+                                <th>Max Block Size</th>
+                                <td class="mdl-data-table__cell--non-numeric"><%=Number(item['maximum-block-size']).toLocaleString()%></td>
+                            </tr>
+                            <tr>
+                                <th>Mining Diversity</th>
+                                <td class="mdl-data-table__cell--non-numeric"><%=item['mining-diversity']%></td>
+                            </tr>
+                            <tr>
+                                <th>Anyone Connect</th>
+                                <td class="mdl-data-table__cell--non-numeric"><%=item['anyone-can-connect']%></td>
+                            </tr>
+                            <tr>
+                                <th>Anyone Receive</th>
+                                <td class="mdl-data-table__cell--non-numeric"><%=item['anyone-can-receive']%></td></td>
+                            </tr>
+                            <tr>
+                                <th>Anyone Send</th>
+                                <td class="mdl-data-table__cell--non-numeric"><%=item['anyone-can-send']%></td>
+                            </tr>
+                            <tr>
+                                <th>Anyone Mine</th>
+                                <td class="mdl-data-table__cell--non-numeric"><%=item['anyone-can-mine']%></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <table id="table-chain-main" class="mdl-data-table mdl-js-data-table">
-                    <thead>
-                    <tr>
-                        <th>Chain name</th><th>Testnet</th><th>Protocol Version</th>
-                        <th>Wallet Ver.</th><th>Wallet DB Ver.</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td><%=item.chainname%></td>
-                        <td><%=item.testnet%></td>
-                        <td><%=item.protocolversion%></td>
-                        <td><%=item.walletversion%></td>
-                        <td><%=item.walletdbversion%></td>
-                    </tr>
-                    </tbody>
-                </table>
 
-            </div>
-
-            <div class="mdl-card__supporting-text">
-
-                <div class="mtd-card-title-wrapper">
-                    <h4>Parameters</h4><div class="mtd-title-page-nav"></div>
-                </div>
-
-                <table id="table-chain-main" class="mdl-data-table mdl-js-data-table">
-                    <thead>
-                    <tr>
-                        <th>Target Block Time</th><th>Max Block Size</th><th>Target Adjust Freq.</th><th>Max TX Size</th><th>Mining Diversity</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <!--max-std-op-return-size max-std-op-returns-count max-std-tx-size maximum-block-size	2048000-->
-                    <tr>
-                        <td><%=item['target-block-time']%></td>
-                        <td><%=item['maximum-block-size']%></td>
-                        <td><%=item['target-adjust-freq']%></td>
-                        <td><%=item['max-std-tx-size']%></td>
-                        <td><%=item['mining-diversity']%></td>
-                    </tr>
-                    </tbody>
-                    <thead>
-                    <tr>
-                        <th>Max OP Return Size</th><th>Max OP Return Count</th>
-                        <th>Anyone Connect</th><th>Anyone Mine</th><th>Anyone Send</th><th>Anyone Receive</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <!-- mining-diversity protocol-version target-adjust-freq target-block-time -->
-                    <tr>
-                        <td><%=item['max-std-op-return-size']%></td>
-                        <td><%=item['max-std-op-returns-count']%></td>
-                        <td><%=item['anyone-can-connect']%></td>
-                        <td><%=item['anyone-can-mine']%></td>
-                        <td><%=item['anyone-can-send']%></td>
-                        <td><%=item['anyone-can-receive']%></td>
-                    </tr>
-                    </tbody>
-                </table>
-
-            </div>
-
-            <div class="mdl-card__supporting-text">
-
-                <div class="mtd-card-title-wrapper">
-                    <h4>Genesis Block</h4><div class="mtd-title-page-nav"></div>
-                </div>
-
-                <table id="table-chain-main" class="mdl-data-table mdl-js-data-table ">
-                    <tbody>
-                    <tr>
-                        <th>Public Key</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-pubkey']%></td>
-                    </tr>
-                    <tr>
-                        <th>Public Key Hash</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-hash']%></td>
-                    </tr>
-                    <tr>
-                        <th>Nonce</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-nonce']%></td>
-                    </tr>
-                    <tr>
-                        <th>Nbits</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-nbits']%></td>
-                    </tr>
-                    <tr>
-                        <th>Time</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-datetime']%> (<%=item['genesis-timestamp']%>)</td>
-                    </tr>
-                    </tbody>
-                </table>
             </div>
 
             <div class="mdl-card__actions mdl-card--border">
@@ -179,6 +211,7 @@
                     <a href="/"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-arrow-up"></i>&nbsp;HOME</button></a>
                 </div>
             </div>
+
         </div>
 
     </div>

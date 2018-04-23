@@ -34,6 +34,7 @@ var app = {
             });
         });
         console.log('path ' + window.location.pathname + ' ' + location.hash);
+        // when 'block height' hash URL exists
         if (window.location.pathname==='/blocks' && location.hash.startsWith("#")){
             console.log('go to paginate');
             $(".thumb > .value").html(location.hash.substring(1, location.hash.length));
