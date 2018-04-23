@@ -78,10 +78,10 @@ main.mdl-layout__content .mdl-grid {
 }
 .mtd-2-cols-wrapper .mdl-cell:first-of-type { padding-right: 16px; }
 @media (min-width: 840px) {
-    .mtd-2-cols-wrapper .mdl-cell--5-col:nth-of-type(2)
-    , .mtd-2-cols-wrapper .mdl-cell--5-col-desktop.mdl-cell--5-col-desktop:nth-of-type(2) {
+    .mtd-2-cols-wrapper .mdl-cell--5-col:nth-of-type(2), .mtd-2-cols-wrapper .mdl-cell--5-col-desktop.mdl-cell--5-col-desktop:nth-of-type(2) {
         width: calc(41.6666666667% + 16px);
     }
+}
 .label-success {
     background-color: #5cb85c;
 }

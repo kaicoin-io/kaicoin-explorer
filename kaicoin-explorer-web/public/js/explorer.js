@@ -70,7 +70,7 @@ var app = {
                 '<td class="mdl-data-table__cell--non-numeric"><a class="mtd-middle-chars ellipse" href="#">'+data[i].miner+'</a></td>' +
                 '<td>'+data[i].size+'</td><td><span class="label label-info">'+data[i].txcount+'</span></td><td class="center">' +
                 '<span class="label label-info">'+data[i].confirmations+'</span></td>' +
-                '<td><i class="fas fa-arrow-down"></i>&nbsp;'+data[i].date+'</td></tr>';
+                '<td class="left"><i class="fas fa-arrow-down"></i>&nbsp;'+data[i].date+'</td></tr>';
         }
         console.log('data[0] ' + JSON.stringify(data[0]));
         return rows;
@@ -93,7 +93,7 @@ var app = {
                 '<td>'+Number(data[i].size).toLocaleString()+'</td>' +
                 '<td class="center">'+txCount+'</td>' +
                 '<td class="center"><span class="label label-info">'+data[i].confirmations+'</span></td>' +
-                '<td><i class="fas fa-arrow-down"></i>&nbsp;'+data[i].date+'</td></tr>';
+                '<td class="left"><i class="fas fa-arrow-down"></i>&nbsp;'+data[i].date+'</td></tr>';
         }
         console.log('data[0] ' + JSON.stringify(data[0]));
         return rows;

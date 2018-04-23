@@ -30,7 +30,7 @@
                     <tr>
                         <th>Miner</th>
                         <td class="mdl-data-table__cell--non-numeric">
-                            <a href="javascript:alert('<div><%=item.miner%></div><img class=mtd-diag-content-img src=https://api.qrserver.com/v1/create-qr-code/?size=208x208&data=<%=item.miner%> onload=app.hidePopupLoader()>');"><img src="/res/img/ic-qr.png" /></a> <a href="#"><%=item.miner%></a>
+                            <a href="javascript:app.showQRPopup('<%=item.miner%>', '<%=item.miner%>');"><img src="/res/img/ic-qr.png" /></a> <a href="#"><%=item.miner%></a>
                         </td>
                         <th>Nonce</th><td class="mdl-data-table__cell--non-numeric"><%=item.nonce%></td>
                     </tr>
@@ -48,7 +48,13 @@
                             <% } %>
                         </th>
                         <td colspan="3" class="mtd-cell-txs mdl-data-table__cell--non-numeric">
-                            <% for(var i=0; i<item.tx.length; i++) { %><p><a href="/tx/<%=item.tx[i]%>"><%=item.tx[i]%></a></p><% } %>
+                            <% for(var i=0; i<item.tx.length; i++) { %>
+                                <% if (item.height!==0) { %>
+                                        <p><a href="/tx/<%=item.tx[i]%>"><%=item.tx[i]%></a></p>
+                                <% } else { %>
+                                <p><a href="javascript:void(0);"><%=item.tx[i]%></a></p>
+                                <% } %>
+                            <% } %>
                         </td>
                     </tr>
                     <tr>

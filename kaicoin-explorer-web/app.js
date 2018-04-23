@@ -47,10 +47,14 @@ fastify.get('/', (req, reply) => {
 fastify.get('/summary', (req, reply) => {
     service.connectDB().then(conn => {
         service.getSummary(conn).then(res1 => {
-            let date = new Date();
-            date.setTime(res1["genesis-timestamp"]*1000);
-            res1["genesis-datetime"] = date.format("yyyy.MM.dd HH:mm:ss");
-            reply.view('summary', {item: res1});
+            service.getRowCount(conn, table.TB_TXS).then(res3 => {
+                service.disconnectDB(conn);
+                let date = new Date();
+                date.setTime(res1["genesis-timestamp"]*1000);
+                res1["genesis-datetime"] = date.format("yyyy.MM.dd HH:mm:ss");
+                res1["txcount"] = res3;
+                reply.view('summary', {item: res1});
+            });
         }, function(e) {
             console.error('failed to connect to blockchain' + e);
         });

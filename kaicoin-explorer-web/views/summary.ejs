@@ -42,8 +42,10 @@
                 <table id="table-chain-coded" class="mdl-data-table mdl-js-data-table">
                     <thead>
                     <tr>
-                        <th>Total Supply</th><th>Circulating Supply</th><th>Block Reward</th>
-                        <th>Peers</th><th>Total Network Hash</th><th>Difficulty</th>
+                        <th>Total Supply</th><th>Circulating Supply</th>
+                        <th>Block Height</th><th>TX Count</th>
+                        <th>Block Reward</th><th>Total Network Hash</th>
+                        <th>Difficulty</th><th>Peers</th>
                         <th>Relay Fee</th><th>Pay TX Fee</th>
                     </tr>
                     </thead>
@@ -51,10 +53,12 @@
                     <tr>
                         <td class="center">21,000,000,000</td>
                         <td class="center">13,000,000,000</td>
+                        <td class="center"><%=Number(item.blocks).toLocaleString()%></td>
+                        <td class="center"><%=Number(item.txcount).toLocaleString()%></td>
                         <td class="center">950 KAI</td>
-                        <td class="center"><%=item.connections%></td>
                         <td class="center"><%=Math.floor(item.networkhashps/1024/1024*100)/100%> MH/s</td>
                         <td class="center"><%=item.difficulty%></td>
+                        <td class="center"><%=item.connections%></td>
                         <td class="center"><%=item.relayfee%></td>
                         <td class="center"><%=item.paytxfee%></td>
                     </tr>
@@ -199,6 +203,7 @@
                                 <th>Anyone Mine</th>
                                 <td class="mdl-data-table__cell--non-numeric"><%=item['anyone-can-mine']%></td>
                             </tr>
+                            <!--allow-multisig-outputs-->
                             </tbody>
                         </table>
                     </div>
