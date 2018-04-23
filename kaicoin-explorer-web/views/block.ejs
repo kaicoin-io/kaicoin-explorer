@@ -13,7 +13,7 @@
             <div class="mdl-card__supporting-text">
 
                 <div class="mtd-card-title-wrapper">
-                    <h4>Block&nbsp;</h4><div class="mtd-title-page-nav"><span id="current-position"><%=item.height%></span></div>
+                    <h4>Block&nbsp;<span id="current-position"><%=item.height%></span></h4>
                 </div>
 
                 <div class="x-overflow">
@@ -30,7 +30,7 @@
                     <tr>
                         <th>Miner</th>
                         <td class="mdl-data-table__cell--non-numeric">
-                            <a href="javascript:alert('<div><%=item.miner%></div><img class=mtd-diag-content-img src=https://api.qrserver.com/v1/create-qr-code/?size=232x232&data=<%=item.miner%>>');"><img src="/res/img/ic-qr.png" /></a> <a href="#"><%=item.miner%></a>
+                            <a href="javascript:alert('<div><%=item.miner%></div><img class=mtd-diag-content-img src=https://api.qrserver.com/v1/create-qr-code/?size=208x208&data=<%=item.miner%> onload=app.hidePopupLoader()>');"><img src="/res/img/ic-qr.png" /></a> <a href="#"><%=item.miner%></a>
                         </td>
                         <th>Nonce</th><td class="mdl-data-table__cell--non-numeric"><%=item.nonce%></td>
                     </tr>

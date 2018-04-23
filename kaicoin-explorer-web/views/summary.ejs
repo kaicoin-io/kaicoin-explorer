@@ -15,15 +15,23 @@
                 <div class="mtd-card-title-wrapper">
                     <h4>About</h4><div class="mtd-title-page-nav">&nbsp;</div>
                 </div>
-                <p>Kaicoin Explorer is an open-source blockchain explorer.</p>
-                <p>Upgrading is still in progress, so if you felt any inconveniences at this explorer, please report feedback to our github.</p>
-                <p>Kaicoin Explorer is powered by: </p>
-                <ul id="mtd-powered-by" class="mdl-list">
-                    <li class="mdl-list__item"><img src="/res/img/powered/ic-node-js.png"></li>
-                    <li class="mdl-list__item"><img src="/res/img/powered/ic-fastify.png"></li>
-                    <li class="mdl-list__item"><img src="/res/img/powered/ic-socket-io.png"></li>
-                    <li class="mdl-list__item"><img src="/res/img/powered/ic-rethinkdb.png"></li>
-                </ul>
+            </div>
+            <div class="mdl-card__supporting-text" style="padding-top: 0;">
+                <div class="mtd-summary-about">
+                    <p>Kaicoin Explorer is an open-source blockchain explorer.</p>
+                    <p>This project is still in progress, so if you felt any inconveniences at this time, please report feedback to our github.</p>
+                    <br>
+                    <p>Kaicoin Explorer is powered by: </p>
+                    <ul id="mtd-powered-by" class="mdl-list">
+                        <li class="mdl-list__item"><img src="/res/img/powered/ic-node-js.png"></li>
+                        <li class="mdl-list__item"><img src="/res/img/powered/ic-fastify.png"></li>
+                        <li class="mdl-list__item"><img src="/res/img/powered/ic-socket-io.png"></li>
+                        <li class="mdl-list__item"><img src="/res/img/powered/ic-rethinkdb.png"></li>
+                    </ul>
+                    <p>Also, thanks to our <a href="https://github.com/Tilkal/multichain-api" target="_blank">multichain-api</a> module contributors.</p>
+                    <br>
+                    <p>And you may find this on <a href="https://github.com/kaicoin-io/kaicoin-explorer" target="_blank">here</a>.</p>
+                </div>
             </div>
 
             <div class="mdl-card__supporting-text">
@@ -35,41 +43,61 @@
                 <table id="table-chain-coded" class="mdl-data-table mdl-js-data-table">
                     <thead>
                     <tr>
-                        <th>Total Supply</th><th>Circulating Supply</th><th>Block Reward</th><th>Market Cap in USD</th>
-                        <th>Price in USD</th><th>Price in BTC</th><th>Burn Address</th>
+                        <th>Total Supply</th><th>Circulating Supply</th><th>Block Reward</th>
+                        <!--<th>Market Cap in USD</th><th>Price in USD</th><th>Price in BTC</th>-->
+                        <th>Peers</th><th>Total Network Hash</th><th>Difficulty</th>
+                        <th>Relay Fee</th><th>Pat TX Fee</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
+                        <td>21,000,000,000</td>
+                        <td>13,000,000,000</td>
+                        <td>950 KAI</td>
+                        <td><%=item.connections%></td>
+                        <td><%=Math.floor(item.networkhashps/1024/1024*100)/100%> MH/s</td>
+                        <td><%=item.difficulty%></td>
+                        <td><%=item.relayfee%></td><td><%=item.paytxfee%></td>
+                    </tr>
+                    <tr>
+                        <td colspan="7"><a href="javascript:app.showQRPopup('<%=item.burnaddress%>', '<%=item.burnaddress%>');"><img src="/res/img/ic-qr.png" /></a>&nbsp;<%=item.burnaddress%></td>
                     </tr>
                     </tbody>
                 </table>
-
+                <br>
+                <div class="mtd-card-title-wrapper">
+                    <h4>Market Value</h4><div class="mtd-title-page-nav"></div>
+                </div>
+                <table class="mdl-data-table mdl-js-data-table">
+                    <thead>
+                    <tr>
+                        <th>Market Cap in USD</th><th>Price in USD</th><th>Price in BTC</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td colspan="3" class="center">Currently Not Available, preparing now.</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <br>
+                <div class="mtd-card-title-wrapper">
+                    <h4>Properties</h4><div class="mtd-title-page-nav"></div>
+                </div>
                 <table id="table-chain-main" class="mdl-data-table mdl-js-data-table">
                     <thead>
                     <tr>
-                        <th>Chain name</th><th>Peers</th><th>Testnet</th><th>Protocol Version</th>
-                        <th>Wallet Ver.</th><th>Wallet DB Ver.</th><th>Burn Address</th><th>Relay Fee</th><th>Pay TX Fee</th>
+                        <th>Chain name</th><th>Testnet</th><th>Protocol Version</th>
+                        <th>Wallet Ver.</th><th>Wallet DB Ver.</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
                         <td><%=item.chainname%></td>
-                        <td><%=item.connections%></td>
                         <td><%=item.testnet%></td>
                         <td><%=item.protocolversion%></td>
                         <td><%=item.walletversion%></td>
                         <td><%=item.walletdbversion%></td>
-                        <td><a href="javascript:alert('<div class=ellipse><%=item.burnaddress%></div><img src=https://api.qrserver.com/v1/create-qr-code/?size=232x232&data=<%=item.burnaddress%>>');"><img src="/res/img/ic-qr.png" /></a>&nbsp;<%=item.burnaddress%></td>
-                        <td><%=item.relayfee%></td>
-                        <td><%=item.paytxfee%></td>
                     </tr>
                     </tbody>
                 </table>
@@ -85,32 +113,34 @@
                 <table id="table-chain-main" class="mdl-data-table mdl-js-data-table">
                     <thead>
                     <tr>
-                        <th>Anyone Connect</th><th>Anyone Mine</th><th>Anyone Send</th><th>Mining Diversity</th><th>Target Block Time</th>
+                        <th>Target Block Time</th><th>Max Block Size</th><th>Target Adjust Freq.</th><th>Max TX Size</th><th>Mining Diversity</th>
                     </tr>
                     </thead>
                     <tbody>
                     <!--max-std-op-return-size max-std-op-returns-count max-std-tx-size maximum-block-size	2048000-->
                     <tr>
-                        <td><%=item['anyone-can-connect']%></td>
-                        <td><%=item['anyone-can-mine']%></td>
-                        <td><%=item['anyone-can-send']%></td>
-                        <td><%=item['mining-diversity']%></td>
                         <td><%=item['target-block-time']%></td>
+                        <td><%=item['maximum-block-size']%></td>
+                        <td><%=item['target-adjust-freq']%></td>
+                        <td><%=item['max-std-tx-size']%></td>
+                        <td><%=item['mining-diversity']%></td>
                     </tr>
                     </tbody>
                     <thead>
                     <tr>
-                        <th>Target Adjust Freq.</th><th>Max OP Return Size</th><th>Max OP Return Count</th><th>Max TX Size</th><th>Max Block Size</th>
+                        <th>Max OP Return Size</th><th>Max OP Return Count</th>
+                        <th>Anyone Connect</th><th>Anyone Mine</th><th>Anyone Send</th><th>Anyone Receive</th>
                     </tr>
                     </thead>
                     <tbody>
                     <!-- mining-diversity protocol-version target-adjust-freq target-block-time -->
                     <tr>
-                        <td><%=item['target-adjust-freq']%></td>
                         <td><%=item['max-std-op-return-size']%></td>
                         <td><%=item['max-std-op-returns-count']%></td>
-                        <td><%=item['max-std-tx-size']%></td>
-                        <td><%=item['maximum-block-size']%></td>
+                        <td><%=item['anyone-can-connect']%></td>
+                        <td><%=item['anyone-can-mine']%></td>
+                        <td><%=item['anyone-can-send']%></td>
+                        <td><%=item['anyone-can-receive']%></td>
                     </tr>
                     </tbody>
                 </table>
@@ -126,13 +156,16 @@
                 <table id="table-chain-main" class="mdl-data-table mdl-js-data-table ">
                     <tbody>
                     <tr>
-                        <th>Hash</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-hash']%></td>
+                        <th>Public Key</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-pubkey']%></td>
                     </tr>
                     <tr>
-                        <th>Pubkey</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-pubkey']%></td>
+                        <th>Public Key Hash</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-hash']%></td>
                     </tr>
                     <tr>
                         <th>Nonce</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-nonce']%></td>
+                    </tr>
+                    <tr>
+                        <th>Nbits</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-nbits']%></td>
                     </tr>
                     <tr>
                         <th>Time</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-datetime']%> (<%=item['genesis-timestamp']%>)</td>

@@ -1,4 +1,5 @@
-html, h5, i, .mdl-card__supporting-text, .mdl-button { color: rgba(0,0,0,.71); } /* .71*/
+html, h5, i, .mdl-card__supporting-text, .mdl-button { color: rgba(0,0,0,.71); }
+.fa, .fas { font-weight: 600; color: rgba(0,0,0,.64); }
 html, body { font-family: "Roboto","Helvetica","Arial",sans-serif; font-size: 12px; }
 table { width: 100%; }
 footer { position: fixed; bottom: 0; width: 100%; z-index: 2; }
@@ -19,8 +20,9 @@ a.mtd-label { color: #fff; }
 .mtd-card-title-wrapper h4 { float: left; min-width: 360px; padding-left: 16px; }
 .mtd-card-title-wrapper .mtd-title-page-nav { float: right; margin-top: 16px; padding-right: 16px; font-size: 14px; }
 .mdl-card__supporting-text h4 { line-height: inherit; margin: 0 0 12px; line-height: 32px; border-bottom: 3px solid #1AB0AB; }
-.mdl-dialog { border-radius: 6px; }
-.mdl-dialog .mdl-dialog__content { min-height: 252px; }
+
+.mdl-dialog { border-radius: 6px; box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12); }
+.mdl-dialog .mdl-dialog__content { padding: 16px 13px 16px; min-height: 252px; }
 .mdl-button[disabled][disabled] i, .mdl-button.mdl-button--disabled.mdl-button--disabled i { color: rgba(0,0,0,.26); }
 .mdl-button--colored i { color: #fff; }
 .mdl-button--kaicoin { background-color: rgba(26, 176, 171, 1); color: #fff; }
@@ -87,17 +89,13 @@ main.mdl-layout__content .mdl-grid {
 .label-info.important { background-color: #5bc0de; color: #fff; border: 0; padding: 4px 7px 5px 7px; }
 
 .mtd-cell-txs { vertical-align: top; min-height: 113px; }
-.mtd-page-block, .mtd-page-tx {
-    background-image: url(/res/img/bg-blocks.jpg);
+.mtd-page-block, .mtd-page-tx, .mtd-page-summ {
+    background-image: url(/res/img/bg-summary.gif);
     background-repeat: no-repeat;
     background-position: 0 60px;
 }
-
-.mtd-page-summ {
-    background-image: url('/res/img/bg-summary.jpg');
-    background-repeat: no-repeat;
-    background-position: 0 60px;
-}
+.mtd-summary-about p { margin: 0; }
+.mtd-summary-about { border-left: solid 3px #eeeeee; padding-left: 24px; line-height: 28px; margin-left: 9px; }
 .mtd-page-summ .mdl-card { }
 .mtd-small-chars { font-size: 10px; }
 
@@ -112,13 +110,14 @@ main.mdl-layout__content .mdl-grid {
     text-overflow: ellipsis;
 }
 
+.mdl-layout__drawer .mdl-navigation__link { text-transform: uppercase; }
 .mdl-data-table th { text-transform: uppercase; vertical-align: middle; padding-top: 8px; }
 .mdl-data-table tbody tr:nth-child(odd) { background-color: #f2f2f2; }
 .mdl-data-table td { padding: 0 12px; font-size: 12px; border: 0; }
 .mdl-data-table td.center { text-align: center; }
 .mdl-data-table td.left { text-align: left; }
 .mdl-data-table td.confirm, .mdl-data-table th.confirm { text-align: center; padding-left: 0; padding-right: 9px; }
-.mdl-data-table td.time, .mdl-data-table th.time { padding-left: 0; }
+/*.mdl-data-table td.time, .mdl-data-table th.time { padding-left: 0; }*/
 .mdl-data-table th.left-align, .mdl-data-table td.left-align { text-align: left; }
 .mdl-data-table th.mtd-text-right, .mdl-data-table td.mtd-text-right { text-align: right; }
 .mdl-data-table td.mtd-dt-short { font-size: 12px; }
@@ -139,7 +138,7 @@ main.mdl-layout__content .mdl-grid {
     text-decoration: none;
 }
 .mdl-dialog__content { padding: 16px 24px 16px; font-weight: bold; }
-.mdl-dialog__content img { margin-top: 12px; }
+.mdl-dialog__content img { margin-top: 12px; border: 1px solid #999; padding: 12px; min-width: 232px; min-height: 232px; }
 
 .mdl-textfield__label:after { background-color: #1AB0AB; }
 .mtd-buttons-area { float: right; list-style-type: none; display: inline-flex; margin-top: 0; }
@@ -161,7 +160,7 @@ main.mdl-layout__content { padding-bottom: 64px; }
 , .mdl-layout__content.mtd-page-summ header:first-of-type { width: 125px; }
 .mdl-layout__content.mtd-page-block .mdl-card:first-of-type
 , .mdl-layout__content.mtd-page-tx .mdl-card:first-of-type
-, .mdl-layout__content.mtd-page-summ .mdl-card:first-of-type { width: calc(100% - 125px); }
+, .mdl-layout__content.mtd-page-summ .mdl-card:first-of-type { width: calc(100% - 125px); border-left: 1px solid #e5e5e5; }
 
 .mdl-card__supporting-text { width: calc(100% - 16px); }
 .mdl-cell { margin: 0; }
@@ -187,6 +186,7 @@ main.mdl-layout__content { padding-bottom: 64px; }
 }
 
 /* Page loader start */
+.ball + .ball { margin-left: 12px; }
 
 .three-balls {
     margin: 0 auto;
@@ -220,64 +220,65 @@ main.mdl-layout__content { padding-bottom: 64px; }
 @keyframes bouncedelay {
     0% {
         bottom: 0;
-        background-color: #03A9F4;
+        background-color: #1AB0AB;
     }
     16.66% {
         bottom: 40px;
-        background-color: #FB6542;
+        background-color: #1AB0AB;
     }
     33.33% {
         bottom: 0px;
-        background-color: #FB6542;
+        background-color: #1AB0AB;
     }
     50% {
         bottom: 40px;
-        background-color: #FFBB00;
+        background-color: #1AB0AB;
     }
     66.66% {
         bottom: 0px;
-        background-color: #FFBB00;
+        background-color: #1AB0AB;
     }
     83.33% {
         bottom: 40px;
-        background-color: #03A9F4;
+        background-color: #1AB0AB;
     }
     100% {
         bottom: 0;
-        background-color: #03A9F4;
+        background-color: #1AB0AB;
     }
 }
 
 @-webkit-keyframes bouncedelay {
     0% {
         bottom: 0;
-        background-color: #03A9F4;
+        background-color: #1AB0AB;
     }
     16.66% {
         bottom: 40px;
-        background-color: #FB6542;
+        background-color: #1AB0AB;
     }
     33.33% {
         bottom: 0px;
-        background-color: #FB6542;
+        background-color: #1AB0AB;
     }
     50% {
         bottom: 40px;
-        background-color: #FFBB00;
+        background-color: #1AB0AB;
     }
     66.66% {
         bottom: 0px;
-        background-color: #FFBB00;
+        background-color: #1AB0AB;
     }
     83.33% {
         bottom: 40px;
-        background-color: #03A9F4;
+        background-color: #1AB0AB;
     }
     100% {
         bottom: 0;
-        background-color: #03A9F4;
+        background-color: #1AB0AB;
     }
 }
 /* Page loader end */
+
 
 #mtd-powered-by li { display: inline; }

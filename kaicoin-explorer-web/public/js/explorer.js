@@ -10,8 +10,8 @@ var app = {
         });
         // refer this https://stackoverflow.com/questions/1729501/javascript-overriding-alert?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
         window.alert = function(msg) {
+            $('.three-balls').show();
             diagAlert.querySelector('.mdl-dialog__content').innerHTML = msg;
-            diagAlert.querySelector('.three-balls').style.display = 'block';
             diagAlert.showModal();
         };
         if (document.getElementById('search-keyword')!==null) {
@@ -19,9 +19,6 @@ var app = {
                 if(e.keyCode===13){ self.beforeSearch(this.value); }
             };
         }
-        $(".mtd-diag-content-img").load(function() {
-            $('.three-balls').hide();
-        });
         $("#pagenation-blocks").mouseup(function() {
             self.paginateBlocks();
         });
@@ -31,7 +28,7 @@ var app = {
             $.getJSON('/txs/' + q, function(data) {
                 console.log('txnum ' + q);
                 $("#progress-loader").removeClass("is-active");
-                $("#current-position").text(data.q);
+                $("#current-position").html('<i class="fas fa-arrow-down"></i>&nbsp;' + data.q);
                 $("#mtd-txs-table > tbody").empty().html(self.makeTxsRow(data.list));
                 window.location.href = '#' + q;
             });
@@ -43,6 +40,12 @@ var app = {
             self.paginateBlocks();
         }
     },
+    showQRPopup: function(title, qrString) {
+        alert('<div>'+title+'</div><img class=mtd-diag-content-img src=https://api.qrserver.com/v1/create-qr-code/?size=208x208&data='+qrString+' onload=app.hidePopupLoader()>');
+    },
+    hidePopupLoader: function() {
+        $('.three-balls').hide();
+    },
     paginateBlocks: function() {
         const self = this;
         const q = $(".thumb > .value").html();
@@ -50,7 +53,7 @@ var app = {
         $.getJSON('/blocks/' + q, function(data) {
             console.log('blockheight ' + q);
             $("#progress-loader").removeClass("is-active");
-            $("#current-position").text(data.q);
+            $("#current-position").html('<i class="fas fa-arrow-down"></i>&nbsp;' + data.q);
             $("#mtd-blocks-table > tbody").empty().html(self.makeBlocksRow(data.list));
             window.location.href = '#' + q;
         });

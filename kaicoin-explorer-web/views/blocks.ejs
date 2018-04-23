@@ -13,7 +13,7 @@
             <div class="mdl-card__supporting-text">
 
                 <div class="mtd-card-title-wrapper">
-                    <h4>Blocks&nbsp;</h4><div class="mtd-title-page-nav"><span id="current-position"><% if (list.length>0) { %><%=list[0].height%><% } else { %>0<% } %></span> of <%=summary.blocks%></div>
+                    <h4>Blocks&nbsp;<span id="current-position"><% if (list.length>0) { %><i class="fas fa-arrow-down"></i> <%=list[0].height%><% } else { %>0<% } %></span> / <%=summary.blocks%></h4>
                 </div>
                 <div class="x-overflow">
                 <table id="mtd-blocks-table" class="mdl-data-table mdl-js-data-tablematch-parent mdl-shadow--2dp">

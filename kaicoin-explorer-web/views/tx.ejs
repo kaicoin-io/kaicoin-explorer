@@ -14,7 +14,7 @@
             <div class="mdl-card__supporting-text">
 
                 <div class="mtd-card-title-wrapper">
-                    <h4>Transaction&nbsp;</h4><div class="mtd-title-page-nav"><span id="current-position"><%=item.txid%></span></div>
+                    <h4>Transaction&nbsp;<span id="current-position"><%=item.txid%></span></h4>
                 </div>
 
                 <div class="x-overflow">
@@ -25,7 +25,7 @@
                         <th>TX Time</th><td class="mdl-data-table__cell--non-numeric"><% if (typeof(item.time)!=='undefined') { %><%=item.date%> (<%=item.time%>)<% } else { %>N/A<% } %></td>
                     </tr>
                     <tr>
-                        <th>Confirmations</th><td class="mdl-data-table__cell--non-numeric"><span class="label label-info"><%=item.confirmations%></span></td>
+                        <th>Confirmations</th><td class="mdl-data-table__cell--non-numeric"><span class="label label-info"><% if(typeof(item.confirmations)!=='undefined') { %><%=item.confirmations%><% } else { %>0<% } %></span></td>
                         <th>Amount</th><td class="mdl-data-table__cell--non-numeric"><%=Number(item.value).toLocaleString()%> KAI</td>
                     </tr>
                     <tr>
@@ -36,13 +36,13 @@
                     </tr>
                     <tr>
                         <th>From Address</th><td colspan="3" class="mdl-data-table__cell--non-numeric">
-                            <% if(typeof(item.fromaddress)!=='undefined') { %><a href="#"><%=item.fromaddress%></a><% } else { %>N/A<% } %>
+                            <% if(typeof(item.fromaddress)!=='undefined') { %><a href="javascript:app.showQRPopup('<%=item.fromaddress%>', '<%=item.fromaddress%>');"><img src="/res/img/ic-qr.png" /> <a href="#"><%=item.fromaddress%></a><% } else { %>N/A<% } %>
                         </td>
                     </tr>
                     <tr>
                         <th>To Address</th>
                         <td colspan="3" class="mdl-data-table__cell--non-numeric">
-                            <a href="javascript:alert('<div class=ellipse><%=item.toaddress%></div><img src=https://api.qrserver.com/v1/create-qr-code/?size=232x232&data=<%=item.toaddress%>>');"><img src="/res/img/ic-qr.png" /></a>&nbsp;<a href="#"><%=item.toaddress%></a></td>
+                            <a href="javascript:app.showQRPopup('<%=item.toaddress%>', '<%=item.toaddress%>');"><img src="/res/img/ic-qr.png" /></a>&nbsp;<a href="#"><%=item.toaddress%></a></td>
                         </td>
                     </tr>
                     </tbody>

@@ -32,7 +32,7 @@
         <div class="section--center mdl-grid mdl-grid--no-spacing mtd-2-2div-header-wrapper">
 
             <!-- 1) Block list -->
-            <div class="mdl-cell mdl-cell--5-col">
+            <div class="mdl-cell mdl-cell--6-col">
                 <div class="mdl-list__item">
                     <span class="mdl-list__item-primary-content">
                       <h5><i class="fas fa-cloud-download-alt"></i>&nbsp;Latest Blocks</h5>
@@ -51,7 +51,8 @@
                         <tr>
                             <td><span class="label label-info"><%=blocks[i].height%></span></td>
                             <td class="left-align">
-                                <a href="javascript:alert('<div class=ellipse><%=blocks[i].miner%></div><img src=https://api.qrserver.com/v1/create-qr-code/?size=232x232&data=<%=blocks[i].miner%>>');"><img src="/res/img/ic-qr.png" /></a>&nbsp;<a class="mtd-middle-chars" href="/block/<%=blocks[i].height%>"><%=blocks[i].miner%></a></td>
+                                <a class="mtd-middle-chars" href="/block/<%=blocks[i].height%>"><%=blocks[i].miner%></a>
+                            </td>
                             <td class="center">
                                 <% if (blocks[i].txcount>1) { %>
                                     <span class="label label-info important"><%=blocks[i].txcount%></span>
@@ -61,7 +62,7 @@
                             </td>
                             <td class="center confirm"><span class="label label-info"><%=blocks[i].confirmations%></span></td>
                             <td><%=Number(blocks[i].size).toLocaleString()%></td>
-                            <td class="time"><i class="fas fa-arrow-down"></i><%=blocks[i].date%></td>
+                            <td class="left"><i class="fas fa-arrow-down"></i><%=blocks[i].date%></td>
                         </tr>
                         <% } %>
                         </tbody>
@@ -70,7 +71,7 @@
             </div>
 
             <!-- 2) TX list -->
-            <div class="mdl-cell mdl-cell--7-col">
+            <div class="mdl-cell mdl-cell--6-col">
                 <div class="mdl-list__item">
                     <span class="mdl-list__item-primary-content">
                       <h5><i class="fas fa-retweet"></i>&nbsp;Latest Transactions</h5>
@@ -107,7 +108,7 @@
                                 <% } %>
                             </td>
                             <td class="center confirm"><% if (txs[i].txtype!=='memp') { %><span class="label label-info"><%=txs[i].confirmations%></span><% } %></td>
-                            <td class="time"><i class="fas fa-arrow-down"></i><%=txs[i].date%></td>
+                            <td class="left"><i class="fas fa-arrow-down"></i><%=txs[i].date%></td>
                         </tr>
                         <% } %>
                         </tbody>
