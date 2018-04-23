@@ -22,7 +22,17 @@ I. Ingredients
     - https://www.npmjs.com/package/multichain-api
 
 II. Installation on Ubuntu (v16 recommended)
-  - sudo apt-get update
-  - sudo apt-get -y install nginx
-  - sudo apt-get -y install nodejs 
-  - sudo apt-get -y install rethinkdb 
+
+  1. Package update
+    - sudo apt-get update
+  2. Nginx install
+    - sudo apt-get -y install nginx
+  3. Nodejs install
+    - sudo apt-get -y install nodejs
+  4. Rethink DB install (please refer to this: https://rethinkdb.com/docs/install/ubuntu/)
+    - source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
+    - sudo apt-get -y install rethinkdb 
+    - wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
+    - sudo apt-get update
+    - sudo apt-get install rethinkdb
+  5. Upload files via SFTP/FTP
