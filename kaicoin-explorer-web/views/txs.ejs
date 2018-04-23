@@ -50,7 +50,7 @@
                             <td class="mtd-text-right">
                                 <% if (typeof(list[i].vout)!=='undefined' && typeof(list[i].vout[0].value)!=='undefined') { %><%=Number(list[i].vout[0].value).toLocaleString()%><% } %> KAI
                             </td>
-                            <td><i class="fas fa-arrow-down"></i>&nbsp;<%=list[i].date%></td>
+                            <td class="left"><i class="fas fa-arrow-down"></i>&nbsp;<%=list[i].date%></td>
                         </tr>
                         <% } %>
                     <% } %>
@@ -59,11 +59,13 @@
                 </div>
                 <br>
                 <div class="mdl-card__actions mdl-card--border">
+                    <button class="mdl-button mdl-js-button mdl-button--primary mtd-button-no-border">TXs at</button>
                     <a href="/" style="float: right;"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-arrow-up"></i>&nbsp;HOME</button></a>
-                    <div style="width: calc(100% - 105px); float: left;">
+                    <div style="width: calc(100% - 220px); float: right; padding-right: 12px;">
                         <p class="range-field"><input id="pagenation-txs" type="range" class="mtd-pagination" min="0" max="<%=count%>" value="<%=count%>" /></p>
                     </div>
                 </div>
+
             </div>
         </div>
 

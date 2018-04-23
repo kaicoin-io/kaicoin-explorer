@@ -30,7 +30,7 @@
                     <tr>
                         <th>Miner</th>
                         <td class="mdl-data-table__cell--non-numeric">
-                            <a href="javascript:alert('<div><%=item.miner%></div><img src=https://api.qrserver.com/v1/create-qr-code/?size=232x232&data=<%=item.miner%>>');"><img src="/res/img/ic-qr.png" /></a> <a href="#"><%=item.miner%></a>
+                            <a href="javascript:alert('<div><%=item.miner%></div><img class=mtd-diag-content-img src=https://api.qrserver.com/v1/create-qr-code/?size=232x232&data=<%=item.miner%>>');"><img src="/res/img/ic-qr.png" /></a> <a href="#"><%=item.miner%></a>
                         </td>
                         <th>Nonce</th><td class="mdl-data-table__cell--non-numeric"><%=item.nonce%></td>
                     </tr>
@@ -41,7 +41,15 @@
                         <th>Transaction Merkle Root</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><%=item.merkleroot%></td>
                     </tr>
                     <tr>
-                        <th class="mtd-cell-txs">Transactions &nbsp;&nbsp;<span class="label label-info"><%=item.tx.length%></span></th><td colspan="3" class="mtd-cell-txs mdl-data-table__cell--non-numeric"><% for(var i=0; i<item.tx.length; i++) { %><p><a href="/tx/<%=item.tx[i]%>"><%=item.tx[i]%></a></p><% } %></td>
+                        <th class="mtd-cell-txs">Transactions &nbsp;&nbsp;<% if (item.tx.length>1) { %>
+                            <span class="label label-info important"><%=item.tx.length%></span>
+                            <% } else { %>
+                            <span class="label label-info"><%=item.tx.length%></span>
+                            <% } %>
+                        </th>
+                        <td colspan="3" class="mtd-cell-txs mdl-data-table__cell--non-numeric">
+                            <% for(var i=0; i<item.tx.length; i++) { %><p><a href="/tx/<%=item.tx[i]%>"><%=item.tx[i]%></a></p><% } %>
+                        </td>
                     </tr>
                     <tr>
                         <th><i class="fas fa-arrow-left"></i> Previous Block</th>

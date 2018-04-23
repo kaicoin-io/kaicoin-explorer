@@ -53,6 +53,12 @@
             <div class="mdl-card__actions mdl-card--border">
                 <div class="mtd-button-wrapper">
                     <a href="/"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-arrow-up"></i>&nbsp;HOME</button></a>
+                    <a <% if(typeof(item.previousblockhash)!='undefined'){ %> href="/tx/<%=item.previousblockhash%>"<% } else { %> href="javascript:void(0);"<% } %>>
+                        <button class="mdl-button mdl-js-button mdl-js-ripple-effect"<% if(typeof(item.previousblockhash)=='undefined'){ %> disabled<% } %>><i class="material-icons">keyboard_arrow_left</i>PREV</button></button>
+                    </a>
+                    <a <% if(typeof(item.nextblockhash)!='undefined'){ %> href="/tx/<%=item.nextblockhash%>"<% } else { %> href="javascript:void(0);"<% } %>>
+                        <button class="mdl-button mdl-js-button mdl-js-ripple-effect"<% if(typeof(item.nextblockhash)=='undefined'){ %> disabled<% } %>>NEXT<i class="material-icons">keyboard_arrow_right</i></button>
+                    </a>
                     <a href="/txs"><button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--kaicoin"><i class="material-icons">list</i>&nbsp;LIST</button></a>
                 </ul>
             </div>
