@@ -20,3 +20,9 @@ I. Ingredients
   6. Multichain API - easy to explore blockchain on Node.JS environment
     - https://tilkal.github.io/multichain-api/
     - https://www.npmjs.com/package/multichain-api
+
+II. Installation on Ubuntu (v16 recommended)
+  - sudo apt-get update
+  - sudo apt-get -y install nginx
+  - sudo apt-get -y install nodejs 
+  - sudo apt-get -y install rethinkdb 
