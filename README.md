@@ -30,6 +30,11 @@ II. Installation on Ubuntu (v16 recommended)
   3. Nodejs install
     - sudo apt-get -y install nodejs
     - sudo apt-get -y install nodejs-legacy
+  4. Nodejs update
+    - sudo npm cache clean -f
+    - sudo npm install -g n
+    - sudo n stable
+  5. Forever install
     - sudo npm i -g forever
   4. Rethink DB install (refer to this: https://rethinkdb.com/docs/install/ubuntu/)
     - source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
