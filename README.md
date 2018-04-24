@@ -34,6 +34,9 @@ II. Installation on Ubuntu (v16 recommended)
     - sudo npm cache clean -f
     - sudo npm install -g n
     - sudo n stable
+    // Nodejs 9.x install
+    - curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
+    - sudo apt-get install -y nodejs
   5. Forever install
     - sudo npm i -g forever
   4. Rethink DB install (refer to this: https://rethinkdb.com/docs/install/ubuntu/)
