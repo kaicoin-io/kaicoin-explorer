@@ -1,5 +1,4 @@
 const r = require('rethinkdb');
-const config = require('./config');
 const { GetBlock } = require('multichain-api/Commands/GetBlock');
 const { GetRawMemPool } = require('multichain-api/Commands/GetRawMemPool');
 const { GetRawTransaction } = require('multichain-api/Commands/GetRawTransaction');
@@ -23,8 +22,6 @@ module.exports = function() {
 
     return {
         // getdifficulty getmininginfo getpeerinfo getinfo
-        connectDB: function() { return r.connect(rethinkdb); },
-        disconnectDB: function(conn) { conn.close(); },
         getSummary: function(conn) {
             // console.log('getSummary');
             return new Promise( function(resolve, reject) {
@@ -154,11 +151,11 @@ module.exports = function() {
                                 res1[i].txtype = 'mine';
                             } else if (typeof(res1[i].vin)!=='undefined') {
                                 res1[i].txtype = 'send';
-                                if (tx.fromaddress.length<1) {
-                                    tx.txtype = 'self';
-                                } else {
-                                    tx.txtype = 'send';
-                                }
+                                // if (tx.fromaddress.length<1) {
+                                //     tx.txtype = 'self';
+                                // } else {
+                                //     tx.txtype = 'send';
+                                // }
                             }
                         }
                         resolve(res1);

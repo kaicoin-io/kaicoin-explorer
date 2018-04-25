@@ -7,7 +7,7 @@ const service = require("./nodejs/web-service")();
 const plugin = require("./nodejs/plugin");
 const SocketIo = require('socket.io');
 const r = require('rethinkdb');
-const config = require('./nodejs/config');
+const config   = require('./nodejs/config')();
 const templatesFolder = 'views';
 const socketEvents = require('./nodejs/socket-handler.js');
 
@@ -29,14 +29,14 @@ fastify.register(plugin, {
  * Main - index/dashboard page
  */
 fastify.get('/', (req, reply) => {
-    service.connectDB().then(conn =>
+    config.connectDB().then(conn =>
         service.getSummary(conn).then(res1 => {
             service.getBlocks(conn, LIST_COUNT_MAIN).then(res2 => {
                 service.getTxs(conn, LIST_COUNT_MAIN).then(res3 => {
                     service.getRowCount(conn, table.TB_TXS).then(res4 => {
-                        service.disconnectDB(conn);
+                        config.disconnectDB(conn);
                         const ret = {summary: res1, blocks: res2, txs: res3, txcount: res4};
-                        // console.log('main raw ' + JSON.stringify(ret));
+                        console.log('main raw ' + JSON.stringify(ret));
                         reply.view('index', ret);
                     });
                 });
@@ -49,10 +49,10 @@ fastify.get('/', (req, reply) => {
  * Blockchain summary
  */
 fastify.get('/summary', (req, reply) => {
-    service.connectDB().then(conn => {
+    config.connectDB().then(conn => {
         service.getSummary(conn).then(res1 => {
             service.getRowCount(conn, table.TB_TXS).then(res3 => {
-                service.disconnectDB(conn);
+                config.disconnectDB(conn);
                 let date = new Date();
                 date.setTime(res1["genesis-timestamp"]*1000);
                 res1["genesis-datetime"] = date.format("yyyy.MM.dd HH:mm:ss");
@@ -69,10 +69,10 @@ fastify.get('/summary', (req, reply) => {
  * Block list
  */
 fastify.get('/blocks', (req, reply) => {
-    service.connectDB().then(conn => {
+    config.connectDB().then(conn => {
         service.getSummary(conn).then(res1 => {
             service.getBlocks(conn, LIST_COUNT_PER_PAGE).then(res2 => {
-                service.disconnectDB(conn);
+                config.disconnectDB(conn);
                 let result = {summary: res1, list: res2};
                 console.log('result ' + JSON.stringify(result));
                 reply.view('blocks', result);
@@ -91,9 +91,9 @@ fastify.get('/blocks', (req, reply) => {
  */
 fastify.get('/blocks/:q', (req, reply) => {
     let json = reply.code(200).header('Content-Type', 'application/json');
-    service.connectDB().then(conn => {
+    config.connectDB().then(conn => {
         service.getBlocks(conn, LIST_COUNT_PER_PAGE, req.params.q).then(res1 => {
-            service.disconnectDB(conn);
+            config.disconnectDB(conn);
             const list = {q: req.params.q, list: res1};
             console.log('blockheight lesser than result ' + JSON.stringify(list));
             json.send(list);
@@ -120,11 +120,11 @@ fastify.get('/block/:q', (req, reply) => {
  *   - getmempoolinfo => BLOCKS + BLOCK + TXS + TX  ?
  */
 fastify.get('/txs', (req, reply) => {
-    service.connectDB().then(conn => {
+    config.connectDB().then(conn => {
         service.getSummary(conn).then(res1 => {
             service.getTxs(conn, LIST_COUNT_PER_PAGE).then(res2 => {
                 service.getRowCount(conn, table.TB_TXS).then(res3 => {
-                    service.disconnectDB(conn);
+                    config.disconnectDB(conn);
                     reply.view('txs', {summary: res1, list: res2, count: res3});
                 });
             });
@@ -136,11 +136,11 @@ fastify.get('/txs', (req, reply) => {
 
 fastify.get('/txs/:q', (req, reply) => {
     let json = reply.code(200).header('Content-Type', 'application/json');
-    service.connectDB().then(conn => {
+    config.connectDB().then(conn => {
         service.getSummary(conn).then(res1 => {
             service.getTxs(conn, LIST_COUNT_PER_PAGE).then(res2 => {
                 service.getRowCount(conn, table.TB_TXS).then(res3 => {
-                    service.disconnectDB(conn);
+                    config.disconnectDB(conn);
                     const list = {q: req.params.q, list: res2, count: res3};
                     console.log('txs ' + JSON.stringify(list));
                     json.send(list);
@@ -156,18 +156,18 @@ fastify.get('/txs/:q', (req, reply) => {
  * Transaction detail
  */
 fastify.get('/tx/:q', (req, reply) => {
-    // 1. °øÅë
-    //   1) °øÅëÀÀ´ä: blockhash, confirmations, time, blocktime, hex, txid, version, locktime
-    //   2) ±Ý¾× ÀÖ´Â °Ç: vout[n].type = 'pubkeyhash'
-    // 2. ¸¶ÀÌ´×
+    // 1. ï¿½ï¿½ï¿½ï¿½
+    //   1) ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: blockhash, confirmations, time, blocktime, hex, txid, version, locktime
+    //   2) ï¿½Ý¾ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½: vout[n].type = 'pubkeyhash'
+    // 2. ï¿½ï¿½ï¿½Ì´ï¿½
     //   1) vin[[=0?]]: coinbase, sequence
     //   2) vout[n]: n, value, scriptPubKey(asm, hex, type[=nulldata]), data[]
-    //   2) vout[0]ÀÇ value, scriptPubKey.addresses[0]¸¸ Ã¼Å©ÇÏ¸é µÉ±î..?
-    // 3. Àü¼Û
-    //   1) vin[]: txid(Á¶°¢µéÀÇ..), vout[=0], scriptSig(asm, hex), sequence
+    //   2) vout[0]ï¿½ï¿½ value, scriptPubKey.addresses[0]ï¿½ï¿½ Ã¼Å©ï¿½Ï¸ï¿½ ï¿½É±ï¿½..?
+    // 3. ï¿½ï¿½ï¿½ï¿½
+    //   1) vin[]: txid(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½..), vout[=0], scriptSig(asm, hex), sequence
     //   2) vout[n]: n, value, scriptPubKey(asm, hex, type[=pubkeyhash], reqSigs, addresses[])
-    //   2) vout[0].scriptPubKey.addresses: ¼ö½ÅÀÚ
-    //   2) vout[1].scriptPubKey.addresses: Àü¼ÛÀÚ
+    //   2) vout[0].scriptPubKey.addresses: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    //   2) vout[1].scriptPubKey.addresses: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     service.getRawTx(req.params.q).then(res1 => {
         console.log('res1 ' + JSON.stringify(res1));
         reply.view('tx', res1);
@@ -180,7 +180,7 @@ fastify.get('/tx/:q', (req, reply) => {
  * Address details (dev plan not fixed)
  */
 fastify.get('/address/:q', (req, reply) => {
-    // service.connectDB().then(conn => {
+    // config.connectDB().then(conn => {
     //     service.getSummary(conn).then(res1 => {
     //         service.getBlocks(conn, res1).then(res2 => {
     //             // console.log('list ' + JSON.stringify(res2));
@@ -219,17 +219,17 @@ fastify.get('/q/:q', (req, reply) => {
         } else {
             if (param.length===64) {
                 if (param.startsWith('0000')) {
-                    // ºí·ÏÇØ½Ã (ÃßÁ¤)
+                    // ï¿½ï¿½ï¿½ï¿½Ø½ï¿½ (ï¿½ï¿½ï¿½ï¿½)
                     json.send({type: 'block'});
                 } else {
-                    // TX ÇØ½Ã
+                    // TX ï¿½Ø½ï¿½
                     json.send({type: 'tx'});
                 }
             } else if (param.length===38) {
-                // ÁÖ¼Ò
+                // ï¿½Ö¼ï¿½
                 json.send({type: 'address'});
             } else if (param.length<10) {
-                // ºí·Ï ³ôÀÌ
+                // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 const numeric = /^\d+$/;
                 if(param.match(numeric)===false) {
                     json.send({type: null});
@@ -382,7 +382,7 @@ function handleRealtime(io) {
 Date.prototype.format = function(f) {
     if (!this.valueOf()) return " ";
 
-    var weekName = ["ÀÏ¿äÀÏ", "¿ù¿äÀÏ", "È­¿äÀÏ", "¼ö¿äÀÏ", "¸ñ¿äÀÏ", "±Ý¿äÀÏ", "Åä¿äÀÏ"];
+    var weekName = ["ï¿½Ï¿ï¿½ï¿½ï¿½", "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½", "È­ï¿½ï¿½ï¿½ï¿½", "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½", "ï¿½ï¿½ï¿½ï¿½ï¿½", "ï¿½Ý¿ï¿½ï¿½ï¿½", "ï¿½ï¿½ï¿½ï¿½ï¿½"];
     var d = this;
 
     return f.replace(/(yyyy|yy|MM|dd|E|hh|mm|ss|a\/p)/gi, function($1) {
@@ -397,7 +397,7 @@ Date.prototype.format = function(f) {
             case "hh": return ((h = d.getHours() % 12) ? h : 12).zf(2);
             case "mm": return d.getMinutes().zf(2);
             case "ss": return d.getSeconds().zf(2);
-            case "a/p": return d.getHours() < 12 ? "¿ÀÀü" : "¿ÀÈÄ";
+            case "a/p": return d.getHours() < 12 ? "ï¿½ï¿½ï¿½ï¿½" : "ï¿½ï¿½ï¿½ï¿½";
             default: return $1;
         }
     });

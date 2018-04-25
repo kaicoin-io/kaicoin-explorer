@@ -19,7 +19,7 @@ function syncBlocks() {
     if (job_running===false) {
         job_running = true;
         console.log('--- scheduler is started at ' + min + ' min ---');
-        service.connectDB().then(conn => {
+        config.connectDB().then(conn => {
             service.syncSummary(conn).then(res1 => {
                 // console.log('summary: ' + JSON.stringify(res1));
                 service.getLastBlock(conn).then(res2 => {
@@ -36,53 +36,53 @@ function syncBlocks() {
                                 const fromheight = typeof(res2.txsyncheight)==='undefined'?0:res2.txsyncheight;
                                 service.getBlocksThenSaveTxs(conn, fromheight, res2.blocksyncheight).then(res4 => {
                                     console.log('[INFO] synching TXs finished');
-                                    service.disconnectDB(conn);
+                                    config.disconnectDB(conn);
                                     trace(starttime);
                                     job_running = false;
                                 }, function (e) {
                                     console.error('[FAIL] sync TXs ' + e);
-                                    service.disconnectDB(conn);
+                                    config.disconnectDB(conn);
                                     trace(starttime);
                                     job_running = false;
                                 });
                             } else {
-                                service.disconnectDB(conn);
+                                config.disconnectDB(conn);
                                 trace(starttime);
                                 job_running = false;
                             }
                         });
                     } else {
                         console.log('[INFO] all blocks and TXs synched');
-                        service.disconnectDB(conn);
+                        config.disconnectDB(conn);
                         trace(starttime);
                         job_running = false;
                     }
                 });
             }, function (e) {
                 console.error('failed to connect to blockchain ' + e);
-                service.disconnectDB(conn);
+                config.disconnectDB(conn);
                 trace(starttime);
                 job_running = false;
             });
         }, function (e) {
             console.error('failed to connect to DB ' + e);
-            service.disconnectDB(conn);
+            config.disconnectDB(conn);
             trace(starttime);
             job_running = false;
         });
     } else {
-        console.warn('[INFO] --- scheduler skipped job request. already running ---');
+        // console.warn('[INFO] --- scheduler skipped job request. already running ---');
     }
 }
 
 fastify.get('/api/blocknotify/:bhash', (req, reply) => {
-    console.log('[INFO] new block came ' + JSON.stringify(req.params.bhash));
+    // console.log('[INFO] new block');
     syncBlocks();
     reply.send({code:999, message:'ok'})
 });
 
 fastify.get('/api/walletnotify/:tid', (req, reply) => {
-    console.log('walletnotify ' + JSON.stringify(req.tid));
+    console.log('[INFO] new transaction');
     reply.send({code:999, message:'ok'})
 });
 

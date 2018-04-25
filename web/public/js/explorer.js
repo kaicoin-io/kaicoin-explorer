@@ -1,3 +1,5 @@
+'use strict';
+
 var app = {
     init: function() {
         const self = this;
@@ -143,8 +145,12 @@ var app = {
         console.log('beforeSearch keyword ' + q);
         $.getJSON('/q/' + q, function(data) {
             console.log('data ' + JSON.stringify(data));
-            if (data.type!==null) {
+            if (data.type!==null && data.type!=='none') {
                 window.location.href = '/' + data.type + '/' + q;
+            } else {
+                var snackbarContainer = document.querySelector('#mtd-snack-empty-search');
+                const data = {message: 'NO SEARCH RESULT'};
+                snackbarContainer.MaterialSnackbar.showSnackbar(data);
             }
         });
     }
