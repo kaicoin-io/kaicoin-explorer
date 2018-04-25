@@ -40,7 +40,7 @@ module.exports = function() {
                     rpc(GetBlockchainParams()).then(res2 => {
                         rpc(GetInfo()).then(res3 => {
                             rpc(GetMiningInfo()).then(res4 => {
-                                // Todo: add stream info
+                                // Todo: add stream info, add txcount info
                                 const item = Object.assign(res1.result, res2.result, res3.result, res4.result);
                                 self.savePromise(resolve, reject, conn, table.TB_SUMMARY, item);
                             }).catch(e => reject(e));
@@ -53,10 +53,6 @@ module.exports = function() {
             r.table(tablename).insert(item, {
                 conflict: 'update', returnChanges: false
             }).run(conn).then( function(res1) {
-                // console.log('savepromise: ' + JSON.stringify(res1));
-                // if (res1.inserted===1) { console.log(tablename + ': inserted');
-                // } else if (res1.replaced===1) { console.log(tablename + ': replaced');
-                // } else { console.warn(tablename + ': not inserted'); }
                 resolve(item);
             });
         },
@@ -65,10 +61,6 @@ module.exports = function() {
                 r.table(tablename).insert(item, {
                     conflict: 'update', returnChanges: false
                 }).run(conn).then(function (res1) {
-                    // console.log('saveitem: ' + JSON.stringify(res1));
-                    // if (res1.inserted===1) { console.log(tablename + ': inserted');
-                    // } else if (res1.replaced===1) { console.log(tablename + ': replaced');
-                    // } else { console.warn(tablename + ': not inserted'); }
                     resolve(res1);
                 });
             });
@@ -130,7 +122,7 @@ module.exports = function() {
                 // console.log('listblocks ' + JSON.stringify(res1));
                 if (res1.error===null) {
                     self.saveList(conn, table.TB_BLOCKS, res1.result).then(res2 => {
-                        console.log('[DEBUG] sync blocks[' + fromHeight + '-' + localToHeight + '] ' + JSON.stringify(res2));
+                        console.log('[DEBUG] blocks [' + fromHeight + '-' + localToHeight + '] ' + JSON.stringify(res2));
                         self.saveItem(conn, table.TB_LAST_SYNC, {chainname: CHAIN_NAME, blocksyncheight: localToHeight}).then(res2 => {
                             if (localToHeight>=toHeight) {
                                 resolve(res1);
@@ -188,7 +180,9 @@ module.exports = function() {
                             chainname: CHAIN_NAME,
                             txsyncheight: fromHeight
                         }).then(res3 => {
-                            console.log('[DEBUG] block['+fromHeight+']: sync height updated');
+                            if (fromHeight%200===0) {
+                                console.log('[DEBUG] getting TXs in block['+fromHeight+']');
+                            }
                         });
                     }
                 });

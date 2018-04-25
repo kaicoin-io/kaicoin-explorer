@@ -10,39 +10,17 @@
 
         <div class="mdl-card mtd-pad-verttop match-parent">
 
-            <div class="mdl-card__supporting-text mtd-title-about-wrapper">
-
-                <div class="mtd-card-title-wrapper">
-                    <h4>About</h4>
-                </div>
-            </div>
-            <div class="mdl-card__supporting-text mtd-about-contents">
-                <div class="mtd-summary-about">
-                    <p>Kaicoin Explorer is an open-source blockchain explorer.</p>
-                    <p>This project is still in progress. Please send your comments to Github if you have any inconvenience in using explorer.</p>
-                    <br>
-                    <p>Kaicoin Explorer is powered by: </p>
-                    <ul id="mtd-powered-by" class="mdl-list">
-                        <li class="mdl-list__item"><img src="/res/img/powered/ic-node-js.png"></li>
-                        <li class="mdl-list__item"><img src="/res/img/powered/ic-fastify.png"></li>
-                        <li class="mdl-list__item"><img src="/res/img/powered/ic-socket-io.png"></li>
-                        <li class="mdl-list__item"><img src="/res/img/powered/ic-rethinkdb.png"></li>
-                    </ul>
-                    <p>Thanks to our <a href="https://github.com/Tilkal/multichain-api" target="_blank">multichain-api</a> module contributors, too.</p>
-                    <p>You can find the source code <a href="https://github.com/kaicoin-io/kaicoin-explorer" target="_blank">here</a>.</p>
-                </div>
-            </div>
-
             <!-- Issue & distribution -->
             <div class="mdl-card__supporting-text">
 
                 <div class="mtd-card-title-wrapper">
                     <h4>Summary</h4><div class="mtd-title-page-nav"></div>
                 </div>
+                <div class="x-overflow">
                 <table id="table-chain-coded" class="mdl-data-table mdl-js-data-table">
                     <thead>
                     <tr>
-                        <th>Total Supply</th><th>Circulating Supply</th>
+                        <th>Max Supply</th><th>Circulating Supply</th>
                         <th>Block Height</th><th>TX Count</th>
                         <th>Block Reward</th><th>Total Network Hash</th>
                         <th>Difficulty</th><th>Peers</th>
@@ -51,49 +29,64 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td class="center">21,000,000,000</td>
-                        <td class="center">13,000,000,000</td>
+                        <td class="center"><%=Number(item["maximum-per-output"]/item["native-currency-multiple"]).toLocaleString()%></td>
+                        <td class="center"><%=Number(item["first-block-reward"]/item["native-currency-multiple"]).toLocaleString()%></td>
                         <td class="center"><%=Number(item.blocks).toLocaleString()%></td>
                         <td class="center"><%=Number(item.txcount).toLocaleString()%></td>
                         <td class="center">950 KAI</td>
                         <td class="center"><%=Math.floor(item.networkhashps/1024/1024*100)/100%> MH/s</td>
-                        <td class="center"><%=item.difficulty%></td>
+                        <td class="center"><%=Math.floor(item.difficulty*10000)/10000%></td>
                         <td class="center"><%=item.connections%></td>
                         <td class="center"><%=item.relayfee%></td>
                         <td class="center"><%=item.paytxfee%></td>
+                        <!-- allow-multisig-outputs
+                            reward-halving-interval
+                            mining-turnover
+                            initial-block-reward
+                            first-block-reward
+                            Initial Supply: first-block-reward/native-currency-multiple
+                            Total Supply: maximum-per-output/native-currency-multiple
+                            Block Reward: first-block-reward/native-currency-multiple
+                            -->
                     </tr>
                     </tbody>
                 </table>
+                </div>
                 <br>
 
                 <!-- Market Value -->
                 <div class="mtd-card-title-wrapper">
                     <h4>Market Value</h4><div class="mtd-title-page-nav"></div>
                 </div>
-                <table class="mdl-data-table mdl-js-data-table">
-                    <thead>
-                    <tr>
-                        <th>Market Cap in USD</th><th>Price in USD</th><th>Price in BTC</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td colspan="3" class="center">Currently Not Available, preparing now.</td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div class="mtd-middle-top-wrapper x-overflow">
+                    <iframe id='widget-ticker-preview' src='//www.coingecko.com/en/widget_component/ticker/kaicoin/btc?id=kaicoin' style='border:none; height:125px; width: 275px;' scrolling='no' frameborder='0' allowTransparency='true'></iframe>
+                    <table id="mtd-market-cap" class="mdl-data-table mdl-js-data-table">
+                        <thead>
+                        <tr>
+                            <th>Market Cap in USD</th><th>Price in USD</th><th>Price in BTC</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td colspan="3" class="center">Currently Not Available, preparing now.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <br>
                 <br>
 
                 <!-- horizontal divider -->
                 <div class="mdl-grid mtd-2-cols-wrapper">
 
                     <!-- first column: Chain properties -->
-                    <div class="mdl-cell mdl-cell--7-col">
+                    <div class="mdl-cell mdl-cell--7-col mdl-cell--4-col-phone">
 
                         <div class="mtd-card-title-wrapper">
                             <h4>Properties</h4><div class="mtd-title-page-nav"></div>
                         </div>
 
+                        <div class="x-overflow">
                         <table class="mdl-data-table mdl-js-data-table mtd-summary-table">
                             <tbody>
                             <tr>
@@ -118,10 +111,11 @@
                             </tr>
                             <tr>
                                 <th>Burn Address</th>
-                                <td class="mdl-data-table__cell--non-numeric"><a href="javascript:app.showQRPopup('<%=item.burnaddress%>', '<%=item.burnaddress%>');"><img src="/res/img/ic-qr.png" /></a>&nbsp;<%=item.burnaddress%></td>
+                                <td class="mdl-data-table__cell--non-numeric mtd-work-break"><a href="javascript:app.showQRPopup('<%=item.burnaddress%>', '<%=item.burnaddress%>');"><img src="/res/img/ic-qr.png" /></a>&nbsp;<%=item.burnaddress%></td>
                             </tr>
                             </tbody>
                         </table>
+                        </div>
                         <br>
 
                         <!-- Genesis block info. -->
@@ -132,10 +126,10 @@
                         <table class="mdl-data-table mdl-js-data-table mtd-summary-table">
                             <tbody>
                             <tr>
-                                <th>Public Key</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-pubkey']%></td>
+                                <th>Public Key</th><td class="mdl-data-table__cell--non-numeric mtd-work-break"><%=item['genesis-pubkey']%></td>
                             </tr>
                             <tr>
-                                <th>Public Key Hash</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-hash']%></td>
+                                <th>Public Key Hash</th><td class="mdl-data-table__cell--non-numeric mtd-work-break"><%=item['genesis-hash']%></td>
                             </tr>
                             <tr>
                                 <th>Nonce</th><td class="mdl-data-table__cell--non-numeric"><%=item['genesis-nonce']%></td>
@@ -153,7 +147,7 @@
                     <!-- second column: chain configuration parameters -->
                     <div class="mdl-cell mdl-cell--5-col">
 
-                        <div class="mtd-card-title-wrapper">
+                        <div class="mtd-card-title-wrapper mtd-title-summary-param">
                             <h4>Parameters</h4><div class="mtd-title-page-nav"></div>
                         </div>
 
@@ -203,12 +197,31 @@
                                 <th>Anyone Mine</th>
                                 <td class="mdl-data-table__cell--non-numeric"><%=item['anyone-can-mine']%></td>
                             </tr>
-                            <!--allow-multisig-outputs-->
+
                             </tbody>
                         </table>
                     </div>
                 </div>
+                <br>
+                <!-- about developers -->
+                <div class="mtd-card-title-wrapper">
+                    <h4>About</h4><div class="mtd-title-page-nav"></div>
+                </div>
 
+                <div class="mtd-summary-about" style="clear: both;">
+                    <p>Kaicoin Explorer is an open-source blockchain explorer.</p>
+                    <p>This project is still in progress. Please send your comments to Github if you have any inconvenience in using explorer.</p>
+                    <br>
+                    <p>Kaicoin Explorer is powered by: </p>
+                    <ul id="mtd-powered-by" class="mdl-list">
+                        <li class="mdl-list__item"><img src="/res/img/powered/ic-node-js.png"></li>
+                        <li class="mdl-list__item"><img src="/res/img/powered/ic-fastify.png"></li>
+                        <li class="mdl-list__item"><img src="/res/img/powered/ic-socket-io.png"></li>
+                        <li class="mdl-list__item"><img src="/res/img/powered/ic-rethinkdb.png"></li>
+                    </ul>
+                    <p>Thanks to our <a href="https://github.com/Tilkal/multichain-api" target="_blank">multichain-api</a> module contributors, too.</p>
+                    <p>You can find the source code <a href="https://github.com/kaicoin-io/kaicoin-explorer" target="_blank">here</a>.</p>
+                </div>
             </div>
 
             <div class="mdl-card__actions mdl-card--border">
@@ -221,9 +234,10 @@
 
     </div>
 
+    <% include views/template/footer.ejs %>
+
 </main>
 
-<% include views/template/footer.ejs %>
 
 <!-- {"chain":"test","chainname":"kaicoin","description":"MultiChain kaicoin","protocol":"multichain",
                 "setupblocks":100000,"reindex":false,"blocks":181834,"headers":181834,

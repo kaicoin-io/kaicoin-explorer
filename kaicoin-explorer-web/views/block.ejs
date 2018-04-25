@@ -13,70 +13,77 @@
             <div class="mdl-card__supporting-text">
 
                 <div class="mtd-card-title-wrapper">
-                    <h4>Block&nbsp;<span id="current-position"><%=item.height%></span></h4>
+                    <h4>Block</h4>
+                    <div id="current-position">
+                        <div><%=item.height%></div>
+                    </div>
                 </div>
 
                 <div class="x-overflow">
-                <table id="table-chain-main" class="mdl-data-table mdl-shadow--2dp">
-                    <tbody>
-                    <tr>
-                        <th>Block Height</th><td class="mdl-data-table__cell--non-numeric"><span class="label label-info"><%=item.height%></span></td>
-                        <th>Time</th><td class="mdl-data-table__cell--non-numeric"><%=item.date%> (<%=item.time%>)</td>
-                    </tr>
-                    <tr>
-                        <th>Confirmations</th><td class="mdl-data-table__cell--non-numeric"><span class="label label-info"><%=item.confirmations%></span></td>
-                        <th>Block Size</th><td class="mdl-data-table__cell--non-numeric"><%=Number(item.size).toLocaleString()%> bytes</td>
-                    </tr>
-                    <tr>
-                        <th>Miner</th>
-                        <td class="mdl-data-table__cell--non-numeric">
+                    <!--<table id="table-chain-main" class="mdl-data-table mdl-shadow&#45;&#45;2dp">-->
+                    <div class="mdl-grid mdl-data-table">
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Block Height</div>
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--6-col-tablet mdl-cell--2-col-phone">
+                            <span class="label label-info"><%=item.height%></span>
+                        </div>
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Time</div>
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--6-col-tablet mdl-cell--2-col-phone">
+                            <%=item.date%> (<%=item.time%>)
+                        </div>
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Confirmations</div>
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--6-col-tablet mdl-cell--2-col-phone">
+                            <span class="label label-info"><%=item.confirmations%></span>
+                        </div>
+
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Block Size</div>
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--6-col-tablet mdl-cell--2-col-phone">
+                            <%=Number(item.size).toLocaleString()%> bytes
+                        </div>
+
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Miner</div>
+                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone">
                             <a href="javascript:app.showQRPopup('<%=item.miner%>', '<%=item.miner%>');"><img src="/res/img/ic-qr.png" /></a> <a href="#"><%=item.miner%></a>
-                        </td>
-                        <th>Nonce</th><td class="mdl-data-table__cell--non-numeric"><%=item.nonce%></td>
-                    </tr>
-                    <tr>
-                        <th>Block Hash</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><%=item.hash%></td>
-                    </tr>
-                    <tr>
-                        <th>Transaction Merkle Root</th><td colspan="3" class="mdl-data-table__cell--non-numeric"><%=item.merkleroot%></td>
-                    </tr>
-                    <tr>
-                        <th class="mtd-cell-txs">Transactions &nbsp;&nbsp;<% if (item.tx.length>1) { %>
+                        </div>
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Nonce</div>
+                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone"><%=item.nonce%></div>
+
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Block Hash</div>
+                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone"><%=item.hash%></div>
+
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone mtd-line-break">Transaction Merkle Root</div>
+                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone"><%=item.merkleroot%></div>
+
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">
+                            Transactions &nbsp;&nbsp;<% if (item.tx.length>1) { %>
                             <span class="label label-info important"><%=item.tx.length%></span>
                             <% } else { %>
                             <span class="label label-info"><%=item.tx.length%></span>
                             <% } %>
-                        </th>
-                        <td colspan="3" class="mtd-cell-txs mdl-data-table__cell--non-numeric">
+                        </div>
+                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone">
                             <% for(var i=0; i<item.tx.length; i++) { %>
-                                <% if (item.height!==0) { %>
-                                        <p><a href="/tx/<%=item.tx[i]%>"><%=item.tx[i]%></a></p>
-                                <% } else { %>
-                                <p><a href="javascript:void(0);"><%=item.tx[i]%></a></p>
-                                <% } %>
+                            <% if (item.height!==0) { %>
+                            <p><a href="/tx/<%=item.tx[i]%>"><%=item.tx[i]%></a></p>
+                            <% } else { %>
+                            <p><a href="javascript:void(0);"><%=item.tx[i]%></a></p>
                             <% } %>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><i class="fas fa-arrow-left"></i> Previous Block</th>
-                        <td colspan="3" class="mdl-data-table__cell--non-numeric">
+                            <% } %>
+                        </div>
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Prev Block&nbsp;<i class="fas fa-arrow-left"></i></div>
+                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone">
                             <% if (typeof(item.previousblockhash)!=='undefined') { %>
-                                <a href="/block/<%=item.previousblockhash%>"><%=item.previousblockhash%></a>
+                            <a href="/block/<%=item.previousblockhash%>"><%=item.previousblockhash%></a>
                             <% } else { %>N/A<% } %>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><i class="fas fa-arrow-right"></i> Next Block</th>
-                        <td colspan="3" class="mdl-data-table__cell--non-numeric">
+                        </div>
+
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Next Block&nbsp;<i class="fas fa-arrow-right"></i></div>
+                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone">
                             <% if (typeof(item.nextblockhash)!=='undefined') { %>
                             <a href="/block/<%=item.nextblockhash%>"><%=item.nextblockhash%></a>
                             <% } else { %>N/A<% } %>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+                        </div>
+                    </div>
                 </div>
-
                 <br>
 
                 <div class="mdl-card__actions mdl-card--border">
@@ -97,6 +104,7 @@
         </div>
     </div>
 
+    <% include views/template/footer.ejs %>
+
 </main>
 
-<% include views/template/footer.ejs %>

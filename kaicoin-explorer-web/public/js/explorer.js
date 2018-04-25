@@ -35,11 +35,20 @@ var app = {
         });
         console.log('path ' + window.location.pathname + ' ' + location.hash);
         // when 'block height' hash URL exists
-        if (window.location.pathname==='/blocks' && location.hash.startsWith("#")){
+        const pathname = window.location.pathname;
+        if (pathname==='/blocks' && location.hash.startsWith("#")){
             console.log('go to paginate');
             $(".thumb > .value").html(location.hash.substring(1, location.hash.length));
             self.paginateBlocks();
         }
+        if (pathname.startsWith("/summary")) {
+            $(".mdl-navigation__link.btn-summary").addClass("on");
+        } else if (pathname.startsWith("/block")) {
+            $(".mdl-navigation__link.btn-blocks").addClass("on");
+        } else if (pathname.startsWith("/tx")) {
+            $(".mdl-navigation__link.btn-txs").addClass("on");
+        }
+
     },
     showQRPopup: function(title, qrString) {
         alert('<div>'+title+'</div><img class=mtd-diag-content-img src=https://api.qrserver.com/v1/create-qr-code/?size=208x208&data='+qrString+' onload=app.hidePopupLoader()>');

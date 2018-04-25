@@ -49,43 +49,39 @@
 
 <div class="mdl-layout mdl-js-layout">
 
-    <header class="mdl-layout__header mdl-layout--fixed-header mdl-shadow--2dp">
+    <header class="mdl-layout--fixed-header mdl-shadow--2dp">
 
         <div class="mdl-layout__header-row">
             <!-- Title -->
-            <span class="mdl-layout-title"><a title="home" href="/"><img src="/res/img/ic_logo_land.png"></a></span>
+            <span class="mdl-layout-title"><a href="/" style="float: left;line-height: 32px;"><img src="/res/img/ic-kai-small-title.png" /></a><a title="home" href="/"><img src="/res/img/ic_logo_land.png"></a></span>
             <!-- Add spacer, to align navigation to the right -->
             <div class="mdl-layout-spacer"></div>
             <!-- Navigation -->
-            <nav class="mdl-navigation">
-                <a class="mdl-navigation__link" href="/summary">Summary</a>
-                <a class="mdl-navigation__link" href="/blocks">Blocks</a>
-                <a class="mdl-navigation__link" href="/txs">Transactions</a>
-                <a class="mdl-navigation__link" href="http://www.kaicoin.io/" target="_blank">Kaicoin&nbsp;&nbsp;<i class="fas fa-external-link-alt"></i></a>
+            <nav class="mdl-navigation mdl-layout--large-screen-only">
+                <a class="mdl-navigation__link btn-summary" href="/summary">Summary</a>
+                <a class="mdl-navigation__link btn-blocks" href="/blocks">Blocks</a>
+                <a class="mdl-navigation__link btn-txs" href="/txs">Transactions</a>
+                <!--<a class="mdl-navigation__link" href="http://www.kaicoin.io/" target="_blank">Kaicoin&nbsp;&nbsp;<i class="fas fa-external-link-alt"></i></a>
                 <a class="mdl-navigation__link sns" href="https://github.com/kaicoin-io" target="_blank"><i class="fab fa-github"></i></a>
                 <a class="mdl-navigation__link sns" href="https://www.facebook.com/kaicoin.global" target="_blank"><i class="fab fa-facebook-square"></i></a>
                 <a class="mdl-navigation__link sns" href="https://twitter.com/kaicoin_global" target="_blank"><i class="fab fa-twitter-square"></i></a>
                 <a class="mdl-navigation__link sns" href="https://play.google.com/store/apps/details?id=com.greenstagelab.kaicoin.wallet" target="_blank"><i class="fab fa-google-play"></i></a>
-                <a class="mdl-navigation__link sns" href="http://www.kaicoin.io/ios_download.html" target="_blank"><i class="fab fa-apple"></i></a>
+                <a class="mdl-navigation__link sns" href="http://www.kaicoin.io/ios_download.html" target="_blank"><i class="fab fa-apple"></i></a>-->
+            </nav>
+        </div>
+        <div class="mdl-layout__header-row mtd-tab-header">
+            <div class="mdl-layout-spacer"></div>
+            <!-- Navigation -->
+            <nav class="mdl-navigation">
+                <a class="mdl-navigation__link btn-summary" href="/summary">Summary</a>
+                <a class="mdl-navigation__link btn-blocks" href="/blocks">Blocks</a>
+                <a class="mdl-navigation__link btn-txs" href="/txs">Transactions</a>
+                <!--<a class="mdl-navigation__link" href="http://www.kaicoin.io/" target="_blank">Kaicoin&nbsp;&nbsp;<i class="fas fa-external-link-alt"></i></a>
+                <a class="mdl-navigation__link sns" href="https://github.com/kaicoin-io" target="_blank"><i class="fab fa-github"></i></a>
+                <a class="mdl-navigation__link sns" href="https://www.facebook.com/kaicoin.global" target="_blank"><i class="fab fa-facebook-square"></i></a>
+                <a class="mdl-navigation__link sns" href="https://twitter.com/kaicoin_global" target="_blank"><i class="fab fa-twitter-square"></i></a>
+                <a class="mdl-navigation__link sns" href="https://play.google.com/store/apps/details?id=com.greenstagelab.kaicoin.wallet" target="_blank"><i class="fab fa-google-play"></i></a>
+                <a class="mdl-navigation__link sns" href="http://www.kaicoin.io/ios_download.html" target="_blank"><i class="fab fa-apple"></i></a>-->
             </nav>
         </div>
     </header>
-
-    <div class="mdl-layout__drawer">
-        <span class="mdl-layout-title"><a title="home" href="/"><img src="/res/img/ic_logo_land.png"></a></span>
-        <nav class="mdl-navigation">
-            <a class="mdl-navigation__link" href="/summary">Summary</a>
-            <a class="mdl-navigation__link" href="/blocks">Blocks</a>
-            <a class="mdl-navigation__link" href="/txs">Transactions</a>
-            <a class="mdl-navigation__link" href="http://www.kaicoin.io/" target="_blank">Kaicoin&nbsp;&nbsp;<i class="fas fa-external-link-alt"></i></a>
-            <ul class="mtd-drawer-ul">
-                <li><a class="mdl-navigation__link" href="https://github.com/kaicoin-io" target="_blank"><i class="fab fa-github"></i></a></li>
-                <li><a class="mdl-navigation__link" href="https://www.facebook.com/kaicoin.global" target="_blank"><i class="fab fa-facebook-square"></i></a></li>
-                <li><a class="mdl-navigation__link" href="https://twitter.com/kaicoin_global" target="_blank"><i class="fab fa-twitter-square"></i></a></li>
-            </ul>
-            <ul class="mtd-drawer-ul">
-                <li><a class="mdl-navigation__link" href="https://play.google.com/store/apps/details?id=com.greenstagelab.kaicoin.wallet" target="_blank"><i class="fab fa-google-play"></i></a></li>
-                <li><a class="mdl-navigation__link" href="http://www.kaicoin.io/ios_download.html" target="_blank"><i class="fab fa-apple"></i></a></li>
-            </ul>
-        </nav>
-    </div>

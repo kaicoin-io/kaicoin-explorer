@@ -33,8 +33,12 @@ fastify.get('/', (req, reply) => {
         service.getSummary(conn).then(res1 => {
             service.getBlocks(conn, LIST_COUNT_MAIN).then(res2 => {
                 service.getTxs(conn, LIST_COUNT_MAIN).then(res3 => {
-                    service.disconnectDB(conn);
-                    reply.view('index', {summary: res1, blocks: res2, txs: res3});
+                    service.getRowCount(conn, table.TB_TXS).then(res3 => {
+                        service.disconnectDB(conn);
+                        const ret = {summary: res1, blocks: res2, txs: res3}
+                        ret.summary.txcount = res3;
+                        reply.view('index', ret);
+                    });
                 });
             });
         })
@@ -165,6 +169,7 @@ fastify.get('/tx/:q', (req, reply) => {
     //   2) vout[0].scriptPubKey.addresses: 수신자
     //   2) vout[1].scriptPubKey.addresses: 전송자
     service.getRawTx(req.params.q).then(res1 => {
+        console.log('res1 ' + JSON.stringify(res1));
         reply.view('tx', {item: res1});
     }, function(e) {
         console.error('failed to handle getRawTx ' + e);
@@ -249,7 +254,7 @@ fastify.get('/MultiChain%20kaicoin/tx/:q', (req, reply) => {
 /**
  * starting server
  */
-fastify.listen(3000, err => {
+fastify.listen(WEB_PORT, SERVICE_IP, err => {
     if (err) throw err;
     const io = require('socket.io')(fastify.server);
     io.origins('*:*');

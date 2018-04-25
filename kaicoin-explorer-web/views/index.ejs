@@ -7,26 +7,38 @@
     <div class="page-content mtd-page-index">
 
         <div class="x-overflow">
-            <table id="summary_table" class="mdl-data-table match-parent">
-                <thead>
-                <tr>
-                    <th>Blocks</th><th>TXs</th><th>Addresses</th>
-                    <th>Net Hash</th><th>Difficulty</th><th>Blocktime</th>
-                    <th>Streams</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td><a href="/blocks"><%=summary.blocks%></a></td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td><%=Math.floor(summary.networkhashps/1024/1024*100)/100%> MH/s</td>
-                    <td><%=summary.difficulty%></td>
-                    <td>0</td>
-                    <td><a href="/summary">1</a></td>
-                </tr>
-                </tbody>
-            </table>
+            <!-- 1) Block list -->
+            <div class="mdl-list__item">
+                <span class="mdl-list__item-primary-content">
+                    <h5><i class="fas fa-cloud-download-alt"></i>&nbsp;SUMMARY</h5>
+                </span>
+                <a class="mdl-list__item-secondary-action" href="/blocks"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-angle-double-right"></i></button></a>
+            </div>
+            <div class="mtd-middle-top-wrapper">
+                <iframe id='widget-ticker-preview' src='//www.coingecko.com/en/widget_component/ticker/kaicoin/btc?id=kaicoin' style='border:none; height:125px; width: 275px;' scrolling='no' frameborder='0' allowTransparency='true'></iframe>
+                <table id="summary_table" class="mdl-data-table">
+                    <tr>
+                        <th class="center">Blocktime</th><th class="center">Blocks</th><th class="center">Transactions</th>
+                    </tr>
+                    <tr>
+                        <td class="center"><%=summary['target-block-time']%>sec</td>
+                        <td class="center"><a href="/blocks"><%=Number(summary.blocks).toLocaleString()%></a></td>
+                        <td class="center"><a href="/blocks"><%=Number(summary.txcount).toLocaleString()%></a></td>
+
+                    </tr>
+                    <tr>
+                        <th class="center">Address</th><th class="center">Net Hash</th><th class="center">Difficulty</th>
+                    </tr>
+                    <tr>
+                        <td class="center">0</td><!-- Addressed Count -->
+                        <td class="center"><%=Math.floor(summary.networkhashps/1024/1024*100)/100%>MH/s</td>
+                        <td class="center"><%=Math.floor(summary.difficulty*10000)/10000%></td>
+
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
         </div>
 
         <div class="section--center mdl-grid mdl-grid--no-spacing mtd-2-2div-header-wrapper">
@@ -35,7 +47,7 @@
             <div class="mdl-cell mdl-cell--6-col">
                 <div class="mdl-list__item">
                     <span class="mdl-list__item-primary-content">
-                      <h5><i class="fas fa-cloud-download-alt"></i>&nbsp;Latest Blocks</h5>
+                      <h5><i class="fas fa-cloud-download-alt"></i>&nbsp;LATEST BLOCKS</h5>
                     </span>
                     <a class="mdl-list__item-secondary-action" href="/blocks"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-angle-double-right"></i></button></a>
                 </div>
@@ -74,7 +86,7 @@
             <div class="mdl-cell mdl-cell--6-col">
                 <div class="mdl-list__item">
                     <span class="mdl-list__item-primary-content">
-                      <h5><i class="fas fa-retweet"></i>&nbsp;Latest Transactions</h5>
+                      <h5><i class="fas fa-retweet"></i>&nbsp;LATEST TRANSACTIONS</h5>
                     </span>
                     <a class="mdl-list__item-secondary-action" href="/txs"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-angle-double-right"></i></button></a>
                 </div>
@@ -119,6 +131,7 @@
 
     </div>
 
+    <% include views/template/footer.ejs %>
+
 </main>
 
-<% include views/template/footer.ejs %>

@@ -163,10 +163,12 @@ module.exports = function() {
             return new Promise( function(resolve, reject) {
                 rpc(GetRawTransaction(txid, 1)).then(res1 => {
                     // blockhash, confirmations, time, blocktime, hex, txid, version, locktime
-                    let tx = res1.result;
+                    let tx = {};
+                    Object.assign(tx, res1.result);
                     // tx.fromaddress = '';
                     tx.date = toHumanReadableTimestampAgo(tx.time*1000, new Date().getTime());
                     if (typeof(tx.vin[0].coinbase)!=='undefined') {
+                        // 빈블럭이면
                         tx.txtype = 'mine';
                         tx.toaddress = tx.vout[0].scriptPubKey.addresses[0];
                         tx.value = tx.vout[0].value;
@@ -179,6 +181,7 @@ module.exports = function() {
                         tx.toaddress = tx.vout[0].scriptPubKey.addresses[0];
                         tx.value = tx.vout[0].value;
                     }
+                    var item = { raw: res1.result, item: tx };
                     console.log('tx ' + JSON.stringify(tx));
                     resolve(tx);
                 }).catch(e => { onRpcError(e); reject(e); });

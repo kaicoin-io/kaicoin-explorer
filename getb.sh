@@ -1,0 +1,1 @@
+multichain-cli kaicoin getbalance
