@@ -56,3 +56,6 @@ II. Installation on Ubuntu (v16 recommended)
       - sudo rethinkdb --daemon
     2) start nodejs
       - nohup node app.js start &
+  8 Register service on boo start up (upload to /etc/init.d/kaicoin-explorer.sh and run script below)
+    - update-rc.d kaicoin-explorer.sh defaults
+    - service kaicoin-explorer.sh start
