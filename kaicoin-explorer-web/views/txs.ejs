@@ -26,7 +26,7 @@
                 <table id="mtd-txs-table" class="mdl-data-table mdl-js-data-tablematch-parent mdl-shadow--2dp">
                     <thead>
                     <tr>
-                        <th>Type</th><th>Confirm</th><th>TX ID</th><th>Transactions (from <i class="fas fa-arrow-right"></i> to)</th><th>Amount</th><th>Time</th>
+                        <th>Type</th><th>TX ID</th><th>Transactions (from <i class="fas fa-arrow-right"></i> to)</th><th>Amount</th><th>Confirm</th><th>Time</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -36,14 +36,10 @@
                         <% for(var i=0; i<list.length; i++) { %>
                         <tr>
                             <td>
-                                <% if (list[i].txtype==='mine') { %><span class="label label-info"><%=list[i].txtype%></span>
+                                <% if (list[i].txtype==='mine') { %><span class="label"><%=list[i].txtype%></span>
+                                <!-- Todo: self인 경우도 포함 필요 -->
                                 <% } else if (list[i].txtype==='send') { %><span class="label label-primary"><%=list[i].txtype%></span>
                                 <% } else { %><span class="label label-success"><%=list[i].txtype%></span><% } %>
-                            </td>
-                            <td class="center">
-                                <span class="label label-info">
-                                    <% if(typeof(list[i].confirmations)!=='undefined') { %><%=list[i].confirmations%><% } else { %>0<% } %>
-                                </span>
                             </td>
                             <!-- TX ID -->
                             <td class="mdl-data-table__cell--non-numeric">
@@ -60,11 +56,12 @@
                                 <% } %>
                             </td>
                             <td class="mtd-text-right">
-                                <% if (list[i].txtype==='memp') { %>
-                                    N/A
-                                <% } else { %>
-                                    <% if (typeof(list[i].vout)!=='undefined' && typeof(list[i].vout[0].value)!=='undefined') { %><%=Number(list[i].vout[0].value).toLocaleString()%><% } %> KAI
-                                <% } %>
+                                <% if (typeof(list[i].vout)!=='undefined' && typeof(list[i].vout[0].value)!=='undefined') { %><%=Number(list[i].vout[0].value).toLocaleString()%><% } %> KAI
+                            </td>
+                            <td class="center">
+                                <span class="label">
+                                    <% if(typeof(list[i].confirmations)!=='undefined') { %><%=list[i].confirmations%><% } else { %>0<% } %>
+                                </span>
                             </td>
                             <td class="left"><i class="fas fa-arrow-down"></i>&nbsp;<%=list[i].date%></td>
                         </tr>
@@ -87,6 +84,7 @@
 
     </div>
 
-    <% include views/template/footer.ejs %>
 </main>
+
+<% include views/template/footer.ejs %>
 

@@ -14,6 +14,20 @@ var app = {
             diagAlert.querySelector('.mdl-dialog__content').innerHTML = msg;
             diagAlert.showModal();
         };
+        const diagTextAlert = document.querySelector('#diag-text-alert');
+        if (!diagTextAlert.showModal) {
+            dialogPolyfill.registerDialog(diagTextAlert);
+        }
+        diagTextAlert.querySelector('.close').addEventListener('click', function() {
+            diagTextAlert.close();
+        });
+        // refer this https://stackoverflow.com/questions/1729501/javascript-overriding-alert?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+        window.textAlert = function(title, msg) {
+            diagTextAlert.querySelector('.mtd-diag-title').innerHTML = title;
+            diagTextAlert.querySelector('.mtd-diag-content-area').innerHTML = msg;
+            diagTextAlert.showModal();
+        };
+
         if (document.getElementById('search-keyword')!==null) {
             document.getElementById('search-keyword').onkeydown = function(e){
                 if(e.keyCode===13){ self.beforeSearch(this.value); }
@@ -28,7 +42,7 @@ var app = {
             $.getJSON('/txs/' + q, function(data) {
                 console.log('txnum ' + q);
                 $("#progress-loader").removeClass("is-active");
-                $("#current-position").html('<i class="fas fa-arrow-down"></i>&nbsp;' + data.q);
+                $("#current-position > div").html('<i class="fas fa-arrow-down"></i>&nbsp;' + data.q);
                 $("#mtd-txs-table > tbody").empty().html(self.makeTxsRow(data.list));
                 window.location.href = '#' + q;
             });
@@ -51,7 +65,10 @@ var app = {
 
     },
     showQRPopup: function(title, qrString) {
-        alert('<div>'+title+'</div><img class=mtd-diag-content-img src=https://api.qrserver.com/v1/create-qr-code/?size=208x208&data='+qrString+' onload=app.hidePopupLoader()>');
+        alert('<div class=mtd-work-break>'+title+'</div><img class=mtd-diag-content-img src=https://api.qrserver.com/v1/create-qr-code/?size=208x208&data='+qrString+' onload=app.hidePopupLoader()>');
+    },
+    showQRText: function(title, text) {
+        textAlert(title, text);
     },
     hidePopupLoader: function() {
         $('.three-balls').hide();
@@ -63,7 +80,7 @@ var app = {
         $.getJSON('/blocks/' + q, function(data) {
             console.log('blockheight ' + q);
             $("#progress-loader").removeClass("is-active");
-            $("#current-position").html('<i class="fas fa-arrow-down"></i>&nbsp;' + data.q);
+            $("#current-position > div").html('<i class="fas fa-arrow-down"></i>&nbsp;' + data.q);
             $("#mtd-blocks-table > tbody").empty().html(self.makeBlocksRow(data.list));
             window.location.href = '#' + q;
         });
@@ -73,13 +90,26 @@ var app = {
         let rows = '';
         for (let i=0; i<data.length; i++) {
             console.log('data['+i+'] ' + data[i].height);
-            rows += '<tr><td><a class="mtd-middle-chars mtd-label" href="/block/'+data[i].height+'">' +
-                '<span class="label label-info">'+data[i].height+'</span></a></td>' +
-                '<td class="mdl-data-table__cell--non-numeric"><a class="mtd-middle-chars ellipse" href="/block/'+data[i].height+'">'+data[i].hash+'</a></td>' +
-                '<td class="mdl-data-table__cell--non-numeric"><a class="mtd-middle-chars ellipse" href="#">'+data[i].miner+'</a></td>' +
-                '<td>'+data[i].size+'</td><td><span class="label label-info">'+data[i].txcount+'</span></td><td class="center">' +
-                '<span class="label label-info">'+data[i].confirmations+'</span></td>' +
-                '<td class="left"><i class="fas fa-arrow-down"></i>&nbsp;'+data[i].date+'</td></tr>';
+
+            const from = (data[i].txtype==='send' && typeof(data[i].vout[1])!=='undefined')
+                ?'<div>' + data[i].vout[1].scriptPubKey.addresses[0] + '</div>':'';
+
+            const to = ((data[i].txtype==='send' || data[i].txtype==='mine') && typeof(data[i].vout[0])!=='undefined')
+                ?'<div><i class="fas fa-arrow-right"></i>&nbsp;' + data[i].vout[0].scriptPubKey.addresses[0] + '</div>':'';
+
+            const amt = (typeof(data[i].vout)!=='undefined' && typeof(data[i].vout[0].value)!=='undefined')
+                ?Number(data[i].vout[0].value).toLocaleString():'0';
+
+            const labelSpanType = (typeof(data[i].ismemp)!=='undefined' && data[i].ismemp===true)?'<span class="label label-success">'
+                :data[i].txtype==='mine'?'<span class="label">':data[i].txtype==='send'?'<span class="label label-primary">':'';
+
+            rows += '<tr><td>' + labelSpanType + data[i].txtype + '</span></td>'
+                + '<td class="mdl-data-table__cell--non-numeric">' + '<a class="mtd-middle-chars" href="/tx/'+data[i].txid+'">'
+                    + data[i].txid + '</a></td>'
+                + '<td class="mdl-data-table__cell--non-numeric">' + from + to + '</td>'
+                + '<td class="mtd-text-right">' + amt + ' KAI</td>'
+                + '<td class="center"><span class="label">' + data[i].confirmations + '</span></td>'
+                + '<td class="left"><i class="fas fa-arrow-down"></i>&nbsp;' + data[i].date + '</td></tr>';
         }
         console.log('data[0] ' + JSON.stringify(data[0]));
         return rows;
@@ -91,17 +121,17 @@ var app = {
             console.log('data['+i+'] ' + data[i].height);
             let txCount = '';
             if (data[i].txcount>1) {
-                txCount = '<span class="label label-info important">'+data[i].txcount+'</span>';
-            } else {
                 txCount = '<span class="label label-info">'+data[i].txcount+'</span>';
+            } else {
+                txCount = '<span class="label">'+data[i].txcount+'</span>';
             }
             rows += '<tr><td><a class="mtd-middle-chars mtd-label" href="/block/'+data[i].height+'">' +
-                '<span class="label label-info">'+data[i].height+'</span></a></td>' +
-                '<td class="mdl-data-table__cell--non-numeric"><a class="mtd-middle-chars ellipse" href="/block/'+data[i].height+'">'+data[i].hash+'</a></td>' +
+                '<span class="label">'+data[i].height+'</span></a></td>' +
+                '<td class="mdl-data-table__cell--non-numeric"><a class="mtd-middle-chars" href="/block/'+data[i].height+'">'+data[i].hash+'</a></td>' +
                 '<td class="mdl-data-table__cell--non-numeric">'+data[i].miner+'</td>' +
                 '<td>'+Number(data[i].size).toLocaleString()+'</td>' +
                 '<td class="center">'+txCount+'</td>' +
-                '<td class="center"><span class="label label-info">'+data[i].confirmations+'</span></td>' +
+                '<td class="center"><span class="label">'+data[i].confirmations+'</span></td>' +
                 '<td class="left"><i class="fas fa-arrow-down"></i>&nbsp;'+data[i].date+'</td></tr>';
         }
         console.log('data[0] ' + JSON.stringify(data[0]));

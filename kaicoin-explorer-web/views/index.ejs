@@ -10,30 +10,29 @@
             <!-- 1) Block list -->
             <div class="mdl-list__item">
                 <span class="mdl-list__item-primary-content">
-                    <h5><i class="fas fa-cloud-download-alt"></i>&nbsp;SUMMARY</h5>
+                    <h5><i class="fas fa-flag-checkered"></i>&nbsp;SUMMARY</h5>
                 </span>
-                <a class="mdl-list__item-secondary-action" href="/blocks"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-angle-double-right"></i></button></a>
+                <a class="mdl-list__item-secondary-action" href="/summary"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-angle-double-right"></i></button></a>
             </div>
             <div class="mtd-middle-top-wrapper">
                 <iframe id='widget-ticker-preview' src='//www.coingecko.com/en/widget_component/ticker/kaicoin/btc?id=kaicoin' style='border:none; height:125px; width: 275px;' scrolling='no' frameborder='0' allowTransparency='true'></iframe>
                 <table id="summary_table" class="mdl-data-table">
                     <tr>
-                        <th class="center">Blocktime</th><th class="center">Blocks</th><th class="center">Transactions</th>
+                        <th class="center">Blocks</th><th class="center">Transactions</th><th class="center">Addresses</th>
                     </tr>
                     <tr>
-                        <td class="center"><%=summary['target-block-time']%>sec</td>
                         <td class="center"><a href="/blocks"><%=Number(summary.blocks).toLocaleString()%></a></td>
-                        <td class="center"><a href="/blocks"><%=Number(summary.txcount).toLocaleString()%></a></td>
+                        <td class="center"><a href="/txs"><%=Number(txcount).toLocaleString()%></a></td>
+                        <td class="center">0</td><!-- Addressed Count -->
 
                     </tr>
                     <tr>
-                        <th class="center">Address</th><th class="center">Net Hash</th><th class="center">Difficulty</th>
+                        <th class="center">Net Hash</th><th class="center">Difficulty</th><th class="center">Blocktime</th>
                     </tr>
                     <tr>
-                        <td class="center">0</td><!-- Addressed Count -->
                         <td class="center"><%=Math.floor(summary.networkhashps/1024/1024*100)/100%>MH/s</td>
                         <td class="center"><%=Math.floor(summary.difficulty*10000)/10000%></td>
-
+                        <td class="center"><%=summary['target-block-time']%>sec</td>
                     </tr>
                     </tbody>
                 </table>
@@ -47,7 +46,7 @@
             <div class="mdl-cell mdl-cell--6-col">
                 <div class="mdl-list__item">
                     <span class="mdl-list__item-primary-content">
-                      <h5><i class="fas fa-cloud-download-alt"></i>&nbsp;LATEST BLOCKS</h5>
+                      <h5><i class="fab fa-codepen"></i>&nbsp;LATEST BLOCKS</h5>
                     </span>
                     <a class="mdl-list__item-secondary-action" href="/blocks"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-angle-double-right"></i></button></a>
                 </div>
@@ -61,18 +60,18 @@
                         <tbody>
                         <% for(var i=0; i<blocks.length; i++) { %>
                         <tr>
-                            <td><span class="label label-info"><%=blocks[i].height%></span></td>
+                            <td><span class="label"><%=blocks[i].height%></span></td>
                             <td class="left-align">
                                 <a class="mtd-middle-chars" href="/block/<%=blocks[i].height%>"><%=blocks[i].miner%></a>
                             </td>
                             <td class="center">
                                 <% if (blocks[i].txcount>1) { %>
-                                    <span class="label label-info important"><%=blocks[i].txcount%></span>
-                                <% } else { %>
                                     <span class="label label-info"><%=blocks[i].txcount%></span>
+                                <% } else { %>
+                                    <span class="label"><%=blocks[i].txcount%></span>
                                 <% } %>
                             </td>
-                            <td class="center confirm"><span class="label label-info"><%=blocks[i].confirmations%></span></td>
+                            <td class="center confirm"><span class="label"><%=blocks[i].confirmations%></span></td>
                             <td><%=Number(blocks[i].size).toLocaleString()%></td>
                             <td class="left"><i class="fas fa-arrow-down"></i><%=blocks[i].date%></td>
                         </tr>
@@ -86,7 +85,7 @@
             <div class="mdl-cell mdl-cell--6-col">
                 <div class="mdl-list__item">
                     <span class="mdl-list__item-primary-content">
-                      <h5><i class="fas fa-retweet"></i>&nbsp;LATEST TRANSACTIONS</h5>
+                      <h5><i class="fas fa-shipping-fast"></i>&nbsp;LATEST TRANSACTIONS</h5>
                     </span>
                     <a class="mdl-list__item-secondary-action" href="/txs"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-angle-double-right"></i></button></a>
                 </div>
@@ -98,18 +97,24 @@
                         </tr>
                         </thead>
                         <tbody>
+                        <% if(txcount<1) { %>
+                        <tr>
+                            <td colspan="5">TRANSACTIONS ARE NOT FOUND
+                            </td>
+                        </tr>
+                        <% } else { %>
                         <% for(var i=0; i<txs.length; i++) { %>
                         <tr>
                             <td>
-                                <% if (txs[i].txtype==='mine') { %><span class="label label-info"><%=txs[i].txtype%></span>
+                                <% if (txs[i].txtype==='mine') { %><span class="label"><%=txs[i].txtype%></span>
                                 <% } else if (txs[i].txtype==='send') { %><span class="label label-primary"><%=txs[i].txtype%></span>
-                                <% } else { %><span class="label label-success"><%=txs[i].txtype%></span><% } %>
+                                <% } else { %><span class="label<% if (txs[i].ismemp===true) { %> label-success<% } %>"><%=txs[i].txtype%></span><% } %>
                             </td>
                             <td class="left-align mtd-txs-cell-txhash">
                                 <a class="mtd-middle-chars" href="/tx/<%=txs[i].txid%>"><%=txs[i].txid%></a>
                                 <br>
                                 <!-- mine, memp, send -->
-                                <div class="mtd-small-chars" class="ellipse" style="line-height: 16px;overflow-x: hidden;">
+                                <div class="mtd-small-chars" style="line-height: 16px;overflow-x: hidden;">
                                     <% if (txs[i].txtype==='send' && typeof(txs[i].vout[1])!=='undefined') { %><%=txs[i].vout[1].scriptPubKey.addresses[0]%><% } %>
                                     <% if (txs[i].txtype==='send' || txs[i].txtype==='mine') { %><i class="fas fa-arrow-right"></i> <%=txs[i].vout[0].scriptPubKey.addresses[0]%><% } %>
                                 </div>
@@ -119,9 +124,10 @@
                                 <% if (typeof(txs[i].vout)!=='undefined' && typeof(txs[i].vout[0].value)!=='undefined') { %><%=txs[i].vout[0].value%><% } %> KAI
                                 <% } %>
                             </td>
-                            <td class="center confirm"><% if (txs[i].txtype!=='memp') { %><span class="label label-info"><%=txs[i].confirmations%></span><% } %></td>
+                            <td class="center confirm"><% if (txs[i].txtype!=='memp') { %><span class="label"><%=txs[i].confirmations%></span><% } %></td>
                             <td class="left"><i class="fas fa-arrow-down"></i><%=txs[i].date%></td>
                         </tr>
+                        <% } %>
                         <% } %>
                         </tbody>
                     </table>
@@ -131,7 +137,7 @@
 
     </div>
 
-    <% include views/template/footer.ejs %>
-
 </main>
+
+<% include views/template/footer.ejs %>
 

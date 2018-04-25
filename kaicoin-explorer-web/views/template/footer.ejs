@@ -2,11 +2,10 @@
         <div class="mdl-mini-footer__left-section">
             <ul class="mdl-mini-footer__link-list">
                 <li style="width: 150px;"><a href="http://www.kaicoin.io/" target="_blank">Kaicoin</a>&nbsp;Explorer by Greenstage Lab.</li>
-                <!--<li><a class="mdl-navigation__link sns" href="https://stocks.exchange/trade/KAI/BTC" target="_blank"><i class="fas fa-chart-line"></i></a></li>-->
                 <li><a class="mdl-navigation__link sns" href="https://github.com/kaicoin-io" target="_blank"><i class="fab fa-github"></i></a></li>
                 <li><a class="mdl-navigation__link sns" href="https://www.facebook.com/kaicoin.global" target="_blank"><i class="fab fa-facebook-square"></i></a></li>
                 <li><a class="mdl-navigation__link sns" href="https://twitter.com/kaicoin_global" target="_blank"><i class="fab fa-twitter-square"></i></a></li>
-                <li><a class="mdl-navigation__link sns" href="https://play.google.com/store/apps/details?id=com.greenstagelab.kaicoin.wallet" target="_blank"><i class="fab fa-google-play"></i></a></li>
+                <li><a class="mdl-navigation__link sns fa-google-play-wrapper" href="https://play.google.com/store/apps/details?id=com.greenstagelab.kaicoin.wallet" target="_blank"><i class="fab fa-google-play"></i></a></li>
                 <li><a class="mdl-navigation__link sns" href="http://www.kaicoin.io/ios_download.html" target="_blank"><i class="fab fa-apple"></i></a></li>
             </ul>
         </div>
@@ -19,6 +18,16 @@
         <div class="ball ball1"></div><div class="ball ball2"></div><div class="ball ball3"></div>
     </div>
     <div class="mdl-dialog__content"></div>
+    <div class="mdl-dialog__actions">
+        <button type="button" class="mdl-button close">CLOSE</button>
+    </div>
+</dialog>
+
+<dialog id="diag-text-alert" class="mdl-dialog diag-text-alert">
+    <div class="mdl-dialog__content">
+        <div class="mtd-diag-title"></div>
+        <textarea class="mtd-diag-content-area" readonly onfocus="this.blur();"></textarea>
+    </div>
     <div class="mdl-dialog__actions">
         <button type="button" class="mdl-button close">CLOSE</button>
     </div>

@@ -24,10 +24,10 @@
                     <div class="mdl-grid mdl-data-table">
                         <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Block Height</div>
                         <div class="mdl-cell mdl-cell--3-col mdl-cell--6-col-tablet mdl-cell--2-col-phone">
-                            <span class="label label-info"><%=item.height%></span>
+                            <span class="label"><%=item.height%></span>
                         </div>
                         <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Time</div>
-                        <div class="mdl-cell mdl-cell--3-col mdl-cell--6-col-tablet mdl-cell--2-col-phone">
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--6-col-tablet mdl-cell--2-col-phone mtd-work-break">
                             <%=item.date%> (<%=item.time%>)
                         </div>
                         <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Confirmations</div>
@@ -41,26 +41,26 @@
                         </div>
 
                         <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Miner</div>
-                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone">
+                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone mtd-work-break">
                             <a href="javascript:app.showQRPopup('<%=item.miner%>', '<%=item.miner%>');"><img src="/res/img/ic-qr.png" /></a> <a href="#"><%=item.miner%></a>
                         </div>
                         <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Nonce</div>
                         <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone"><%=item.nonce%></div>
 
-                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Block Hash</div>
-                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone"><%=item.hash%></div>
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone mtd-work-break">Block Hash</div>
+                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone mtd-work-break"><%=item.hash%></div>
 
                         <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone mtd-line-break">Transaction Merkle Root</div>
-                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone"><%=item.merkleroot%></div>
+                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone mtd-work-break"><%=item.merkleroot%></div>
 
                         <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">
                             Transactions &nbsp;&nbsp;<% if (item.tx.length>1) { %>
-                            <span class="label label-info important"><%=item.tx.length%></span>
-                            <% } else { %>
                             <span class="label label-info"><%=item.tx.length%></span>
+                            <% } else { %>
+                            <span class="label"><%=item.tx.length%></span>
                             <% } %>
                         </div>
-                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone">
+                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone mtd-work-break">
                             <% for(var i=0; i<item.tx.length; i++) { %>
                             <% if (item.height!==0) { %>
                             <p><a href="/tx/<%=item.tx[i]%>"><%=item.tx[i]%></a></p>
@@ -69,18 +69,23 @@
                             <% } %>
                             <% } %>
                         </div>
-                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Prev Block&nbsp;<i class="fas fa-arrow-left"></i></div>
-                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone">
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Prev Block&nbsp;<i class="fas fa-arrow-left" style="margin-top: 3px;"></i></div>
+                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone mtd-work-break">
                             <% if (typeof(item.previousblockhash)!=='undefined') { %>
                             <a href="/block/<%=item.previousblockhash%>"><%=item.previousblockhash%></a>
                             <% } else { %>N/A<% } %>
                         </div>
 
-                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Next Block&nbsp;<i class="fas fa-arrow-right"></i></div>
-                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone">
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Next Block&nbsp;<i class="fas fa-arrow-right" style="margin-top: 3px;"></i></div>
+                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone mtd-work-break">
                             <% if (typeof(item.nextblockhash)!=='undefined') { %>
                             <a href="/block/<%=item.nextblockhash%>"><%=item.nextblockhash%></a>
                             <% } else { %>N/A<% } %>
+                        </div>
+
+                        <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Raw Block</div>
+                        <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone mtd-work-break">
+                            <a href="javascript:app.showQRText('RAW BLOCK', '<%=JSON.stringify(raw)%>');"><button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--primary">SHOW</button></a>
                         </div>
                     </div>
                 </div>
@@ -104,7 +109,6 @@
         </div>
     </div>
 
-    <% include views/template/footer.ejs %>
-
 </main>
 
+<% include views/template/footer.ejs %>

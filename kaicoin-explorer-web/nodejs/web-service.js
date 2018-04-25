@@ -83,12 +83,12 @@ module.exports = function() {
          * @param bhash | bheight
          * { hash, miner, confirmations, size, height, version, merkleroot, tx:[], time, nonce, bits, difficulty, chainwork, previousblockhash }
          */
-        getBlock: function(bhash) {
+        getBlock: function(q) {
             return new Promise( function(resolve, reject) {
-                rpc(GetBlock(bhash)).then(res => {
+                rpc(GetBlock(q)).then(res => {
                     const now = new Date().getTime();
-                    res.result.date = toHumanReadableTimestampAgo(res.result.time*1000, now);
-                    resolve(res.result);
+                    let item = Object.assign(res.result, {date: toHumanReadableTimestampAgo(res.result.time*1000, now)});
+                    resolve({q: q, item: item, raw: res.result });
                 }).catch(e => { onRpcError(e); reject(e); });
             });
         },
@@ -134,9 +134,14 @@ module.exports = function() {
                             // mem pool: {"result":["11bab06911678f9eeaecf29e616ce43f5616e39bcc4fdab7306532749b2629d2",
                             // // "66db1d9c8a7203a26dbf62a957579328307e0d998deb8f2b66277c08772d5dee"],"error":null,"id":null}
                             console.warn('mem pool exists: ' + JSON.stringify(res2));
-                            for (let i=0; i<res2.result.length; i++) {
-                                res1.unshift({txid: res2.result[i]});
-                            }
+                            let rawTxArr = [];
+                            self.getRawTxs(res2.result, rawTxArr).then(res3 => {
+                                if (typeof(res3)!=='undefined' && res3.length>0) {
+                                    for (let i=0; i<res3.length; i++) {
+                                        res1.unshift(res3[i]);
+                                    }
+                                }
+                            });
                         }
                         const now = new Date().getTime();
                         for (let i=0; i<res1.length; i++) {
@@ -148,10 +153,12 @@ module.exports = function() {
                             if (typeof(res1[i].vin)!=='undefined' && typeof(res1[i].vin[0].coinbase)!=='undefined') {
                                 res1[i].txtype = 'mine';
                             } else if (typeof(res1[i].vin)!=='undefined') {
-                                // Todo: 여기서 또 분기 필요할 듯, 송금건/다중송금건/메시지ONLY 등..
                                 res1[i].txtype = 'send';
-                            } else {
-                                res1[i].txtype = 'memp';
+                                if (tx.fromaddress.length<1) {
+                                    tx.txtype = 'self';
+                                } else {
+                                    tx.txtype = 'send';
+                                }
                             }
                         }
                         resolve(res1);
@@ -174,16 +181,55 @@ module.exports = function() {
                         tx.value = tx.vout[0].value;
                     } else {
                         // Todo: 여기서 또 분기 필요할 듯, 송금건/다중송금건/메시지ONLY 등..
-                        tx.txtype = 'send';
                         if (typeof(tx.vout[1])!=='undefined') {
                             tx.fromaddress = tx.vout[1].scriptPubKey.addresses[0];
+                        }
+                        if (tx.fromaddress.length<1) {
+                            tx.txtype = 'self';
+                        } else {
+                            tx.txtype = 'send';
                         }
                         tx.toaddress = tx.vout[0].scriptPubKey.addresses[0];
                         tx.value = tx.vout[0].value;
                     }
-                    var item = { raw: res1.result, item: tx };
+                    const item = { raw: res1.result, item: tx };
                     console.log('tx ' + JSON.stringify(tx));
-                    resolve(tx);
+                    resolve(item);
+                }).catch(e => { onRpcError(e); reject(e); });
+            });
+        },
+        getRawTxs: function(txidarray, txarray) {
+            const self = this;
+            return new Promise( function(resolve, reject) {
+                const idx = txarray.length;
+                rpc(GetRawTransaction(txidarray[idx], 1)).then(res1 => {
+                    // blockhash, confirmations, time, blocktime, hex, txid, version, locktime
+                    let tx = { ismemp: true };
+                    tx.date = toHumanReadableTimestampAgo(tx.time*1000, new Date().getTime());
+                    if (typeof(tx.vin[0].coinbase)!=='undefined') {
+                        // 빈블럭이면
+                        tx.txtype = 'mine';
+                        tx.toaddress = tx.vout[0].scriptPubKey.addresses[0];
+                        tx.value = tx.vout[0].value;
+                    } else {
+                        // Todo: 여기서 또 분기 필요할 듯, 송금건/다중송금건/메시지ONLY 등..
+                        if (typeof(tx.vout[1])!=='undefined') {
+                            tx.fromaddress = tx.vout[1].scriptPubKey.addresses[0];
+                        }
+                        if (tx.fromaddress.length<1) {
+                            tx.txtype = 'self';
+                        } else {
+                            tx.txtype = 'send';
+                        }
+                        tx.toaddress = tx.vout[0].scriptPubKey.addresses[0];
+                        tx.value = tx.vout[0].value;
+                    }
+                    txarray.push(tx);
+                    if (txarray.length<txidarray.length) {
+                        self.getRawTxs(txidarray, txarray);
+                    } else {
+                        resolve(txarray);
+                    }
                 }).catch(e => { onRpcError(e); reject(e); });
             });
         }

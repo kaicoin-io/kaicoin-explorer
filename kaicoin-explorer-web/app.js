@@ -33,10 +33,10 @@ fastify.get('/', (req, reply) => {
         service.getSummary(conn).then(res1 => {
             service.getBlocks(conn, LIST_COUNT_MAIN).then(res2 => {
                 service.getTxs(conn, LIST_COUNT_MAIN).then(res3 => {
-                    service.getRowCount(conn, table.TB_TXS).then(res3 => {
+                    service.getRowCount(conn, table.TB_TXS).then(res4 => {
                         service.disconnectDB(conn);
-                        const ret = {summary: res1, blocks: res2, txs: res3}
-                        ret.summary.txcount = res3;
+                        const ret = {summary: res1, blocks: res2, txs: res3, txcount: res4};
+                        // console.log('main raw ' + JSON.stringify(ret));
                         reply.view('index', ret);
                     });
                 });
@@ -109,7 +109,7 @@ fastify.get('/blocks/:q', (req, reply) => {
 fastify.get('/block/:q', (req, reply) => {
     service.getBlock(req.params.q).then(res1 => {
         console.log('item ' + JSON.stringify(res1));
-        reply.view('block', {q: req.params.q, item: res1});
+        reply.view('block', res1);
     }, function(e) {
         console.error('failed to connect to blockchain' + e);
     });
@@ -170,7 +170,7 @@ fastify.get('/tx/:q', (req, reply) => {
     //   2) vout[1].scriptPubKey.addresses: Àü¼ÛÀÚ
     service.getRawTx(req.params.q).then(res1 => {
         console.log('res1 ' + JSON.stringify(res1));
-        reply.view('tx', {item: res1});
+        reply.view('tx', res1);
     }, function(e) {
         console.error('failed to handle getRawTx ' + e);
     });

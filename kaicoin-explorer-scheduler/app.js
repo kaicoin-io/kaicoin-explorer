@@ -25,7 +25,7 @@ function syncBlocks() {
                 service.getLastBlock(conn).then(res2 => {
                     let fromBlock = 0;
                     let toBlock = res1.blocks;
-                    if (res2!==null) {
+                    if (res2!==null && typeof(res2.blocksyncheight)!=='undefined') {
                         // {"blocksyncheight":7499,"chainname":"kaicoin", "txsyncheight": null}
                         fromBlock = res2.blocksyncheight;
                     }
@@ -71,7 +71,7 @@ function syncBlocks() {
             job_running = false;
         });
     } else {
-        console.warn('[INFO] --- scheduler skipped job, reason of running ---');
+        console.warn('[INFO] --- scheduler skipped job request. already running ---');
     }
 }
 
