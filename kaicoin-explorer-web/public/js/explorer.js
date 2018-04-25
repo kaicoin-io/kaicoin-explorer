@@ -89,7 +89,6 @@ var app = {
         const self = this;
         let rows = '';
         for (let i=0; i<data.length; i++) {
-            console.log('data['+i+'] ' + data[i].height);
 
             const from = (data[i].txtype==='send' && typeof(data[i].vout[1])!=='undefined')
                 ?'<div>' + data[i].vout[1].scriptPubKey.addresses[0] + '</div>':'';
@@ -102,6 +101,8 @@ var app = {
 
             const labelSpanType = (typeof(data[i].ismemp)!=='undefined' && data[i].ismemp===true)?'<span class="label label-success">'
                 :data[i].txtype==='mine'?'<span class="label">':data[i].txtype==='send'?'<span class="label label-primary">':'';
+
+            console.log('data['+i+'] ' + labelSpanType);
 
             rows += '<tr><td>' + labelSpanType + data[i].txtype + '</span></td>'
                 + '<td class="mdl-data-table__cell--non-numeric">' + '<a class="mtd-middle-chars" href="/tx/'+data[i].txid+'">'
