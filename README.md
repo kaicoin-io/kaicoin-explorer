@@ -29,6 +29,16 @@ II. Installation on Ubuntu (v16 recommended)
     - sudo apt-get -y install nginx
   3. Nodejs install
     - sudo apt-get -y install nodejs
+    - sudo apt-get -y install nodejs-legacy
+  4. Nodejs update
+    - sudo npm cache clean -f
+    - sudo npm install -g n
+    - sudo n stable
+    // Nodejs 9.x install
+    - curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
+    - sudo apt-get install -y nodejs
+  5. Forever install
+    - sudo npm i -g forever
   4. Rethink DB install (refer to this: https://rethinkdb.com/docs/install/ubuntu/)
     - source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
     - sudo apt-get -y install rethinkdb 
@@ -46,3 +56,6 @@ II. Installation on Ubuntu (v16 recommended)
       - sudo rethinkdb --daemon
     2) start nodejs
       - nohup node app.js start &
+  8 Register service on boo start up (upload to /etc/init.d/kaicoin-explorer.sh and run script below)
+    - update-rc.d kaicoin-explorer.sh defaults
+    - service kaicoin-explorer.sh start
