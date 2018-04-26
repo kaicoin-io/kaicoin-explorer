@@ -21,7 +21,6 @@ module.exports = function() {
     }
 
     return {
-        // getdifficulty getmininginfo getpeerinfo getinfo
         getSummary: function(conn) {
             // console.log('getSummary');
             return new Promise( function(resolve, reject) {
@@ -38,8 +37,9 @@ module.exports = function() {
             return new Promise( function(resolve, reject) {
                 if (typeof(maxheight)!=='undefined') {
                     console.log('pagenated ' + maxheight);
-                    r.table(table.TB_BLOCKS).orderBy({index: r.desc(table.PK_BLOCKS)}).filter(r.row(table.PK_BLOCKS).le(parseInt(maxheight, 10))).limit(count).run(conn).then(cur1 => {
-                        self.handleBlocks(conn, resolve, reject, cur1, count)
+                    r.table(table.TB_BLOCKS).orderBy({index: r.desc(table.PK_BLOCKS)}).filter(r.row(table.PK_BLOCKS)
+                        .le(parseInt(maxheight, 10))).limit(count).run(conn).then(cur1 => {
+                            self.handleBlocks(conn, resolve, reject, cur1, count)
                     }).error(function (e) {
                         onDBError(e, conn);
                         reject(e);
@@ -90,7 +90,6 @@ module.exports = function() {
             });
         },
         getList: function(conn, tablename, index, length, params) {
-            // console.log('table ' + tablename + ' order by ' + index + ' desc limit ' + length);
             return new Promise( function(resolve, reject) {
                 r.table(tablename).orderBy({index: r.desc(index)}).limit(length).run(conn).then(cur1 => {
                     cur1.toArray().then(function (list) {
@@ -192,7 +191,7 @@ module.exports = function() {
                     // blockhash, confirmations, time, blocktime, hex, txid, version, locktime
                     let tx = {};
                     Object.assign(tx, res1.result);
-                    // tx.fromaddress = '';
+                    tx.fromaddress = '';
                     tx.date = toHumanReadableTimestampAgo(tx.time*1000, new Date().getTime());
                     if (typeof(tx.vin[0].coinbase)!=='undefined') {
                         // 빈블럭이면

@@ -22,7 +22,7 @@
                     <thead>
                     <tr>
                         <th>Type</th><th>TX ID</th><th class="hide-under-small">From <i class="fas fa-arrow-right"></i> To</th>
-                        <th><span class="hide-under-small">Amount</span><i class="fas fa-dollar-sign hide-over-small"></i></th>
+                        <th><span class="hide-under-small">Amount</span><i class="fas fa-dollar-sign hide-over-small" style="float: right;"></i></th>
                         <th><span class="hide-under-small">Confirm</span><i class="far fa-check-circle hide-over-small"></i></th><th>Time</th>
                     </tr>
                     </thead>
@@ -32,7 +32,7 @@
                     <% } else { %>
                         <% for(var i=0; i<list.length; i++) { %>
                         <tr>
-                            <td class="mtd-td-label">
+                            <td class="mtd-td-label center">
                                 <% if (list[i].txtype==='mine') { %><span class="label"><%=list[i].txtype%></span>
                                 <!-- Todo: self인 경우도 포함 필요 -->
                                 <% } else if (list[i].txtype==='send') { %><span class="label label-primary"><%=list[i].txtype%></span>
@@ -53,14 +53,14 @@
                                 <% } %>
                             </td>
                             <td class="mtd-text-right">
-                                <% if (typeof(list[i].vout)!=='undefined' && typeof(list[i].vout[0].value)!=='undefined') { %><%=Number(list[i].vout[0].value).toLocaleString()%><% } %> KAI
+                                <% if (typeof(list[i].vout)!=='undefined' && typeof(list[i].vout[0].value)!=='undefined') { %><%=Number(list[i].vout[0].value).toLocaleString()%><% } %><span class=" hide-under-small"> KAI</span>
                             </td>
                             <td class="center">
                                 <span class="label">
                                     <% if(typeof(list[i].confirmations)!=='undefined') { %><%=list[i].confirmations%><% } else { %>0<% } %>
                                 </span>
                             </td>
-                            <td class="left"><i class="fas fa-arrow-down"></i>&nbsp;<%=list[i].date%></td>
+                            <td class="center"><i class="fas fa-arrow-down"></i>&nbsp;<%=list[i].date%></td>
                         </tr>
                         <% } %>
                     <% } %>

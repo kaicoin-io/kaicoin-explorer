@@ -33,7 +33,7 @@
                 <% } %>
                 <% for(var i=0; i<list.length; i++) { %>
                 <tr>
-                    <td><span class="label"><%=list[i].height%></span></td>
+                    <td class="center"><span class="label"><%=list[i].height%></span></td>
                     <td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis"><a class="mtd-middle-charse" href="/block/<%=list[i].height%>"><%=list[i].hash%></a></td>
                     <td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis hide-under-small"><%=list[i].miner%></td>
                     <td><%=Number(list[i].size).toLocaleString()%></td>
@@ -45,7 +45,7 @@
                         <% } %>
                     </td>
                     <td class="center"><span class="label"><%=list[i].confirmations%></span></td>
-                    <td class="left"><i class="fas fa-arrow-down"></i>&nbsp;<%=list[i].date%></td>
+                    <td class="center"><i class="fas fa-arrow-down"></i>&nbsp;<%=list[i].date%></td>
                 </tr>
                 <% } %>
                 </tbody>

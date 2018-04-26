@@ -35,6 +35,9 @@ var app = {
                 if(e.keyCode===13){ self.beforeSearch(this.value); }
             };
         }
+        $("#mtd-btn-search").click(function(){
+            self.beforeSearch($("#search-keyword").val());
+        });
         $("#pagenation-blocks").mouseup(function() {
             self.paginateBlocks();
         });
