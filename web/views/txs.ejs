@@ -1,32 +1,29 @@
 <% include views/template/header.ejs %>
 
-<!-- block height / miner / txns / age(ago) / fee used -->
-<main class="mdl-layout__content mtd-page-tx">
+<div class="mdl-grid">
 
-    <% include views/template/search_area.ejs %>
+    <header></header>
 
-    <div class="mdl-grid">
+    <div class="mdl-card mtd-pad-verttop">
 
-        <header></header>
+        <div class="mdl-card__supporting-text">
 
-        <div class="mdl-card mtd-pad-verttop">
-
-            <div class="mdl-card__supporting-text">
-
-                <div class="mtd-card-title-wrapper">
-                    <h4>Transactions</h4>
-                    <div id="current-position">
-                        <div>
-                            <% if (count>0) { %><i class="fas fa-arrow-down"></i>&nbsp;<%=count%><% } else { %>0<% } %>
-                        </div>&nbsp;/&nbsp;<%=count%>
-                    </div>
+            <div class="mtd-card-title-wrapper">
+                <h4>Transactions</h4>
+                <div id="current-position">
+                    <div>
+                        <% if (count>0) { %><i class="fas fa-arrow-down"></i>&nbsp;<%=count%><% } else { %>0<% } %>
+                    </div>&nbsp;/&nbsp;<%=count%>
                 </div>
+            </div>
 
-                <div class="x-overflow">
-                <table id="mtd-txs-table" class="mdl-data-table mdl-js-data-tablematch-parent mdl-shadow--2dp">
+            <div class="x-overflow">
+                <table id="mtd-txs-table" class="mdl-data-table mdl-js-data-table match-parent mdl-shadow--2dp">
                     <thead>
                     <tr>
-                        <th>Type</th><th>TX ID</th><th>Transactions (from <i class="fas fa-arrow-right"></i> to)</th><th>Amount</th><th>Confirm</th><th>Time</th>
+                        <th>Type</th><th>TX ID</th><th class="hide-under-small">From <i class="fas fa-arrow-right"></i> To</th>
+                        <th><span class="hide-under-small">Amount</span><i class="fas fa-dollar-sign hide-over-small"></i></th>
+                        <th><span class="hide-under-small">Confirm</span><i class="far fa-check-circle hide-over-small"></i></th><th>Time</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -35,17 +32,17 @@
                     <% } else { %>
                         <% for(var i=0; i<list.length; i++) { %>
                         <tr>
-                            <td>
+                            <td class="mtd-td-label">
                                 <% if (list[i].txtype==='mine') { %><span class="label"><%=list[i].txtype%></span>
                                 <!-- Todo: self인 경우도 포함 필요 -->
                                 <% } else if (list[i].txtype==='send') { %><span class="label label-primary"><%=list[i].txtype%></span>
                                 <% } else { %><span class="label label-success"><%=list[i].txtype%></span><% } %>
                             </td>
                             <!-- TX ID -->
-                            <td class="mdl-data-table__cell--non-numeric">
+                            <td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis">
                                 <a class="mtd-middle-chars" href="/tx/<%=list[i].txid%>"><%=list[i].txid%></a>
                             </td>
-                            <td class="mdl-data-table__cell--non-numeric">
+                            <td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis hide-under-small">
                                 <!-- FROM -->
                                 <% if (list[i].txtype==='send' && typeof(list[i].vout[1])!=='undefined') { %>
                                     <div><%=list[i].vout[1].scriptPubKey.addresses[0]%></div>
@@ -69,22 +66,19 @@
                     <% } %>
                     </tbody>
                 </table>
-                </div>
-                <br>
-                <div class="mdl-card__actions mdl-card--border">
-                    <button class="mdl-button mdl-js-button mdl-button--primary mtd-button-no-border">TXs at</button>
-                    <a href="/" style="float: right;"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-arrow-up"></i>&nbsp;HOME</button></a>
-                    <div class="mtd-pager-wrapper">
-                        <p class="range-field"><input id="pagenation-txs" type="range" class="mtd-pagination" min="0" max="<%=count%>" value="<%=count%>" /></p>
-                    </div>
-                </div>
-
             </div>
-        </div>
+            <br>
+            <div class="mdl-card__actions mdl-card--border">
+                <button class="mdl-button mdl-js-button mdl-button--primary mtd-button-no-border">TXs at</button>
+                <a href="/" style="float: right;"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-arrow-up"></i>&nbsp;HOME</button></a>
+                <div class="mtd-pager-wrapper">
+                    <p class="range-field"><input id="pagenation-txs" type="range" class="mtd-pagination" min="0" max="<%=count%>" value="<%=count%>" /></p>
+                </div>
+            </div>
 
+        </div>
     </div>
 
-    <% include views/template/footer.ejs %>
-</main>
+</div>
 
-
+<% include views/template/footer.ejs %>

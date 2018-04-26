@@ -1,72 +1,68 @@
 <% include views/template/header.ejs %>
 
-<main class="mdl-layout__content mtd-page-block">
+<div class="mdl-grid">
 
-    <% include views/template/search_area.ejs %>
+    <header></header>
 
-    <div class="mdl-grid">
+    <div class="mdl-card mtd-pad-verttop">
 
-        <header></header>
+        <div class="mdl-card__supporting-text">
 
-        <div class="mdl-card mtd-pad-verttop">
-
-            <div class="mdl-card__supporting-text">
-
-                <div class="mtd-card-title-wrapper">
-                    <h4>Blocks</h4>
-                    <div id="current-position">
-                        <div>
-                            <% if (list.length>0) { %><i class="fas fa-arrow-down"></i>&nbsp;<%=list[0].height%><% } else { %>0<% } %>
-                        </div>&nbsp;/ <%=summary.blocks%>
-                    </div>
+            <div class="mtd-card-title-wrapper">
+                <h4>Blocks</h4>
+                <div id="current-position">
+                    <div>
+                        <% if (list.length>0) { %><i class="fas fa-arrow-down"></i>&nbsp;<%=list[0].height%><% } else { %>0<% } %>
+                    </div>&nbsp;/ <%=summary.blocks%>
                 </div>
-
-                <div class="x-overflow">
-                <table id="mtd-blocks-table" class="mdl-data-table mdl-js-data-tablematch-parent mdl-shadow--2dp">
-                    <thead>
-                    <tr>
-                        <th>Height</th><th>Hash</th><th>Miner</th>
-                        <th>Size(b)</th><th>Txns</th><th>Confirm</th><th>Time</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <% if (list.length<1) { %>
-                        <tr><td colspan="7" class="mtd-td-empty">EMPTY BLOCK DATA</td></tr>
-                    <% } %>
-                    <% for(var i=0; i<list.length; i++) { %>
-                    <tr>
-                        <td><span class="label"><%=list[i].height%></span></td>
-                        <td class="mdl-data-table__cell--non-numeric"><a class="mtd-middle-charse" href="/block/<%=list[i].height%>"><%=list[i].hash%></a></td>
-                        <td class="mdl-data-table__cell--non-numeric"><%=list[i].miner%></td>
-                        <td><%=Number(list[i].size).toLocaleString()%></td>
-                        <td class="center">
-                            <% if (list[i].txcount>1) { %>
-                            <span class="label label-info"><%=list[i].txcount%></span>
-                            <% } else { %>
-                            <span class="label"><%=list[i].txcount%></span>
-                            <% } %>
-                        </td>
-                        <td class="center"><span class="label"><%=list[i].confirmations%></span></td>
-                        <td class="left"><i class="fas fa-arrow-down"></i>&nbsp;<%=list[i].date%></td>
-                    </tr>
-                    <% } %>
-                    </tbody>
-                </table>
-                </div>
-                <br>
-                <div class="mdl-card__actions mdl-card--border">
-                    <button class="mdl-button mdl-js-button mdl-button--primary mtd-button-no-border">Blocks at</button>
-                    <a href="/" style="float: right;"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-arrow-up"></i>&nbsp;HOME</button></a>
-                    <div class="mtd-pager-wrapper">
-                        <p class="range-field"><input id="pagenation-blocks" type="range" class="mtd-pagination" min="0" max="<%=list[0].height%>" value="<%=list[0].height%>" /></p>
-                    </div>
-                </div>
-
             </div>
-        </div>
 
+            <div class="x-overflow">
+            <table id="mtd-blocks-table" class="mdl-data-table mdl-js-data-table match-parent mdl-shadow--2dp">
+                <thead>
+                <tr>
+                    <th>Height</th><th>Hash</th><th class="hide-under-small">Miner</th>
+                    <th>Size<span class="hide-under-small">(b)</span></th><th>Txns</th>
+                    <th><span class="hide-under-small">Confirm</span><i class="far fa-check-circle hide-over-small"></i></th>
+                    <th>Time</th>
+                </tr>
+                </thead>
+                <tbody>
+                <% if (list.length<1) { %>
+                    <tr><td colspan="7" class="mtd-td-empty">EMPTY BLOCK DATA</td></tr>
+                <% } %>
+                <% for(var i=0; i<list.length; i++) { %>
+                <tr>
+                    <td><span class="label"><%=list[i].height%></span></td>
+                    <td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis"><a class="mtd-middle-charse" href="/block/<%=list[i].height%>"><%=list[i].hash%></a></td>
+                    <td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis hide-under-small"><%=list[i].miner%></td>
+                    <td><%=Number(list[i].size).toLocaleString()%></td>
+                    <td class="center">
+                        <% if (list[i].txcount>1) { %>
+                        <span class="label label-info"><%=list[i].txcount%></span>
+                        <% } else { %>
+                        <span class="label"><%=list[i].txcount%></span>
+                        <% } %>
+                    </td>
+                    <td class="center"><span class="label"><%=list[i].confirmations%></span></td>
+                    <td class="left"><i class="fas fa-arrow-down"></i>&nbsp;<%=list[i].date%></td>
+                </tr>
+                <% } %>
+                </tbody>
+            </table>
+            </div>
+            <br>
+            <div class="mdl-card__actions mdl-card--border">
+                <button class="mdl-button mdl-js-button mdl-button--primary mtd-button-no-border">Blocks at</button>
+                <a href="/" style="float: right;"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-arrow-up"></i>&nbsp;HOME</button></a>
+                <div class="mtd-pager-wrapper">
+                    <p class="range-field"><input id="pagenation-blocks" type="range" class="mtd-pagination" min="0" max="<%=list[0].height%>" value="<%=list[0].height%>" /></p>
+                </div>
+            </div>
+
+        </div>
     </div>
 
-    <% include views/template/footer.ejs %>
-</main>
+</div>
 
+<% include views/template/footer.ejs %>

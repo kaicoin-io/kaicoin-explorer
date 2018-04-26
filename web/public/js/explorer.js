@@ -38,16 +38,14 @@ var app = {
         $("#pagenation-blocks").mouseup(function() {
             self.paginateBlocks();
         });
+        $("#pagenation-blocks").bind("touchend", function() {
+            self.paginateBlocks();
+        });
         $("#pagenation-txs").mouseup(function() {
-            const q = $(".thumb > .value").html();
-            $("#progress-loader").addClass("is-active");
-            $.getJSON('/txs/' + q, function(data) {
-                console.log('txnum ' + q);
-                $("#progress-loader").removeClass("is-active");
-                $("#current-position > div").html('<i class="fas fa-arrow-down"></i>&nbsp;' + data.q);
-                $("#mtd-txs-table > tbody").empty().html(self.makeTxsRow(data.list));
-                window.location.href = '#' + q;
-            });
+            self.paginateTxs();
+        });
+        $("#pagenation-txs").bind("touchend", function(e) {
+            self.paginateTxs();
         });
         console.log('path ' + window.location.pathname + ' ' + location.hash);
         // when 'block height' hash URL exists
@@ -84,6 +82,18 @@ var app = {
             $("#progress-loader").removeClass("is-active");
             $("#current-position > div").html('<i class="fas fa-arrow-down"></i>&nbsp;' + data.q);
             $("#mtd-blocks-table > tbody").empty().html(self.makeBlocksRow(data.list));
+            window.location.href = '#' + q;
+        });
+    },
+    paginateTxs: function() {
+        const self = this;
+        const q = $(".thumb > .value").html();
+        $("#progress-loader").addClass("is-active");
+        $.getJSON('/txs/' + q, function(data) {
+            console.log('txnum ' + q);
+            $("#progress-loader").removeClass("is-active");
+            $("#current-position > div").html('<i class="fas fa-arrow-down"></i>&nbsp;' + data.q);
+            $("#mtd-txs-table > tbody").empty().html(self.makeTxsRow(data.list));
             window.location.href = '#' + q;
         });
     },
@@ -137,6 +147,7 @@ var app = {
                 '<td class="center"><span class="label">'+data[i].confirmations+'</span></td>' +
                 '<td class="left"><i class="fas fa-arrow-down"></i>&nbsp;'+data[i].date+'</td></tr>';
         }
+
         console.log('data[0] ' + JSON.stringify(data[0]));
         return rows;
     },

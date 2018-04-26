@@ -121,15 +121,21 @@ module.exports = function() {
                 });
             });
         },
+        /**
+         * get TXs from DB and from raw memory pool
+         * GetRawMemPool returns: a list of transaction IDs which are in the node’s memory pool (see getmempoolinfo).
+         * @param conn
+         * @param count
+         * @returns {Promise<any>}
+         */
         getTxs: function(conn, count) {
             const self = this;
             return new Promise( function(resolve, reject) {
                 self.getList(conn, table.TB_TXS, table.IDX_TXS, count).then(res1 => {
                     rpc(GetRawMemPool()).then(res2 => {
                         if (res2.error==null && res2.result.length>0) {
-                            // Returns a list of transaction IDs which are in the node’s memory pool (see getmempoolinfo).
                             // mem pool: {"result":["11bab06911678f9eeaecf29e616ce43f5616e39bcc4fdab7306532749b2629d2",
-                            // // "66db1d9c8a7203a26dbf62a957579328307e0d998deb8f2b66277c08772d5dee"],"error":null,"id":null}
+                            //    "66db1d9c8a7203a26dbf62a957579328307e0d998deb8f2b66277c08772d5dee"],"error":null,"id":null}
                             console.warn('mem pool exists: ' + JSON.stringify(res2));
                             let rawTxArr = [];
                             self.getRawTxs(res2.result, rawTxArr).then(res3 => {
@@ -138,30 +144,47 @@ module.exports = function() {
                                         res1.unshift(res3[i]);
                                     }
                                 }
+                                self.mergeTxList(res1, count, resolve);
                             });
+                        } else {
+                            self.mergeTxList(res1, count, resolve);
                         }
-                        const now = new Date().getTime();
-                        for (let i=0; i<res1.length; i++) {
-                            if (count===LIST_COUNT_MAIN) {
-                                res1[i].date = toHumanReadableTimestampMain(res1[i].time*1000, now);
-                            } else {
-                                res1[i].date = toHumanReadableTimestamp(res1[i].time*1000, now);
-                            }
-                            if (typeof(res1[i].vin)!=='undefined' && typeof(res1[i].vin[0].coinbase)!=='undefined') {
-                                res1[i].txtype = 'mine';
-                            } else if (typeof(res1[i].vin)!=='undefined') {
-                                res1[i].txtype = 'send';
-                                // if (tx.fromaddress.length<1) {
-                                //     tx.txtype = 'self';
-                                // } else {
-                                //     tx.txtype = 'send';
-                                // }
-                            }
-                        }
-                        resolve(res1);
                     }).catch(e => { onRpcError(e); reject(e); });
                 });
             });
+        },
+        mergeTxList: function(res1, count, resolve) {
+            // iterate over each transaction
+            const self = this;
+            const now = new Date().getTime();
+            for (let i=0; i<res1.length; i++) {
+                self.convertRawTxToNormal(res1[i], count, now);
+            }
+            resolve(res1);
+        },
+        convertRawTxToNormal: function(item, count, now) {
+            console.log('item ' + JSON.stringify(item));
+            let from = '', to = '';
+            if (count===LIST_COUNT_MAIN) {
+                item.date = toHumanReadableTimestampMain(item.time*1000, now);
+            } else {
+                item.date = toHumanReadableTimestamp(item.time*1000, now);
+            }
+            to = item.vout[0].scriptPubKey.addresses[0];
+            if (typeof(item.vin)!=='undefined' && typeof(item.vin[0].coinbase)!=='undefined') {
+                item.txtype = 'mine';
+            } else {
+                if (typeof(item.vout)!=='undefined') {
+                    from = item.vout[1].scriptPubKey.addresses[0];
+                    item.from = from;
+                    item.to   = to;
+                    if (typeof(item.vout[1])!=='undefined') {
+                        item.txtype = 'send';
+                    } else {
+                        item.txtype = 'comb';
+                    }
+                }
+            }
         },
         getRawTx: function(txid) {
             return new Promise( function(resolve, reject) {
