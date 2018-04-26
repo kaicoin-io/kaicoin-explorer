@@ -34,7 +34,6 @@ module.exports = function() {
         },
         syncSummary: function(conn) {
             const self = this;
-            // console.log('[INFO] summary sync');
             return new Promise( function(resolve, reject) {
                 rpc(GetBlockchainInfo()).then(res1 => {
                     rpc(GetBlockchainParams()).then(res2 => {
@@ -50,18 +49,16 @@ module.exports = function() {
             });
         },
         savePromise: function(resolve, reject, conn, tablename, item) {
-            r.table(tablename).insert(item, {
-                conflict: 'update', returnChanges: false
-            }).run(conn).then( function(res1) {
-                resolve(item);
-            });
+            r.table(tablename).insert(item, { conflict: 'update', returnChanges: false })
+                .run(conn).then( function(res1) {
+                    resolve(item);
+                });
         },
         saveItem: function(conn, tablename, item) {
             return new Promise( function(resolve, reject) {
-                r.table(tablename).insert(item, {
-                    conflict: 'update', returnChanges: false
-                }).run(conn).then(function (res1) {
-                    resolve(res1);
+                r.table(tablename).insert(item, { conflict: 'update', returnChanges: false })
+                    .run(conn).then(function (res1) {
+                        resolve(res1);
                 });
             });
         },
@@ -176,6 +173,7 @@ module.exports = function() {
                         self.getRawTx(conn, fromHeight, txs);
                     } else {
                         // 배열에 남은게 없으면
+                        // Todo: 커넥션 클로즈 에러발생!!
                         self.saveItem(conn, table.TB_LAST_SYNC, {
                             chainname: CHAIN_NAME,
                             txsyncheight: fromHeight
@@ -192,7 +190,6 @@ module.exports = function() {
                 if (txs.length > 0) {
                     // 배열에 남은게 있으면
                     self.getRawTx(conn, fromHeight, txs);
-                } else {
                 }
             });
         },

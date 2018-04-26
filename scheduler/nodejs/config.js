@@ -23,9 +23,9 @@ rpc = RpcClient({
     host: '127.0.0.1',
     port: 8888,
     username: 'multichainrpc',
-    password: 'Ch68iSofMDXfWwnXbJR8dGW3Mk9sy88rBycudV8eNhAq' // Company
+    // password: 'Ch68iSofMDXfWwnXbJR8dGW3Mk9sy88rBycudV8eNhAq' // Company
     // password: 'Hcf5hR3GvHyo9kek4t33V3nMmjagbyKataUGmNDt5riG' // Home
-    // password: '9mFcgZEZquhu86r4uALu5djnEutRjueUia9pxjkqmCti' // naver
+    password: '9mFcgZEZquhu86r4uALu5djnEutRjueUia9pxjkqmCti' // naver
 });
 
 
@@ -61,12 +61,8 @@ module.exports = function() {
     r.tableCreate(table.TB_LAST_SYNC, {primaryKey: table.PK_LAST_SYNC})
     */
     return {
-        connectDB: function() {
-            return r.connect(rethinkdb);
-        },
-        disconnectDB: function(conn) {
-            conn.close();
-        },
+        connectDB: function() { return r.connect(rethinkdb); },
+        disconnectDB: function(conn) { conn.close(); },
         checkScheme: function(conn) {
             self = this;
             console.log('[INFO] ------- scheme checking start -------');
@@ -138,4 +134,4 @@ module.exports = function() {
             }
         }
     }
-}
+};

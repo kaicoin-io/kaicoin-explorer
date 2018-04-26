@@ -16,6 +16,9 @@
             <div class="x-overflow">
 
                 <div class="mdl-grid mdl-data-table">
+                    <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">TX ID</div>
+                    <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone mtd-work-break mtd-primary-h4-flex"><%=item.txid%></div>
+
                     <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">TX Type</div>
                     <div class="mdl-cell mdl-cell--3-col mdl-cell--6-col-tablet mdl-cell--2-col-phone">
                         <% if (item.txtype==='mine') { %><span class="label"><%=item.txtype%></span>
@@ -23,30 +26,27 @@
                         <% } else { %><span class="label label-success"><%=item.txtype%></span><% } %>
                     </div>
                     <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">TX Time</div>
-                    <div class="mdl-cell mdl-cell--3-col mdl-cell--6-col-tablet mdl-cell--2-col-phone"><% if (typeof(item.time)!=='undefined') { %><%=item.date%> (<%=item.time%>)<% } else { %>N/A<% } %>
+                    <div class="mdl-cell mdl-cell--3-col mdl-cell--6-col-tablet mdl-cell--2-col-phone"><% if (item.time) { %><%=item.date%> (<%=item.time%>)<% } else { %>N/A<% } %>
                     </div>
                     <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Confirmations</div>
                     <div class="mdl-cell mdl-cell--3-col mdl-cell--6-col-tablet mdl-cell--2-col-phone">
-                        <span class="label"><% if(typeof(item.confirmations)!=='undefined') { %><%=item.confirmations%><% } else { %>0<% } %></span>
+                        <span class="label"><% if(item.confirmations) { %><%=item.confirmations%><% } else { %>0<% } %></span>
                     </div>
                     <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Amount</div>
-                    <div class="mdl-cell mdl-cell--3-col mdl-cell--6-col-tablet mdl-cell--2-col-phone"><%=Number(item.value).toLocaleString()%> KAI</div>
-
-                    <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">TX ID</div>
-                    <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone mtd-work-break"><%=item.txid%></div>
+                    <div class="mdl-cell mdl-cell--3-col mdl-cell--6-col-tablet mdl-cell--2-col-phone"><%=item.amount%> KAI</div>
 
                     <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Block Hash</div>
-                    <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone mtd-work-break"><% if(typeof(item.blockhash)!=='undefined') { %><a href="/block/<%=item.blockhash%>"><%=item.blockhash%></a><% } else { %>N/A<% } %>
+                    <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone mtd-work-break"><% if(item.blockhash) { %><a href="/block/<%=item.blockhash%>"><%=item.blockhash%></a><% } else { %>N/A<% } %>
                     </div>
 
                     <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">From Address</div>
                     <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone mtd-work-break">
-                        <% if(typeof(item.fromaddress)!=='undefined') { %><a href="javascript:app.showQRPopup('<%=item.fromaddress%>', '<%=item.fromaddress%>');"><img src="/res/img/ic-qr.png" /></a> <a href="#"><%=item.fromaddress%></a><% } else { %>N/A<% } %>
+                        <% if(item.from) { %><a href="javascript:app.showQRPopup('<%=item.from%>', '<%=item.from%>');"><img src="/res/img/ic-qr.png" /></a> <a href="#"><%=item.from%></a><% } else { %>N/A<% } %>
                     </div>
 
                     <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">To Address</div>
                     <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone mtd-work-break">
-                        <a href="javascript:app.showQRPopup('<%=item.toaddress%>', '<%=item.toaddress%>');"><img src="/res/img/ic-qr.png" /></a>&nbsp;<a href="#"><%=item.toaddress%></a>
+                        <a href="javascript:app.showQRPopup('<%=item.to%>', '<%=item.to%>');"><img src="/res/img/ic-qr.png" /></a>&nbsp;<a href="#"><%=item.to%></a>
                     </div>
 
                     <div class="mdl-cell mdl-cell--3-col mdl-cell--2-col-phone">Raw Transaction</div>
@@ -55,8 +55,6 @@
                     </div>
                 </div>
             </div>
-
-            <br>
             <div class="mdl-card__actions mdl-card--border">
                 <div class="mtd-button-wrapper">
                     <a href="/"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-arrow-up"></i>&nbsp;HOME</button></a>

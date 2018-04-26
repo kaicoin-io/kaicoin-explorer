@@ -20,6 +20,8 @@ module.exports = function() {
         if (conn) { conn.close(); }
     }
 
+    var mempool = [];
+
     return {
         getSummary: function(conn) {
             // console.log('getSummary');
@@ -32,14 +34,14 @@ module.exports = function() {
                 });
             });
         },
-        getBlocks: function(conn, count, maxheight) {
+        getBlocks: function(conn, count, q) {
             const self = this;
             return new Promise( function(resolve, reject) {
-                if (typeof(maxheight)!=='undefined') {
-                    console.log('pagenated ' + maxheight);
+                if (typeof(q)!=='undefined') {
+                    console.log('pagenated ' + q);
                     r.table(table.TB_BLOCKS).orderBy({index: r.desc(table.PK_BLOCKS)}).filter(r.row(table.PK_BLOCKS)
-                        .le(parseInt(maxheight, 10))).limit(count).run(conn).then(cur1 => {
-                            self.handleBlocks(conn, resolve, reject, cur1, count)
+                        .le(parseInt(q, 10))).limit(count).run(conn).then(cur1 => {
+                            self.handleBlocks(conn, resolve, reject, cur1, count);
                     }).error(function (e) {
                         onDBError(e, conn);
                         reject(e);
@@ -89,16 +91,13 @@ module.exports = function() {
                 }).catch(e => { onRpcError(e); reject(e); });
             });
         },
-        getList: function(conn, tablename, index, length, params) {
+        getList: function(conn, tablename, index, length) {
             return new Promise( function(resolve, reject) {
                 r.table(tablename).orderBy({index: r.desc(index)}).limit(length).run(conn).then(cur1 => {
                     cur1.toArray().then(function (list) {
                         cur1.close();
-                        if (list.length < 1) {
-                            resolve([]);
-                        } else {
-                            resolve(list);
-                        }
+                        if (list.length < 1) { resolve([]);
+                        } else { resolve(list); }
                     }).error(function (e){
                         onCursorError(e, cur1, conn);
                         reject(e);
@@ -123,96 +122,105 @@ module.exports = function() {
         /**
          * get TXs from DB and from raw memory pool
          * GetRawMemPool returns: a list of transaction IDs which are in the node’s memory pool (see getmempoolinfo).
+         * e.g. mem pool: {"result":["11bab06911678f9eeaecf29e616ce43f5616e39bcc4fdab7306532749b2629d2",
+                           "66db1d9c8a7203a26dbf62a957579328307e0d998deb8f2b66277c08772d5dee"],"error":null,"id":null}
          * @param conn
          * @param count
          * @returns {Promise<any>}
          */
-        getTxs: function(conn, count) {
+        getTxs: function(conn, count, q) {
             const self = this;
+
             return new Promise( function(resolve, reject) {
-                self.getList(conn, table.TB_TXS, table.IDX_TXS, count).then(res1 => {
-                    rpc(GetRawMemPool()).then(res2 => {
-                        if (res2.error==null && res2.result.length>0) {
-                            // mem pool: {"result":["11bab06911678f9eeaecf29e616ce43f5616e39bcc4fdab7306532749b2629d2",
-                            //    "66db1d9c8a7203a26dbf62a957579328307e0d998deb8f2b66277c08772d5dee"],"error":null,"id":null}
-                            console.warn('mem pool exists: ' + JSON.stringify(res2));
-                            let rawTxArr = [];
-                            self.getRawTxs(res2.result, rawTxArr).then(res3 => {
-                                if (typeof(res3)!=='undefined' && res3.length>0) {
-                                    for (let i=0; i<res3.length; i++) {
-                                        res1.unshift(res3[i]);
-                                    }
-                                }
-                                self.mergeTxList(res1, count, resolve);
-                            });
-                        } else {
-                            self.mergeTxList(res1, count, resolve);
-                        }
-                    }).catch(e => { onRpcError(e); reject(e); });
-                });
+
+                if (typeof(q)!=='undefined') {
+                    let qint = q==='0'?count:parseInt(q, 10);
+                    const s = qint-count<0?0:qint-count;
+                    console.log('pagenated ' + s + '~' + qint);
+                    r.table(table.TB_TXS).orderBy({index: r.asc(table.IDX_TXS)})
+                                .slice(s, qint).run(conn).then(cur1 => {
+                        cur1.toArray().then(function (list) {
+                            cur1.close();
+                            // console.log('list ' + JSON.stringify(list));
+                            self.mergeTxList(list, count, resolve);
+                            resolve(list);
+                        }).error(function (e){
+                            onCursorError(e, cur1, conn);
+                            reject(e);
+                        });
+                    }).error(function (e) {
+                        onDBError(e, conn);
+                        reject(e);
+                    });
+                } else {
+                    r.table(table.TB_TXS).orderBy({index: r.desc(table.IDX_TXS)})
+                                    .limit(count).run(conn).then(cur1 => {
+                        cur1.toArray().then(function (list) {
+                            cur1.close();
+                            self.mergeTxList(list, count, resolve);
+                            resolve(list);
+                        }).error(function (e){
+                            onCursorError(e, cur1, conn);
+                            reject(e);
+                        });
+                    }).error(function (e) {
+                        onDBError(e, conn);
+                        reject(e);
+                    });
+                }
             });
         },
-        mergeTxList: function(res1, count, resolve) {
+        mergeTxList: function(list, count) {
             // iterate over each transaction
             const self = this;
             const now = new Date().getTime();
-            for (let i=0; i<res1.length; i++) {
-                self.convertRawTxToNormal(res1[i], count, now);
+            for (let i=0; i<list.length; i++) {
+                delete list[i]['hex'];
+                self.convertRawTxToNormal(list[i], now, count);
             }
-            resolve(res1);
         },
-        convertRawTxToNormal: function(item, count, now) {
-            console.log('item ' + JSON.stringify(item));
-            let from = '', to = '';
+        /**
+         *
+         * @param item
+         * @param count
+         * @param now
+         * @returns TYPE TXID FROM TO AMOUNT CONFIRM TIME
+         */
+        convertRawTxToNormal: function(item, now, count) {
+            item.from = '';
             if (count===LIST_COUNT_MAIN) {
                 item.date = toHumanReadableTimestampMain(item.time*1000, now);
             } else {
                 item.date = toHumanReadableTimestamp(item.time*1000, now);
             }
-            to = item.vout[0].scriptPubKey.addresses[0];
             if (typeof(item.vin)!=='undefined' && typeof(item.vin[0].coinbase)!=='undefined') {
                 item.txtype = 'mine';
             } else {
                 if (typeof(item.vout)!=='undefined') {
-                    from = item.vout[1].scriptPubKey.addresses[0];
-                    item.from = from;
-                    item.to   = to;
-                    if (typeof(item.vout[1])!=='undefined') {
-                        item.txtype = 'send';
-                    } else {
-                        item.txtype = 'comb';
-                    }
+                    if (typeof(item.vout[1])!=='undefined') { item.txtype = 'send';
+                    } else { item.txtype = 'comb'; }
                 }
             }
+            if (typeof(item.vout)!=='undefined') {
+                    item.to = item.vout[0].scriptPubKey.addresses[0];
+                    item.amount = Number(item.vout[0].value).toLocaleString();
+                    if (typeof(item.vout[1]) !== 'undefined'
+                                && typeof(item.vout[1].scriptPubKey.addresses) !== 'undefined') {
+                        item.from = item.vout[1].scriptPubKey.addresses[0];
+                    }
+            }
+            delete item['vin'];
+            delete item['vout'];
         },
         getRawTx: function(txid) {
+            const self = this;
             return new Promise( function(resolve, reject) {
                 rpc(GetRawTransaction(txid, 1)).then(res1 => {
                     // blockhash, confirmations, time, blocktime, hex, txid, version, locktime
-                    let tx = {};
-                    Object.assign(tx, res1.result);
-                    tx.fromaddress = '';
-                    tx.date = toHumanReadableTimestampAgo(tx.time*1000, new Date().getTime());
-                    if (typeof(tx.vin[0].coinbase)!=='undefined') {
-                        // 빈블럭이면
-                        tx.txtype = 'mine';
-                        tx.toaddress = tx.vout[0].scriptPubKey.addresses[0];
-                        tx.value = tx.vout[0].value;
-                    } else {
-                        // Todo: 여기서 또 분기 필요할 듯, 송금건/다중송금건/메시지ONLY 등..
-                        if (typeof(tx.vout[1])!=='undefined') {
-                            tx.fromaddress = tx.vout[1].scriptPubKey.addresses[0];
-                        }
-                        if (tx.fromaddress.length<1) {
-                            tx.txtype = 'self';
-                        } else {
-                            tx.txtype = 'send';
-                        }
-                        tx.toaddress = tx.vout[0].scriptPubKey.addresses[0];
-                        tx.value = tx.vout[0].value;
-                    }
-                    const item = { raw: res1.result, item: tx };
-                    console.log('tx ' + JSON.stringify(tx));
+                    let raw = {};
+                    Object.assign(raw, res1.result);
+                    self.convertRawTxToNormal(res1.result, new Date().getTime());
+                    const item = { raw: raw, item: res1.result };
                     resolve(item);
                 }).catch(e => { onRpcError(e); reject(e); });
             });
@@ -383,4 +391,25 @@ function toHumanReadableTimestampAgo(thattime, nowtime) {
     }
     return ret;
 }
+
+/*
+                rpc(GetRawMemPool()).then(res2 => {
+                        if (res2.error==null && res2.result.length>0) {
+                            let rawTxArr = [];
+                            self.getRawTxs(res2.result, rawTxArr).then(res3 => {
+                                if (typeof(res3)!=='undefined' && res3.length>0) {
+                                    for (let i=0; i<res3.length; i++) {
+                                        console.warn('mem pool ['+i+']: ' + JSON.stringify(res3[i]));
+                                        res1.unshift(res3[i]);
+                                    }
+                                }
+                                self.mergeTxList(res1, count, resolve);
+                                console.log('mem merged txs ' + JSON.stringify(res1));
+                            });
+                        } else {
+                            self.mergeTxList(res1, count, resolve);
+                            console.log('txs ' + JSON.stringify(res1));
+                        }
+                    }).catch(e => { onRpcError(e); reject(e); });
+                */
 

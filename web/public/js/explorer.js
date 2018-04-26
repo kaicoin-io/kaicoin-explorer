@@ -50,6 +50,17 @@ var app = {
         $("#pagenation-txs").bind("touchend", function(e) {
             self.paginateTxs();
         });
+        $("#im-scroll-right").click(function() {
+            $(".mtd-middle-top-wrapper").scrollLeft(200);
+            $("#im-scroll-left").show();
+            $(this).hide();
+        });
+        $("#im-scroll-left").click(function() {
+            console.log("clicked");
+            $(".mtd-middle-top-wrapper").scrollLeft(-200);
+            $("#im-scroll-right").show();
+            $(this).hide();
+        });
         console.log('path ' + window.location.pathname + ' ' + location.hash);
         // when 'block height' hash URL exists
         const pathname = window.location.pathname;
@@ -84,7 +95,7 @@ var app = {
             console.log('blockheight ' + q);
             $("#progress-loader").removeClass("is-active");
             $("#current-position > div").html('<i class="fas fa-arrow-down"></i>&nbsp;' + data.q);
-            $("#mtd-blocks-table > tbody").empty().html(self.makeBlocksRow(data.list));
+            $("#mtd-blocks-table > tbody").empty().html(self.makeBlockRow(data.list));
             window.location.href = '#' + q;
         });
     },
@@ -93,44 +104,38 @@ var app = {
         const q = $(".thumb > .value").html();
         $("#progress-loader").addClass("is-active");
         $.getJSON('/txs/' + q, function(data) {
-            console.log('txnum ' + q);
+            console.log('tx idx ' + q);
             $("#progress-loader").removeClass("is-active");
             $("#current-position > div").html('<i class="fas fa-arrow-down"></i>&nbsp;' + data.q);
-            $("#mtd-txs-table > tbody").empty().html(self.makeTxsRow(data.list));
+            $("#mtd-txs-table > tbody").empty().html(self.makeTxRow(data.list));
             window.location.href = '#' + q;
         });
     },
-    makeTxsRow: function(data) {
+    makeTxRow: function(data) {
         const self = this;
         let rows = '';
         for (let i=0; i<data.length; i++) {
 
-            const from = (data[i].txtype==='send' && typeof(data[i].vout[1])!=='undefined')
-                ?'<div>' + data[i].vout[1].scriptPubKey.addresses[0] + '</div>':'';
-
-            const to = ((data[i].txtype==='send' || data[i].txtype==='mine') && typeof(data[i].vout[0])!=='undefined')
-                ?'<div><i class="fas fa-arrow-right"></i>&nbsp;' + data[i].vout[0].scriptPubKey.addresses[0] + '</div>':'';
-
-            const amt = (typeof(data[i].vout)!=='undefined' && typeof(data[i].vout[0].value)!=='undefined')
-                ?Number(data[i].vout[0].value).toLocaleString():'0';
-
-            const labelSpanType = (typeof(data[i].ismemp)!=='undefined' && data[i].ismemp===true)?'<span class="label label-success">'
-                :data[i].txtype==='mine'?'<span class="label">':data[i].txtype==='send'?'<span class="label label-primary">':'';
-
-            console.log('data['+i+'] ' + labelSpanType);
-
-            rows += '<tr><td>' + labelSpanType + data[i].txtype + '</span></td>'
-                + '<td class="mdl-data-table__cell--non-numeric">' + '<a class="mtd-middle-chars" href="/tx/'+data[i].txid+'">'
-                    + data[i].txid + '</a></td>'
-                + '<td class="mdl-data-table__cell--non-numeric">' + from + to + '</td>'
-                + '<td class="mtd-text-right">' + amt + ' KAI</td>'
+            // const from = (data[i].txtype==='send' && data[i].vout[1])
+            //     ?'<div>' + data[i].vout[1].scriptPubKey.addresses[0] + '</div>':'';
+            // const to = ((data[i].txtype==='send' || data[i].txtype==='mine') && data[i].vout && data[i].vout[0])
+            //     ?'<div><i class="fas fa-arrow-right"></i>&nbsp;' + data[i].vout[0].scriptPubKey.addresses[0] + '</div>':'';
+            const labelSpanType = data[i].txtype==='mine'?'<span class="label">'
+                :data[i].txtype==='send'?'<span class="label label-primary">':'<span class="label label-success">';
+            const from = data[i].from.length<1?'':'<div>' + data[i].from + '</div>';
+            rows += '<tr><td class="mtd-td-label center">' + labelSpanType + data[i].txtype + '</span></td>'
+                + '<td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis">' + '<a href="/tx/'+data[i].txid+'">'
+                + data[i].txid + '</a></td>'
+                + '<td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis hide-under-small">'
+                + from + '<div><i class="fas fa-arrow-right"></i>&nbsp;' + data[i].to + '</div></td>'
+                + '<td class="mtd-text-right">' + data[i].amount + ' KAI</td>'
                 + '<td class="center"><span class="label">' + data[i].confirmations + '</span></td>'
-                + '<td class="left"><i class="fas fa-arrow-down"></i>&nbsp;' + data[i].date + '</td></tr>';
+                + '<td class="center"><i class="fas fa-arrow-down"></i>&nbsp;' + data[i].date + '</td></tr>';
         }
         console.log('data[0] ' + JSON.stringify(data[0]));
         return rows;
     },
-    makeBlocksRow: function(data) {
+    makeBlockRow: function(data) {
         const self = this;
         let rows = '';
         for (let i=0; i<data.length; i++) {
@@ -141,20 +146,23 @@ var app = {
             } else {
                 txCount = '<span class="label">'+data[i].txcount+'</span>';
             }
-            rows += '<tr><td><a class="mtd-middle-chars mtd-label" href="/block/'+data[i].height+'">' +
-                '<span class="label">'+data[i].height+'</span></a></td>' +
-                '<td class="mdl-data-table__cell--non-numeric"><a class="mtd-middle-chars" href="/block/'+data[i].height+'">'+data[i].hash+'</a></td>' +
-                '<td class="mdl-data-table__cell--non-numeric">'+data[i].miner+'</td>' +
-                '<td>'+Number(data[i].size).toLocaleString()+'</td>' +
-                '<td class="center">'+txCount+'</td>' +
-                '<td class="center"><span class="label">'+data[i].confirmations+'</span></td>' +
-                '<td class="left"><i class="fas fa-arrow-down"></i>&nbsp;'+data[i].date+'</td></tr>';
+            rows += '<tr><td class="center"><span class="label">'
+                + data[i].height+'</span></td>'
+                + '<td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis"><a href="/block/'
+                + data[i].height+'">'+data[i].hash+'</a></td>'
+                + '<td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis hide-under-small">'
+                + data[i].miner+'</td><td>'
+                + Number(data[i].size).toLocaleString() + '</td><td class="center">'
+                + txCount + '</td><td class="center"><span class="label">'
+                + data[i].confirmations+'</span></td><td class="center"><i class="fas fa-arrow-down"></i>&nbsp;'
+                + data[i].date+'</td></tr>';
         }
 
         console.log('data[0] ' + JSON.stringify(data[0]));
         return rows;
     },
     beforeSearch: function(q) {
+        if (q.length<1) return;
         const self = this;
         console.log('beforeSearch keyword ' + q);
         $.getJSON('/q/' + q, function(data) {

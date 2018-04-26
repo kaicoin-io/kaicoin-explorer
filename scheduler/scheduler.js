@@ -12,6 +12,11 @@ const job = schedule.scheduleJob('*/1 * * * *', function(){
     syncBlocks();
 });
 
+/**
+ * 1) find lastblock
+ *   => { blocksyncheight: 7499, chainname: "kaicoin", txsyncheight: null }
+ *
+ */
 function syncBlocks() {
     const now = new Date();
     const starttime = now.getTime();
@@ -21,17 +26,16 @@ function syncBlocks() {
         console.log('--- scheduler is started at ' + min + ' min ---');
         config.connectDB().then(conn => {
             service.syncSummary(conn).then(res1 => {
-                // console.log('summary: ' + JSON.stringify(res1));
                 service.getLastBlock(conn).then(res2 => {
                     let fromBlock = 0;
                     let toBlock = res1.blocks;
                     if (res2!==null && typeof(res2.blocksyncheight)!=='undefined') {
-                        // {"blocksyncheight":7499,"chainname":"kaicoin", "txsyncheight": null}
                         fromBlock = res2.blocksyncheight;
                     }
                     if (toBlock>fromBlock) {
                         service.syncBlocks(conn, fromBlock+1, toBlock).then(res3 => {
-                            if (typeof(res2.txsyncheight)==='undefined' || res2.txsyncheight<res2.blocksyncheight) {
+                            if (typeof(res2.txsyncheight)==='undefined'
+                                        || res2.txsyncheight<res2.blocksyncheight) {
                                 console.log('[INFO] synching TXs');
                                 const fromheight = typeof(res2.txsyncheight)==='undefined'?0:res2.txsyncheight;
                                 service.getBlocksThenSaveTxs(conn, fromheight, res2.blocksyncheight).then(res4 => {
@@ -70,19 +74,23 @@ function syncBlocks() {
             trace(starttime);
             job_running = false;
         });
-    } else {
-        // console.warn('[INFO] --- scheduler skipped job request. already running ---');
     }
 }
 
+/**
+ *
+ */
 fastify.get('/api/blocknotify/:bhash', (req, reply) => {
     // console.log('[INFO] new block');
     syncBlocks();
     reply.send({code:999, message:'ok'})
 });
 
+/**
+ * what to do?
+ */
 fastify.get('/api/walletnotify/:tid', (req, reply) => {
-    console.log('[INFO] new transaction');
+    console.log('[INFO] new transaction ' + req.params.tid);
     reply.send({code:999, message:'ok'})
 });
 

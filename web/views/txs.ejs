@@ -34,31 +34,23 @@
                         <tr>
                             <td class="mtd-td-label center">
                                 <% if (list[i].txtype==='mine') { %><span class="label"><%=list[i].txtype%></span>
-                                <!-- Todo: self인 경우도 포함 필요 -->
                                 <% } else if (list[i].txtype==='send') { %><span class="label label-primary"><%=list[i].txtype%></span>
                                 <% } else { %><span class="label label-success"><%=list[i].txtype%></span><% } %>
                             </td>
                             <!-- TX ID -->
                             <td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis">
-                                <a class="mtd-middle-chars" href="/tx/<%=list[i].txid%>"><%=list[i].txid%></a>
+                                <a href="/tx/<%=list[i].txid%>"><%=list[i].txid%></a>
                             </td>
                             <td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis hide-under-small">
-                                <!-- FROM -->
-                                <% if (list[i].txtype==='send' && typeof(list[i].vout[1])!=='undefined') { %>
-                                    <div><%=list[i].vout[1].scriptPubKey.addresses[0]%></div>
-                                <% } %>
-                                <!-- TO -->
-                                <% if ((list[i].txtype==='send' || list[i].txtype==='mine') && typeof(list[i].vout[0])!=='undefined') { %>
-                                    <div><i class="fas fa-arrow-right"></i>&nbsp;<%=list[i].vout[0].scriptPubKey.addresses[0]%></div>
-                                <% } %>
+                                <!-- FROM/TO -->
+                                <% if (list[i].from) { %><div><%=list[i].from%></div><% } %>
+                                <% if (list[i].to) { %><div><i class="fas fa-arrow-right"></i>&nbsp;<%=list[i].to%></div><% } %>
                             </td>
                             <td class="mtd-text-right">
-                                <% if (typeof(list[i].vout)!=='undefined' && typeof(list[i].vout[0].value)!=='undefined') { %><%=Number(list[i].vout[0].value).toLocaleString()%><% } %><span class=" hide-under-small"> KAI</span>
+                                <%=list[i].amount%><span class=" hide-under-small"> KAI</span>
                             </td>
                             <td class="center">
-                                <span class="label">
-                                    <% if(typeof(list[i].confirmations)!=='undefined') { %><%=list[i].confirmations%><% } else { %>0<% } %>
-                                </span>
+                                <span class="label"><%=list[i].confirmations%></span>
                             </td>
                             <td class="center"><i class="fas fa-arrow-down"></i>&nbsp;<%=list[i].date%></td>
                         </tr>
@@ -67,9 +59,8 @@
                     </tbody>
                 </table>
             </div>
-            <br>
-            <div class="mdl-card__actions mdl-card--border">
-                <button class="mdl-button mdl-js-button mdl-button--primary mtd-button-no-border">TXs at</button>
+            <div class="mdl-card__actions mdl-card--border" style="position: relative;">
+                <button class="mdl-button mdl-js-button mdl-button--primary mtd-button-no-border">Search</button>
                 <a href="/" style="float: right;"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-arrow-up"></i>&nbsp;HOME</button></a>
                 <div class="mtd-pager-wrapper">
                     <p class="range-field"><input id="pagenation-txs" type="range" class="mtd-pagination" min="0" max="<%=count%>" value="<%=count%>" /></p>

@@ -121,33 +121,27 @@ fastify.get('/block/:q', (req, reply) => {
  */
 fastify.get('/txs', (req, reply) => {
     config.connectDB().then(conn => {
-        service.getSummary(conn).then(res1 => {
-            service.getTxs(conn, LIST_COUNT_PER_PAGE).then(res2 => {
-                service.getRowCount(conn, table.TB_TXS).then(res3 => {
-                    config.disconnectDB(conn);
-                    reply.view('txs', {summary: res1, list: res2, count: res3});
-                });
+        service.getTxs(conn, LIST_COUNT_PER_PAGE).then(res2 => {
+            service.getRowCount(conn, table.TB_TXS).then(res3 => {
+                config.disconnectDB(conn);
+                reply.view('txs', {list: res2, count: res3});
             });
-        }, function(e) {
-            console.error('failed to connect to blockchain' + e);
         });
     });
 });
 
+/**
+ * Transaction list - AJAX paging
+ */
 fastify.get('/txs/:q', (req, reply) => {
     let json = reply.code(200).header('Content-Type', 'application/json');
     config.connectDB().then(conn => {
-        service.getSummary(conn).then(res1 => {
-            service.getTxs(conn, LIST_COUNT_PER_PAGE).then(res2 => {
-                service.getRowCount(conn, table.TB_TXS).then(res3 => {
-                    config.disconnectDB(conn);
-                    const list = {q: req.params.q, list: res2, count: res3};
-                    console.log('txs ' + JSON.stringify(list));
-                    json.send(list);
-                });
+        service.getTxs(conn, LIST_COUNT_PER_PAGE, req.params.q).then(res1 => {
+            service.getRowCount(conn, table.TB_TXS).then(res2 => {
+                config.disconnectDB(conn);
+                const list = {q: req.params.q, list: res1, count: res2};
+                json.send(list);
             });
-        }, function(e) {
-            console.error('failed to connect to blockchain' + e);
         });
     });
 });

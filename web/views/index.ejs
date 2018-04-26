@@ -58,7 +58,7 @@
                     <tr>
                         <td class="center"><span class="label"><%=blocks[i].height%></span></td>
                         <td class="left-align hash mtd-work-break-ellipsis">
-                            <a class="mtd-middle-chars" href="/block/<%=blocks[i].height%>"><%=blocks[i].hash%></a>
+                            <a href="/block/<%=blocks[i].height%>"><%=blocks[i].hash%></a>
                         </td>
                         <td class="center">
                             <% if (blocks[i].txcount>1) { %>
@@ -100,31 +100,29 @@
                         </td>
                     </tr>
                     <% } else { %>
-                    <% for(var i=0; i<txs.length; i++) { %>
-                    <tr>
-                        <td class="center">
-                            <% if (txs[i].txtype==='mine') { %><span class="label"><%=txs[i].txtype%></span>
-                            <% } else if (txs[i].txtype==='send') { %><span class="label label-primary"><%=txs[i].txtype%></span>
-                            <% } else { %><span class="label<% if (txs[i].ismemp===true) { %> label-success<% } %>"><%=txs[i].txtype%></span><% } %>
-                        </td>
-                        <td class="left-align mtd-txs-cell-tx hash mtd-work-break-middle-ellipsis">
-                            <a class="mtd-middle-chars" href="/tx/<%=txs[i].txid%>"><%=txs[i].txid%></a>
-                            <br>
-                            <!-- mine, memp, send -->
-                            <div class="mtd-small-chars hide-under-small" style="line-height: 16px;overflow-x: hidden;">
-                                <% if (txs[i].txtype==='send' && typeof(txs[i].vout[1])!=='undefined') { %><%=txs[i].vout[1].scriptPubKey.addresses[0]%><% } %>
-                                <% if (txs[i].txtype==='send' || txs[i].txtype==='mine') { %><i class="fas fa-arrow-right"></i> <%=txs[i].vout[0].scriptPubKey.addresses[0]%><% } %>
-                            </div>
-                        </td>
-                        <td class="mtd-text-right" style="overflow-x: hidden; text-overflow: clip">
-                            <% if (txs[i].txtype!=='memp') { %>
-                            <% if (typeof(txs[i].vout)!=='undefined' && typeof(txs[i].vout[0].value)!=='undefined') { %><%=txs[i].vout[0].value%><% } %><span class=" hide-under-small"> KAI</span>
-                            <% } %>
-                        </td>
-                        <td class="center confirm"><% if (txs[i].txtype!=='memp') { %><span class="label"><%=txs[i].confirmations%></span><% } %></td>
-                        <td class="left"><i class="fas fa-arrow-down"></i><%=txs[i].date%></td>
-                    </tr>
-                    <% } %>
+                        <% for(var i=0; i<txs.length; i++) { %>
+                        <tr>
+                            <td class="center">
+                                <% if (txs[i].txtype==='mine') { %><span class="label"><%=txs[i].txtype%></span>
+                                <% } else if (txs[i].txtype==='send') { %><span class="label label-primary"><%=txs[i].txtype%></span>
+                                <% } else { %><span class="label label-success"><%=txs[i].txtype%></span><% } %>
+                            </td>
+                            <td class="left-align mtd-txs-cell-tx hash mtd-work-break-middle-ellipsis">
+                                <a href="/tx/<%=txs[i].txid%>"><%=txs[i].txid%></a>
+                                <br>
+                                <!-- mine, memp, send -->
+                                <div class="mtd-small-chars hide-under-small" style="line-height: 16px;overflow-x: hidden;">
+                                    <% if (txs[i].from.length>0) { %><%=txs[i].from%><% } %>
+                                    <i class="fas fa-arrow-right"></i> <%=txs[i].to%>
+                                </div>
+                            </td>
+                            <td class="mtd-text-right" style="overflow-x: hidden; text-overflow: clip">
+                                <%=txs[i].amount%><span class=" hide-under-small"> KAI</span>
+                            </td>
+                            <td class="center confirm"><span class="label"><%=txs[i].confirmations%></span></td>
+                            <td class="left"><i class="fas fa-arrow-down"></i><%=txs[i].date%></td>
+                        </tr>
+                        <% } %>
                     <% } %>
                     </tbody>
                 </table>
