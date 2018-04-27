@@ -15,7 +15,7 @@ const job = schedule.scheduleJob('*/1 * * * *', function(){
 /**
  * 1) find lastblock
  *   => { blocksyncheight: 7499, chainname: "kaicoin", txsyncheight: null }
- *
+ * 2)
  */
 function syncBlocks() {
     const now = new Date();
@@ -94,14 +94,14 @@ fastify.get('/api/walletnotify/:tid', (req, reply) => {
     reply.send({code:999, message:'ok'})
 });
 
+/**
+ * Node callback listner start
+ */
 fastify.listen(9000, err => {
     if (err) throw err
     console.info(`[INFO] scheduler web app is listening on port ${fastify.server.address().port}`);
-    config.connectDB().then(conn => {
-        config.checkScheme(conn).then(res => {
-            console.log('[INFO] ------- scheme checking finish -------');
-            config.disconnectDB(conn);
-        });
+    config.checkScheme().then(res => {
+        console.log('[INFO] ------- scheme checking finish -------');
     });
 });
 

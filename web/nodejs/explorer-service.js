@@ -1,81 +1,131 @@
 const r = require('rethinkdb');
+const dao = require('./common/dao');
+const util = require('./common/util');
 const { GetBlock } = require('multichain-api/Commands/GetBlock');
 const { GetRawMemPool } = require('multichain-api/Commands/GetRawMemPool');
 const { GetRawTransaction } = require('multichain-api/Commands/GetRawTransaction');
 
+rethinkdb = {
+    host: "localhost",
+    port: 28015,
+    authKey: "",
+    db: "crypto"
+};
+
 module.exports = function() {
 
-    function onRpcError(e) {
-        if (e) { console.error('onRpcError ' + e); }
+    let mempool = [];
+    function onRpcError(e) { if (e) { console.error('rpc error ' + e); } }
+    function onDBError(conn) {
+        if (e) console.error('DB error ' + e);
+        if (conn) conn.close();
     }
-
-    function onDBError(e, conn) {
-        if (e) { console.error('onDBError ' + e); }
-        if (conn) { conn.close(); }
-    }
-
-    function onCursorError(e, cur, conn) {
-        if (e) { console.error('onCursorError ' + e); }
-        if (cur) { cur.close(); }
-        if (conn) { conn.close(); }
-    }
-
-    var mempool = [];
 
     return {
-        getSummary: function(conn) {
-            // console.log('getSummary');
-            return new Promise( function(resolve, reject) {
-                r.table(table.TB_SUMMARY).get(CHAIN_NAME).run(conn).then( res1 => {
-                    resolve(res1);
-                }).error(function (e) {
-                    onDBError(e, conn);
-                    reject(e);
+        /**
+         * for main page
+         * @returns {Promise<any>}
+         */
+        getMainData: function() {
+            const self = this;
+            return new Promise(function (success, fail) {
+                r.connect(rethinkdb).then(function(conn) {
+                    let result = {};
+                    self.getStatistics(conn).then(function(res1) {
+                        Object.assign(result, {summary: res1});
+                        return self.getBlocks(conn, LIST_COUNT_MAIN);
+                    }).then(function(res2) {
+                        Object.assign(result, {blocks: res2});
+                        return self.getTxs(conn, LIST_COUNT_MAIN);
+                    }).then(function(res3) {
+                        Object.assign(result, {txs: res3});
+                        return self.getRowCount(conn, table.TB_TXS);
+                    }).then(function(res4) {
+                        conn.close();
+                        Object.assign(result, {txcount: res4});
+                        success(result);
+                    });
+                }).error(function(e) { fail(e); });
+            });
+        },
+        /**
+         * for summary page
+         * @returns {Promise<any>}
+         */
+        getSummary: function() {
+            const self = this;
+            return new Promise(function (success, fail) {
+                let result = {};
+                r.connect(rethinkdb).then(function(conn) {
+                    r.table(table.TB_SUMMARY).get(CHAIN_NAME).run(conn).then(function(res1) {
+                        Object.assign(result, res1);
+                        return self.getRowCount(conn, table.TB_TXS);
+                    }).then(function(res2) {
+                        conn.close();
+                        let date = new Date();
+                        date.setTime(result["genesis-timestamp"]*1000);
+                        result["genesis-datetime"] = date.format("yyyy.MM.dd HH:mm:ss");
+                        result["txcount"] = res2;
+                        success(result);
+                    }).error(function (e) {
+                        fail(e);
+                    });
+                }).error(function(e) { fail(e); });
+            });
+        },
+        getStatistics: function(conn) {
+            return new Promise( function(success, fail) {
+                r.table(table.TB_SUMMARY).get(CHAIN_NAME).run(conn).then(
+                    res1 => { success(res1);
+                }).error(fail);
+            });
+        },
+        getBlocksPage: function(count) {
+            const self = this;
+            return new Promise( function(success, fail) {
+                r.connect(rethinkdb).then(function (conn) {
+                    r.table(table.TB_SUMMARY).get(CHAIN_NAME).run(conn).then(function(res1) {
+                        r.table(table.TB_BLOCKS).orderBy({index: r.desc(table.PK_BLOCKS)}).limit(count)
+                            .run(conn).then(function(cur1) {
+                                cur1.toArray().then(function (list) {
+                                    conn.close();
+                                    self.handleBlocks(list, count);
+                                    let result = {summary: res1, list: list};
+                                    success(result);
+                                }).error(fail);
+                        }).error(fail);
+                    }).error(fail);
                 });
             });
         },
-        getBlocks: function(conn, count, q) {
+        getBlocks: function(count, q) {
             const self = this;
-            return new Promise( function(resolve, reject) {
-                if (typeof(q)!=='undefined') {
+            return new Promise( function(success, fail) {
+                r.connect(rethinkdb).then(function (conn) {
                     console.log('pagenated ' + q);
-                    r.table(table.TB_BLOCKS).orderBy({index: r.desc(table.PK_BLOCKS)}).filter(r.row(table.PK_BLOCKS)
-                        .le(parseInt(q, 10))).limit(count).run(conn).then(cur1 => {
-                            self.handleBlocks(conn, resolve, reject, cur1, count);
-                    }).error(function (e) {
-                        onDBError(e, conn);
-                        reject(e);
-                    });
-                } else {
-                    r.table(table.TB_BLOCKS).orderBy({index: r.desc(table.PK_BLOCKS)}).limit(count).run(conn).then(cur1 => {
-                        self.handleBlocks(conn, resolve, reject, cur1, count)
-                    }).error(function (e) {
-                        onDBError(e, conn);
-                        reject(e);
-                    });
-                }
+                    r.table(table.TB_BLOCKS).orderBy({index: r.desc(table.PK_BLOCKS)})
+                        .filter(r.row(table.PK_BLOCKS).le(parseInt(q, 10))).limit(count).run(conn)
+                        .then(function(cur1) {
+                            cur1.toArray().then(function (list) {
+                                conn.close();
+                                self.handleBlocks(list, count);
+                                success({q: q, list: list});
+                            }).error(console.log);
+                        }).error(fail);
+                });
             });
         },
-        handleBlocks: function(conn, resolve, reject, cur1, count) {
-            cur1.toArray().then(function (list) {
-                cur1.close();
-                if (list.length < 1) {
-                    resolve([]);
-                } else {
-                    const now = new Date().getTime();
-                    for (let i = 0; i < list.length; i++) {
-                        if (count === LIST_COUNT_MAIN) {
-                            list[i].date = toHumanReadableTimestampMain(list[i].time * 1000, now);
-                        } else {
-                            list[i].date = toHumanReadableTimestamp(list[i].time * 1000, now);
-                        }
+        handleBlocks: function(list, count) {
+            if (list&&list.length>0) {
+                const now = new Date().getTime();
+                for (let i = 0; i < list.length; i++) {
+                    if (count === LIST_COUNT_MAIN) {
+                        list[i].date = toHumanReadableTimestampMain(list[i].time * 1000, now);
+                    } else {
+                        list[i].date = toHumanReadableTimestamp(list[i].time * 1000, now);
                     }
-                    resolve(list);
                 }
-            }).error(function (e) {
-                onCursorError(e, cur1, conn);
-                reject(e);
-            });
+            }
         },
         /**
          * Getting Block Info
@@ -86,24 +136,21 @@ module.exports = function() {
             return new Promise( function(resolve, reject) {
                 rpc(GetBlock(q)).then(res => {
                     const now = new Date().getTime();
-                    let item = Object.assign(res.result, {date: toHumanReadableTimestampAgo(res.result.time*1000, now)});
+                    let item = Object.assign(res.result,
+                        {date: toHumanReadableTimestampAgo(res.result.time*1000, now)});
                     resolve({q: q, item: item, raw: res.result });
-                }).catch(e => { onRpcError(e); reject(e); });
+                }).catch(reject);
             });
         },
         getList: function(conn, tablename, index, length) {
             return new Promise( function(resolve, reject) {
-                r.table(tablename).orderBy({index: r.desc(index)}).limit(length).run(conn).then(cur1 => {
-                    cur1.toArray().then(function (list) {
-                        cur1.close();
-                        if (list.length < 1) { resolve([]);
-                        } else { resolve(list); }
-                    }).error(function (e){
-                        onCursorError(e, cur1, conn);
-                        reject(e);
-                    });
-                }).error(function (e) {
-                    onDBError(e, conn);
+                r.table(tablename).orderBy({index: r.desc(index)}).limit(length).run(conn).then(
+                    cur1 => {
+                        cur1.toArray().then(function(list) {
+                            if (list.length < 1) { resolve([]);
+                            } else { resolve(list); }
+                        }).error(console.log);
+                    }).error(function (e) {
                     reject(e);
                 });
             });
@@ -114,8 +161,23 @@ module.exports = function() {
                 r.table(tablename).count().run(conn).then(count => {
                     resolve(count);
                 }).error(function (e) {
-                    onDBError(e, conn);
                     reject(e);
+                });
+            });
+        },
+        getTxsPage: function(count) {
+            const self = this;
+            return new Promise( function(resolve, reject) {
+                r.connect(rethinkdb).then(function (conn) {
+                    self.getRowCount(conn, table.TB_TXS).then(res1 => {
+                        r.table(table.TB_TXS).orderBy({index: r.desc(table.IDX_TIME)})
+                            .limit(count).run(conn).then(cur1 => {
+                            cur1.toArray().then(function(list) {
+                                self.convertRawTxs(list, count);
+                                resolve({list: list, count: res1});
+                            }).error(console.log);
+                        }).error(reject);
+                    });
                 });
             });
         },
@@ -128,55 +190,34 @@ module.exports = function() {
          * @param count
          * @returns {Promise<any>}
          */
-        getTxs: function(conn, count, q) {
+        getTxs: function(count, q) {
             const self = this;
-
             return new Promise( function(resolve, reject) {
-
-                if (typeof(q)!=='undefined') {
-                    let qint = q==='0'?count:parseInt(q, 10);
-                    const s = qint-count<0?0:qint-count;
-                    console.log('pagenated ' + s + '~' + qint);
-                    r.table(table.TB_TXS).orderBy({index: r.asc(table.IDX_TXS)})
-                                .slice(s, qint).run(conn).then(cur1 => {
-                        cur1.toArray().then(function (list) {
-                            cur1.close();
-                            // console.log('list ' + JSON.stringify(list));
-                            self.mergeTxList(list, count, resolve);
+                let qint = q==='0'?count:parseInt(q, 10);
+                const s = qint-count<0?0:qint-count;
+                console.log('pagenated ' + s + '~' + qint);
+                r.connect(rethinkdb).then(function (conn) {
+                    r.table(table.TB_TXS).orderBy({index: r.asc(table.IDX_TIME)})
+                        .slice(s, qint).run(conn).then(cur1 => {
+                        cur1.toArray().then(function(list) {
+                            self.convertRawTxs(list, count);
                             resolve(list);
-                        }).error(function (e){
-                            onCursorError(e, cur1, conn);
-                            reject(e);
-                        });
-                    }).error(function (e) {
-                        onDBError(e, conn);
-                        reject(e);
-                    });
-                } else {
-                    r.table(table.TB_TXS).orderBy({index: r.desc(table.IDX_TXS)})
-                                    .limit(count).run(conn).then(cur1 => {
-                        cur1.toArray().then(function (list) {
-                            cur1.close();
-                            self.mergeTxList(list, count, resolve);
-                            resolve(list);
-                        }).error(function (e){
-                            onCursorError(e, cur1, conn);
-                            reject(e);
-                        });
-                    }).error(function (e) {
-                        onDBError(e, conn);
-                        reject(e);
-                    });
-                }
+                        }).error(reject);
+                    }).error(reject);
+                });
             });
         },
-        mergeTxList: function(list, count) {
-            // iterate over each transaction
+        /**
+         * iterate over each transaction
+         * @param list
+         * @param count
+         */
+        convertRawTxs: function(list, count) {
             const self = this;
             const now = new Date().getTime();
             for (let i=0; i<list.length; i++) {
                 delete list[i]['hex'];
-                self.convertRawTxToNormal(list[i], now, count);
+                self.convertRawTx(list[i], now, count);
             }
         },
         /**
@@ -186,7 +227,7 @@ module.exports = function() {
          * @param now
          * @returns TYPE TXID FROM TO AMOUNT CONFIRM TIME
          */
-        convertRawTxToNormal: function(item, now, count) {
+        convertRawTx: function(item, now, count) {
             item.from = '';
             if (count===LIST_COUNT_MAIN) {
                 item.date = toHumanReadableTimestampMain(item.time*1000, now);
@@ -202,26 +243,29 @@ module.exports = function() {
                 }
             }
             if (typeof(item.vout)!=='undefined') {
-                    item.to = item.vout[0].scriptPubKey.addresses[0];
-                    item.amount = Number(item.vout[0].value).toLocaleString();
-                    if (typeof(item.vout[1]) !== 'undefined'
-                                && typeof(item.vout[1].scriptPubKey.addresses) !== 'undefined') {
-                        item.from = item.vout[1].scriptPubKey.addresses[0];
-                    }
+                item.to = item.vout[0].scriptPubKey.addresses[0];
+                item.amount = Number(item.vout[0].value).toLocaleString();
+                if (typeof(item.vout[1]) !== 'undefined'
+                    && typeof(item.vout[1].scriptPubKey.addresses) !== 'undefined') {
+                    item.from = item.vout[1].scriptPubKey.addresses[0];
+                }
             }
             delete item['vin'];
             delete item['vout'];
         },
+        /**
+         * blockhash, confirmations, time, blocktime, hex, txid, version, locktime
+         * @param txid
+         * @returns {Promise<any>}
+         */
         getRawTx: function(txid) {
             const self = this;
             return new Promise( function(resolve, reject) {
                 rpc(GetRawTransaction(txid, 1)).then(res1 => {
-                    // blockhash, confirmations, time, blocktime, hex, txid, version, locktime
                     let raw = {};
                     Object.assign(raw, res1.result);
-                    self.convertRawTxToNormal(res1.result, new Date().getTime());
-                    const item = { raw: raw, item: res1.result };
-                    resolve(item);
+                    self.convertRawTx(res1.result, new Date().getTime());
+                    resolve({ raw: raw, item: res1.result });
                 }).catch(e => { onRpcError(e); reject(e); });
             });
         },
@@ -260,7 +304,7 @@ module.exports = function() {
                 }).catch(e => { onRpcError(e); reject(e); });
             });
         }
-    };
+    }
 };
 
 function toHumanReadableTimestampMain(thattime, nowtime) {
@@ -403,11 +447,11 @@ function toHumanReadableTimestampAgo(thattime, nowtime) {
                                         res1.unshift(res3[i]);
                                     }
                                 }
-                                self.mergeTxList(res1, count, resolve);
+                                self.convertRawTxs(res1, count, resolve);
                                 console.log('mem merged txs ' + JSON.stringify(res1));
                             });
                         } else {
-                            self.mergeTxList(res1, count, resolve);
+                            self.convertRawTxs(res1, count, resolve);
                             console.log('txs ' + JSON.stringify(res1));
                         }
                     }).catch(e => { onRpcError(e); reject(e); });

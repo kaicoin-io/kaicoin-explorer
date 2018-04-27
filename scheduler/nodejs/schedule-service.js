@@ -1,4 +1,5 @@
 const r = require('rethinkdb');
+const util = require('./common/util')
 const { GetInfo } = require('multichain-api/Commands/GetInfo');
 const { GetBlockchainInfo } = require('multichain-api/Commands/GetBlockchainInfo');
 const { GetBlockchainParams } = require('multichain-api/Commands/GetBlockchainParams');
@@ -10,29 +11,15 @@ const { GetRawTransaction } = require('multichain-api/Commands/GetRawTransaction
 
 module.exports = function() {
 
-    function onRpcError(e) {
-        if (e) { console.error('onRpcError ' + e); }
-    }
+    function onRpcError(e) { if (e) { console.error('rpc error ' + e); } }
 
     function onDBError(e, conn) {
-        if (e) { console.error('onDBError ' + e); }
-        if (conn) { conn.close(); }
-    }
-
-    function onCursorError(e, cur, conn) {
-        if (e) { console.error('onCursorError ' + e); }
-        if (cur) { cur.close(); }
+        if (e) { console.error('DB error ' + e); }
         if (conn) { conn.close(); }
     }
 
     return {
-        connectDB: function() {
-            return r.connect(rethinkdb);
-        },
-        disconnectDB: function(conn) {
-            if (conn) { conn.close(); }
-        },
-        syncSummary: function(conn) {
+        syncSummary: function() {
             const self = this;
             return new Promise( function(resolve, reject) {
                 rpc(GetBlockchainInfo()).then(res1 => {
@@ -41,14 +28,23 @@ module.exports = function() {
                             rpc(GetMiningInfo()).then(res4 => {
                                 // Todo: add stream info, add txcount info
                                 const item = Object.assign(res1.result, res2.result, res3.result, res4.result);
-                                self.savePromise(resolve, reject, conn, table.TB_SUMMARY, item);
+                                self.savePromise(resolve, reject, table.TB_SUMMARY, item);
                             }).catch(e => reject(e));
                         }).catch(e => reject(e));
                     }).catch(e => reject(e));
                 }).catch(e => reject(e));
             });
         },
-        savePromise: function(resolve, reject, conn, tablename, item) {
+        saveOnce: function(tablename, item) {
+            //
+            return new Promise( function(resolve, reject) {
+                r.table(tablename).insert(item, { conflict: 'update', returnChanges: false })
+                    .run(conn).then(function (res1) {
+                    resolve(res1);
+                });
+            });
+        },
+        savePromise: function(resolve, reject, tablename, item) {
             r.table(tablename).insert(item, { conflict: 'update', returnChanges: false })
                 .run(conn).then( function(res1) {
                     resolve(item);

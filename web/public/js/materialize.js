@@ -1110,14 +1110,14 @@ document.addEventListener('keydown', docHandleKeydown);
 document.addEventListener('keyup', docHandleKeyup);
 
 /**
- * Initialize jQuery wrapper for plugin
+ * Initialize jQuery wrapper for common
  * @param {Class} plugin  javascript class
- * @param {string} pluginName  jQuery plugin name
+ * @param {string} pluginName  jQuery common name
  * @param {string} classRef  Class reference name
  */
 M.initializeJqueryWrapper = function (plugin, pluginName, classRef) {
   jQuery.fn[pluginName] = function (methodOrOptions) {
-    // Call plugin method if valid method name is passed in
+    // Call common method if valid method name is passed in
     if (plugin.prototype[methodOrOptions]) {
       var params = Array.prototype.slice.call(arguments, 1);
 
@@ -1133,7 +1133,7 @@ M.initializeJqueryWrapper = function (plugin, pluginName, classRef) {
         instance[methodOrOptions].apply(instance, params);
       });
 
-      // Initialize plugin if options or no argument is passed in
+      // Initialize common if options or no argument is passed in
     } else if (typeof methodOrOptions === 'object' || !methodOrOptions) {
       plugin.init(this, arguments[0]);
       return this;
@@ -9393,7 +9393,7 @@ $jscomp.polyfill = function (e, r, p, m) {
       value: function _handleInputChange(e) {
         var date = void 0;
 
-        // Prevent change event from being fired when triggered by the plugin
+        // Prevent change event from being fired when triggered by the common
         if (e.firedBy === this) {
           return;
         }

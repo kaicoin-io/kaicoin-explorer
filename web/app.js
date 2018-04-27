@@ -3,13 +3,14 @@
 const fastify = require('fastify')();
 const path = require('path');
 const resolve = path.resolve;
-const service = require("./nodejs/web-service")();
-const plugin = require("./nodejs/plugin");
-const SocketIo = require('socket.io');
-const r = require('rethinkdb');
-const config   = require('./nodejs/config')();
+const service = require("./nodejs/explorer-service")();
+const plugin = require("./nodejs/common/fastify-plugin");
+const config   = require('./nodejs/config');
 const templatesFolder = 'views';
-const socketEvents = require('./nodejs/socket-handler.js');
+const dao = require('./nodejs/common/dao');
+// const SocketIo = require('socket.io');
+// const r = require('rethinkdb');
+// const socketEvents = require('./nodejs/socket-handler.js');
 
 fastify.register(require('fastify-static'), {
     root: path.join(__dirname, 'public'),
@@ -21,67 +22,49 @@ fastify.register(plugin, {
     includeViewExtension: true,
     templates: templatesFolder,
     options: { filename: resolve(templatesFolder) },
-    // sample usage, but specifying the same value already used as default
     charset: 'utf-8'
 });
+
+function onHTTPError(res) {
+    return function(e) {
+        res.send(500, {error: e.message});
+    }
+}
 
 /**
  * Main - index/dashboard page
  */
-fastify.get('/', (req, reply) => {
-    config.connectDB().then(conn =>
-        service.getSummary(conn).then(res1 => {
-            service.getBlocks(conn, LIST_COUNT_MAIN).then(res2 => {
-                service.getTxs(conn, LIST_COUNT_MAIN).then(res3 => {
-                    service.getRowCount(conn, table.TB_TXS).then(res4 => {
-                        config.disconnectDB(conn);
-                        const ret = {summary: res1, blocks: res2, txs: res3, txcount: res4};
-                        console.log('main raw ' + JSON.stringify(ret));
-                        reply.view('index', ret);
-                    });
-                });
-            });
-        })
-    );
+fastify.get('/', (req, res) => {
+    service.getMainData().then(res1 => {
+        res.view('index', res1);
+    }).catch(function(e) {
+        console.log(e);
+        // res.view('error', e);
+        res.send(500, {error: e.message});
+    });
 });
 
 /**
  * Blockchain summary
  */
 fastify.get('/summary', (req, reply) => {
-    config.connectDB().then(conn => {
-        service.getSummary(conn).then(res1 => {
-            service.getRowCount(conn, table.TB_TXS).then(res3 => {
-                config.disconnectDB(conn);
-                let date = new Date();
-                date.setTime(res1["genesis-timestamp"]*1000);
-                res1["genesis-datetime"] = date.format("yyyy.MM.dd HH:mm:ss");
-                res1["txcount"] = res3;
-                reply.view('summary', {item: res1});
-            });
-        }, function(e) {
-            console.error('failed to connect to blockchain' + e);
-        });
+    service.getSummary().then(res1 => {
+        reply.view('summary', {item: res1});
+    }).catch(function(e) {
+        res.send(500, {error: e.message});
     });
 });
 
 /**
  * Block list
  */
-fastify.get('/blocks', (req, reply) => {
-    config.connectDB().then(conn => {
-        service.getSummary(conn).then(res1 => {
-            service.getBlocks(conn, LIST_COUNT_PER_PAGE).then(res2 => {
-                config.disconnectDB(conn);
-                let result = {summary: res1, list: res2};
-                console.log('result ' + JSON.stringify(result));
-                reply.view('blocks', result);
-            }, function(e) {
-                console.error('failed to connect to blockchain' + e);
-            });
-        }, function(e) {
-            console.error('failed to connect to blockchain' + e);
-        });
+fastify.get('/blocks', (req, res) => {
+    service.getBlocksPage(LIST_COUNT_PER_PAGE).then(
+        res1 => {
+            res.view('blocks', res1);
+    }).catch(function(e) {
+        console.log(JSON.stringify(e));
+        res.send(500, {error: e.message});
     });
 });
 
@@ -89,17 +72,14 @@ fastify.get('/blocks', (req, reply) => {
  * * Block list
  *   - for AJAX pager
  */
-fastify.get('/blocks/:q', (req, reply) => {
-    let json = reply.code(200).header('Content-Type', 'application/json');
-    config.connectDB().then(conn => {
-        service.getBlocks(conn, LIST_COUNT_PER_PAGE, req.params.q).then(res1 => {
-            config.disconnectDB(conn);
-            const list = {q: req.params.q, list: res1};
-            console.log('blockheight lesser than result ' + JSON.stringify(list));
-            json.send(list);
-        }, function(e) {
-            console.error('failed to connect to blockchain' + e);
-        });
+fastify.get('/blocks/:q', (req, res) => {
+    const json = res.code(200).header('Content-Type', 'application/json');
+    service.getBlocks(LIST_COUNT_PER_PAGE, req.params.q).then(
+        res1 => {
+            json.send(res1);
+    }).catch(function(e) {
+        console.log(JSON.stringify(e));
+        res.send(500, {error: e.message});
     });
 });
 
@@ -110,8 +90,9 @@ fastify.get('/block/:q', (req, reply) => {
     service.getBlock(req.params.q).then(res1 => {
         console.log('item ' + JSON.stringify(res1));
         reply.view('block', res1);
-    }, function(e) {
-        console.error('failed to connect to blockchain' + e);
+    }).catch(function(e) {
+        console.log(JSON.stringify(e));
+        res.send(500, {error: e.message});
     });
 });
 
@@ -120,29 +101,26 @@ fastify.get('/block/:q', (req, reply) => {
  *   - getmempoolinfo => BLOCKS + BLOCK + TXS + TX  ?
  */
 fastify.get('/txs', (req, reply) => {
-    config.connectDB().then(conn => {
-        service.getTxs(conn, LIST_COUNT_PER_PAGE).then(res2 => {
-            service.getRowCount(conn, table.TB_TXS).then(res3 => {
-                config.disconnectDB(conn);
-                reply.view('txs', {list: res2, count: res3});
-            });
-        });
+    service.getTxsPage(LIST_COUNT_PER_PAGE).then(
+        res1 => {
+            reply.view('txs', res1);
+    }).catch(function(e) {
+        console.log(JSON.stringify(e));
+        res.send(500, {error: e.message});
     });
 });
 
 /**
  * Transaction list - AJAX paging
  */
-fastify.get('/txs/:q', (req, reply) => {
-    let json = reply.code(200).header('Content-Type', 'application/json');
-    config.connectDB().then(conn => {
-        service.getTxs(conn, LIST_COUNT_PER_PAGE, req.params.q).then(res1 => {
-            service.getRowCount(conn, table.TB_TXS).then(res2 => {
-                config.disconnectDB(conn);
-                const list = {q: req.params.q, list: res1, count: res2};
-                json.send(list);
-            });
-        });
+fastify.get('/txs/:q', (req, res) => {
+    const json = res.code(200).header('Content-Type', 'application/json');
+    service.getTxs(LIST_COUNT_PER_PAGE, req.params.q).then(res1 => {
+        const list = {q: req.params.q, list: res1, count: 0};
+        json.send(list);
+    }).catch(function(e) {
+        console.log(JSON.stringify(e));
+        json.send([]);
     });
 });
 
@@ -150,23 +128,24 @@ fastify.get('/txs/:q', (req, reply) => {
  * Transaction detail
  */
 fastify.get('/tx/:q', (req, reply) => {
-    // 1. ����
-    //   1) ��������: blockhash, confirmations, time, blocktime, hex, txid, version, locktime
-    //   2) �ݾ� �ִ� ��: vout[n].type = 'pubkeyhash'
-    // 2. ���̴�
+    // 1.
+    //   1) : blockhash, confirmations, time, blocktime, hex, txid, version, locktime
+    //   2) vout[n].type = 'pubkeyhash'
+    // 2. only mining case (empty block)
     //   1) vin[[=0?]]: coinbase, sequence
     //   2) vout[n]: n, value, scriptPubKey(asm, hex, type[=nulldata]), data[]
     //   2) vout[0]�� value, scriptPubKey.addresses[0]�� üũ�ϸ� �ɱ�..?
-    // 3. ����
-    //   1) vin[]: txid(��������..), vout[=0], scriptSig(asm, hex), sequence
+    // 3. send case
+    //   1) vin[]: txid(..), vout[=0], scriptSig(asm, hex), sequence
     //   2) vout[n]: n, value, scriptPubKey(asm, hex, type[=pubkeyhash], reqSigs, addresses[])
-    //   2) vout[0].scriptPubKey.addresses: ������
-    //   2) vout[1].scriptPubKey.addresses: ������
+    //   2) vout[0].scriptPubKey.addresses: to address
+    //   2) vout[1].scriptPubKey.addresses: from address
     service.getRawTx(req.params.q).then(res1 => {
-        console.log('res1 ' + JSON.stringify(res1));
+        // console.log('res1 ' + JSON.stringify(res1));
         reply.view('tx', res1);
-    }, function(e) {
-        console.error('failed to handle getRawTx ' + e);
+    }).catch(function(e) {
+        console.log(JSON.stringify(e));
+        res.send(500, {error: e.message});
     });
 });
 
@@ -174,7 +153,7 @@ fastify.get('/tx/:q', (req, reply) => {
  * Address details (dev plan not fixed)
  */
 fastify.get('/address/:q', (req, reply) => {
-    // config.connectDB().then(conn => {
+    // config.getConnection().then(conn => {
     //     service.getSummary(conn).then(res1 => {
     //         service.getBlocks(conn, res1).then(res2 => {
     //             // console.log('list ' + JSON.stringify(res2));
@@ -201,9 +180,9 @@ fastify.get('/address/:q', (req, reply) => {
  * 3. if under 10 chars and only numbers =>
  *   - block height:
  */
-fastify.get('/q/:q', (req, reply) => {
+fastify.get('/q/:q', (req, res) => {
     const param = req.params.q;
-    let json = reply.code(200).header('Content-Type', 'application/json');
+    const json = res.code(200).header('Content-Type', 'application/json');
     if (param.length>64) {
         json.send({type: null});
     } else {
@@ -213,17 +192,17 @@ fastify.get('/q/:q', (req, reply) => {
         } else {
             if (param.length===64) {
                 if (param.startsWith('0000')) {
-                    // ����ؽ� (����)
+                    // block address
                     json.send({type: 'block'});
                 } else {
-                    // TX �ؽ�
+                    // TX ID
                     json.send({type: 'tx'});
                 }
             } else if (param.length===38) {
-                // �ּ�
+                // address
                 json.send({type: 'address'});
             } else if (param.length<10) {
-                // ��� ����
+                //
                 const numeric = /^\d+$/;
                 if(param.match(numeric)===false) {
                     json.send({type: null});
@@ -253,13 +232,9 @@ fastify.listen(WEB_PORT, SERVICE_IP, err => {
     const io = require('socket.io')(fastify.server);
     io.origins('*:*');
     io.on('connection', function(client){
-        console.log('socket connected');
-        client.on('message', function(data){
-            console.log('socket message');
-        });
-        client.on('disconnect', function(){
-            console.log('socket disconnected');
-        });
+        console.log('user socket con');
+        client.on('message', function(data){ console.log('message received'); });
+        client.on('disconnect', function(){ console.log('user socket discon'); });
     });
     handleRealtime(io);
     console.log(`fastify server listening on ${fastify.server.address().port}`);
@@ -353,7 +328,7 @@ function handleRealtime(io) {
         });
     });
     // socket.broadcast.emit('us', {'msg': 'hi message'});
-    r.connect(rethinkdb, function(e, conn) {
+/*    r.connect(rethinkdb, function(e, conn) {
         if (e) {
             console.warn("could not connect to the database, " + e.message);
             if (conn) { conn.close(); }
@@ -370,80 +345,5 @@ function handleRealtime(io) {
                 msocket.broadcast.emit('message', {changed: row});
             });
         });
-    });
-}
-
-Date.prototype.format = function(f) {
-    if (!this.valueOf()) return " ";
-
-    var weekName = ["�Ͽ���", "������", "ȭ����", "������", "�����", "�ݿ���", "�����"];
-    var d = this;
-
-    return f.replace(/(yyyy|yy|MM|dd|E|hh|mm|ss|a\/p)/gi, function($1) {
-        var h;
-        switch ($1) {
-            case "yyyy": return d.getFullYear();
-            case "yy": return (d.getFullYear() % 1000).zf(2);
-            case "MM": return (d.getMonth() + 1).zf(2);
-            case "dd": return d.getDate().zf(2);
-            case "E": return weekName[d.getDay()];
-            case "HH": return d.getHours().zf(2);
-            case "hh": return ((h = d.getHours() % 12) ? h : 12).zf(2);
-            case "mm": return d.getMinutes().zf(2);
-            case "ss": return d.getSeconds().zf(2);
-            case "a/p": return d.getHours() < 12 ? "����" : "����";
-            default: return $1;
-        }
-    });
-};
-
-String.prototype.string = function(len){var s = '', i = 0; while (i++ < len) { s += this; } return s;};
-String.prototype.zf = function(len){return "0".string(len - this.length) + this;};
-Number.prototype.zf = function(len){return this.toString().zf(len);};
-
-
-function toHumanReadableTimestamp(thattime, nowtime) {
-    if (typeof(thattime)==='undefined') {
-        return 'just now';
-    }
-    let now = typeof(nowtime)!=='undefined'?nowtime:new Date().getTime();
-    const diff = (now - thattime)/1000;
-    const years = Math.floor(diff / (60 * 60 * 24 * 365));
-    const months = Math.floor(diff / (60 * 60 * 24 * 30));
-    const weeks = Math.floor(diff / (60 * 60 * 24 * 7));
-    const days = Math.floor(diff / (60 * 60 * 24));
-    const hours = Math.floor(diff / (60 * 60));
-    const mins = Math.floor(diff / 60);
-    const secs = Math.floor(diff);
-    let ret = "";
-    if (years>1) {
-        ret = years + " years";
-    } else if (years===1) {
-        ret = "last year";
-    } else if (months>1) {
-        ret = months + " months";
-    } else if (months===1) {
-        ret = "last month";
-    } else if (weeks>1) {
-        ret = weeks + " weeks";
-    } else if (weeks===1) {
-        ret = "last week";
-    } else if (days>1) {
-        ret = days + " days";
-    } else if (days===1) {
-        ret = "yesterday";
-    } else if (hours>1) {
-        ret = hours + " hours";
-    } else if (hours===1) {
-        ret = "an hour ago";
-    } else if (mins>1) {
-        ret = mins + " minutes";
-    } else if (mins===1) {
-        ret = "a minute";
-    } else if (secs>2) {
-        ret = secs + " seconds";
-    } else {
-        ret = "just now";
-    }
-    return ret;
+    });*/
 }
