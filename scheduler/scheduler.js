@@ -3,7 +3,8 @@
 const fastify  = require('fastify')();
 const schedule = require('node-schedule');
 const service  = require('./nodejs/schedule-service')();
-const config   = require('./nodejs/config')();
+const config   = require('./nodejs/config');
+const dao   = require('./nodejs/common/dao')();
 
 let job_running = false;
 
@@ -100,12 +101,12 @@ fastify.get('/api/walletnotify/:tid', (req, reply) => {
 fastify.listen(9000, err => {
     if (err) throw err
     console.info(`[INFO] scheduler web app is listening on port ${fastify.server.address().port}`);
-    config.checkScheme().then(res => {
+    dao.checkScheme().then(res => {
         console.log('[INFO] ------- scheme checking finish -------');
     });
 });
 
 function trace(starttime) {
     const interval = new Date().getTime() - starttime;
-    console.log('[INFO] scheduler run for ' + (interval/1000) + " sec");
+    console.log('[INFO] scheduler ran for ' + (interval/1000) + " sec");
 }

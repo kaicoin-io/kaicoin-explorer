@@ -38,80 +38,106 @@ table = {
  */
 module.exports = function() {
 
-    let conn = null;
-    function connect() {
-        if (conn===null) { return r.connect(rethinkdb);
-        } else { return conn; }
-    }
-    function disConnect() { if (conn!==null) { conn.close(); } }
+    // let conn = null;
+    // function connect() {
+    //     if (conn===null) { return r.connect(rethinkdb);
+    //     } else { return conn; }
+    // }
+    // function disConnect() { if (conn!==null) { conn.close(); } }
 
     return {
         checkScheme: function() {
             self = this;
             console.log('[INFO] ------- scheme checking start -------');
-            return new Promise( function(resolve, reject) {
-                connect().then(conn => {
-                    r.dbList().run(conn).then(function(dbs) {
-                        let hasDB = dbs.includes(rethinkdb.db);
-                        if (hasDB===false) {
-                            console.log('[INFO] DB not exists, creating: ' + rethinkdb.db);
-                            r.dbCreate(rethinkdb.db).run(conn).then(function(res) {
-                                self.checkTables(conn, resolve, reject);
-                            }).error(function(e) { reject(e); });
-                        } else { self.checkTables(conn, resolve, reject); }
-                    }).error(function(e) { reject(e); });
-                }).error(function(e) { reject(e); });
+            return new Promise( function(success, fail) {
+                r.connect(rethinkdb).then(function(conn) {
+                    let result = {};
+                    self.checkDB(conn).then(function(res1) {
+                        return self.checkTables(conn);
+                    }).then(function(tables) {
+                        return self.checkBlocksTable(con, tables);
+                    }).then(function(tables) {
+                        return self.checkTxsTable(conn, tables);
+                    }).then(function(tables) {
+                        self.checkLastSyncTable(conn, tables);
+                        success(1);
+                    });
+                }).error(fail);
             });
         },
-        checkTables: function(conn, resolve, reject) {
-            r.tableList().run(conn).then(function(tables) {
-                let hasTable = tables.includes(table.TB_SUMMARY);
-                if (hasTable===false) {
-                    console.log('[INFO] TABLE not exists, creating: ' + table.TB_SUMMARY);
-                    r.tableCreate(table.TB_SUMMARY, {primaryKey: table.PK_SUMMARY}).run(conn).then(
-                        res => { self.checkBlocksTable(conn, tables, resolve, reject);
-                        }).error(function(e) { reject(e); });
-                } else { self.checkBlocksTable(conn, tables, resolve, reject); }
-            }).error(function(e) { reject(e); });
+        checkDB: function(conn) {
+            return new Promise( function(success, fail) {
+                r.dbList().run(conn).then(function(dbs) {
+                    let hasDB = dbs.includes(rethinkdb.db);
+                    if (hasDB===false) {
+                        console.log('[INFO] DB not exists, creating: ' + rethinkdb.db);
+                        r.dbCreate(rethinkdb.db).run(conn).then(function(res1) {
+                            self.checkTables(conn, success, fail);
+                        }).error(fail);
+                    } else { self.checkTables(conn, success, fail); }
+                }).error(fail);
+            });
         },
-        checkBlocksTable: function(conn, tables, resolve, reject) {
+        checkTables: function(conn) {
+            return new Promise(function(success, fail) {
+                r.tableList().run(conn).then(function(tables) {
+                    let hasTable = tables.includes(table.TB_SUMMARY);
+                    if (hasTable===false) {
+                        console.log('[INFO] TABLE not exists, creating: ' + table.TB_SUMMARY);
+                        r.tableCreate(table.TB_SUMMARY, {primaryKey: table.PK_SUMMARY}).run(conn).then(
+                            res1 => { success(tables);
+                        }).error(fail);
+                    } else {
+                        success();
+                    }
+                }).error(fail);
+            });
+        },
+        checkBlocksTable: function(conn, tables) {
             const self = this;
             let hasTable = tables.includes(table.TB_BLOCKS);
-            if (hasTable === false) {
-                console.log('[INFO] TABLE not exists, creating: ' + table.TB_BLOCKS);
-                r.tableCreate(table.TB_BLOCKS, {primaryKey: table.PK_BLOCKS}).run(conn).then(
-                    res => { self.checkTxsTable(conn, tables, resolve, reject);
-                    }).error(function(e) { reject(e); });
-            } else { self.checkTxsTable(conn, tables, resolve, reject); }
+            return new Promise(function(success, fail) {
+                if (hasTable===false) {
+                    console.log('[INFO] TABLE not exists, creating: ' + table.TB_BLOCKS);
+                    r.tableCreate(table.TB_BLOCKS, {primaryKey: table.PK_BLOCKS}).run(conn).then(
+                        res => { success(tables);
+                    }).error(fail);
+                } else { success(tables); }
+            });
+
         },
-        checkTxsTable: function(conn, tables, resolve, reject) {
+        checkTxsTable: function(conn, tables) {
             const self = this;
             let hasTable = tables.includes(table.TB_TXS);
-            if (hasTable === false) {
-                console.log('[INFO] TABLE not exists, creating: ' + table.TB_TXS);
-                r.tableCreate(table.TB_TXS, {primaryKey: table.PK_TXS}).run(conn).then(
-                    res1 => {
-                        console.log('[INFO] INDEX not exists, creating: ' + table.IDX_TIME);
-                        r.table(table.TB_TXS).indexCreate(table.IDX_TIME).run(conn).then(
-                            res2 => {
-                                self.checkLastSyncTable(conn, tables, resolve, reject);
-                            }).error(function(e) { reject(e); });
-                    }).error(function(e) { reject(e); });
-            } else {
-                self.checkLastSyncTable(conn, tables, resolve, reject);
-            }
+            return new Promise(function(success, fail) {
+                if (hasTable===false) {
+                    console.log('[INFO] TABLE not exists, creating: ' + table.TB_TXS);
+                    r.tableCreate(table.TB_TXS, {primaryKey: table.PK_TXS}).run(conn).then(
+                        res1 => {
+                            console.log('[INFO] INDEX not exists, creating: ' + table.IDX_TIME);
+                            r.table(table.TB_TXS).indexCreate(table.IDX_TIME).run(conn).then(
+                                res2 => {
+                                    success(tables);
+                                }).error(fail);
+                        }).error(fail);
+                } else {
+                    success(tables);
+                }
+            });
         },
-        checkLastSyncTable: function(conn, tables, resolve, reject) {
+        checkLastSyncTable: function(conn, tables) {
             const self = this;
             let hasTable = tables.includes(table.TB_LAST_SYNC);
-            if (hasTable === false) {
-                console.log('[INFO] TABLE not exists, creating: ' + table.TB_LAST_SYNC);
-                r.tableCreate(table.TB_LAST_SYNC, {primaryKey: table.PK_LAST_SYNC}).run(conn).then(
-                    res1 => { resolve(res1);
-                    }).error(function(e) { reject(e); });
-            } else {
-                resolve();
-            }
+            return new Promise(function(success, fail) {
+                if (hasTable === false) {
+                    console.log('[INFO] TABLE not exists, creating: ' + table.TB_LAST_SYNC);
+                    r.tableCreate(table.TB_LAST_SYNC, {primaryKey: table.PK_LAST_SYNC}).run(conn).then(
+                        res1 => { success(res1);
+                    }).error(fail);
+                } else {
+                    success();
+                }
+            });
         }
     }
 };
