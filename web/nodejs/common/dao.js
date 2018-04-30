@@ -83,9 +83,7 @@ module.exports.getRowCountConnected = function(conn, tablename) {
     return new Promise( function(success, fail) {
         r.table(tablename).count().run(conn).then(count => {
             success(count);
-        }).error(function (e) {
-            fail(e);
-        });
+        }).error(fail);
     });
 };
 

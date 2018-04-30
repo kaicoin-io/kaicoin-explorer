@@ -48,9 +48,9 @@ fastify.get('/', (req, res) => {
 /**
  * Blockchain summary
  */
-fastify.get('/summary', (req, reply) => {
+fastify.get('/summary', (req, res) => {
     service.getSummary().then(res1 => {
-        reply.view('summary', {item: res1});
+        res.view('summary', {item: res1});
     }).catch(function(e) {
         res.send(500, {error: e.message});
     });
@@ -87,10 +87,10 @@ fastify.get('/blocks/:q', (req, res) => {
 /**
  * Block details
  */
-fastify.get('/block/:q', (req, reply) => {
+fastify.get('/block/:q', (req, res) => {
     service.getBlock(req.params.q).then(res1 => {
         console.log('item ' + JSON.stringify(res1));
-        reply.view('block', res1);
+        res.view('block', res1);
     }).catch(function(e) {
         console.log(JSON.stringify(e));
         res.send(500, {error: e.message});
@@ -101,10 +101,10 @@ fastify.get('/block/:q', (req, reply) => {
  * Transaction list
  *   - getmempoolinfo => BLOCKS + BLOCK + TXS + TX  ?
  */
-fastify.get('/txs', (req, reply) => {
+fastify.get('/txs', (req, res) => {
     service.getTxsFirst(LIST_COUNT_PER_PAGE).then(
         res1 => {
-            reply.view('txs', res1);
+            res.view('txs', res1);
     }).catch(function(e) {
         console.log(JSON.stringify(e));
         res.send(500, {error: e.message});
@@ -143,7 +143,7 @@ fastify.get('/tx/:q', (req, res) => {
     //   2) vout[1].scriptPubKey.addresses: from address
     service.getRawTx(req.params.q).then(res1 => {
         // console.log('res1 ' + JSON.stringify(res1));
-        reply.view('tx', res1);
+        res.view('tx', res1);
     }).catch(function(e) {
         console.log(JSON.stringify(e));
         res.send(500, {error: e.message});
@@ -153,13 +153,13 @@ fastify.get('/tx/:q', (req, res) => {
 /**
  * Address details (dev plan not fixed)
  */
-fastify.get('/address/:q', (req, reply) => {
+fastify.get('/address/:q', (req, res) => {
     // config.getConnection().then(conn => {
     //     service.getSummary(conn).then(res1 => {
     //         service.getBlocks(conn, res1).then(res2 => {
     //             // console.log('list ' + JSON.stringify(res2));
     //             let result = {summary: res1, list: res2};
-    //             reply.view('address', result);
+    //             res.view('address', result);
     //         }, function(e) {
     //             console.error('failed to connect to blockchain' + e);
     //         });
@@ -167,7 +167,7 @@ fastify.get('/address/:q', (req, reply) => {
     //         console.error('failed to connect to blockchain' + e);
     //     });
     // });
-    reply.view('address', {});
+    res.view('address', {});
 });
 
 /**
@@ -221,8 +221,8 @@ fastify.get('/q/:q', (req, res) => {
  * Search
  * - for backward compatibility with previous block explorer version
  */
-fastify.get('/MultiChain%20kaicoin/tx/:q', (req, reply) => {
-    reply.redirect('/tx/' + req.params.q);
+fastify.get('/MultiChain%20kaicoin/tx/:q', (req, res) => {
+    res.redirect('/tx/' + req.params.q);
 });
 
 /**

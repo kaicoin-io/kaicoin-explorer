@@ -22,12 +22,12 @@
 
                 </tr>
                 <tr>
-                    <th class="center">Net Hash</th><th class="center">Difficulty</th><th class="center">Blocktime</th>
+                    <th class="center">Blocktime</th><th class="center">Difficulty</th><th class="center">Net Hash</th>
                 </tr>
                 <tr>
-                    <td class="center"><%=Math.floor(summary.networkhashps/1024/1024*100)/100%>MH/s</td>
-                    <td class="center"><%=Math.floor(summary.difficulty*10000)/10000%></td>
                     <td class="center"><%=summary['target-block-time']%>sec</td>
+                    <td class="center"><%=Math.floor(summary.difficulty*10000)/10000%></td>
+                    <td class="center"><%=Math.floor(summary.networkhashps/1024/1024*100)/100%>MH/s</td>
                 </tr>
                 </tbody>
             </table>

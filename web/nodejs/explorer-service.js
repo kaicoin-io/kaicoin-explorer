@@ -55,12 +55,15 @@ module.exports = function() {
             return new Promise(function (success, fail) {
                 r.connect(rethinkdb).then(function(conn) {
                     r.table(table.TB_SUMMARY).get(CHAIN_NAME).run(conn).then(function(res1) {
-                        conn.close();
-                        let date = new Date();
-                        date.setTime(res1["genesis-timestamp"]*1000);
-                        res1["genesis-datetime"] = date.format("yyyy.MM.dd HH:mm:ss");
-                        console.log('summary ' + JSON.stringify(res1));
-                        success(res1);
+                        dao.getRowCountConnected(conn, table.TB_TXS).then(function(res2) {
+                            conn.close();
+                            let date = new Date();
+                            date.setTime(res1["genesis-timestamp"]*1000);
+                            res1["genesis-datetime"] = date.format("yyyy.MM.dd HH:mm:ss");
+                            res1["txcount"] = res2;
+                            console.log('summary ' + JSON.stringify(res1));
+                            success(res1);
+                        }).catch(fail);
                     }).error(fail);
                 }).error(fail);
             });
@@ -106,9 +109,10 @@ module.exports = function() {
             const self = this;
             return new Promise( function(success, fail) {
                 r.connect(rethinkdb).then(function (conn) {
-                    console.log('pagenated ' + q);
+                    let qint = q==='0'?(count-1):parseInt(q, 10);
+                    console.log('pagenated ' + qint);
                     r.table(table.TB_BLOCKS).orderBy({index: r.desc(table.PK_BLOCKS)})
-                        .filter(r.row(table.PK_BLOCKS).le(parseInt(q, 10))).limit(count).run(conn)
+                        .filter(r.row(table.PK_BLOCKS).le(qint)).limit(count).run(conn)
                         .then(function(cur1) {
                             cur1.toArray().then(function (list) {
                                 conn.close();
@@ -177,9 +181,9 @@ module.exports = function() {
                                 }
                                 console.log('txs ' + JSON.stringify(list));
                                 success({count: res1, list: list});
-                            }).error(console.log);
+                            }).error(fail);
                         }).error(fail);
-                    });
+                    }).error(fail);
                 });
             });
         },
