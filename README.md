@@ -32,10 +32,9 @@ II. Installation on Ubuntu (v16 recommended)
     - sudo npm i -g forever
   5. Rethink DB install (refer to this: https://rethinkdb.com/docs/install/ubuntu/)
     - source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
-    - sudo apt-get -y install rethinkdb 
     - wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
     - sudo apt-get update
-    - sudo apt-get install rethinkdb
+    - sudo apt-get -y install rethinkdb 
   6. Multichain install (refer to this: https://www.multichain.com/download-install/)
     - wget https://www.multichain.com/download/multichain-1.0.4.tar.gz
     - tar -xvzf multichain-1.0.4.tar.gz
