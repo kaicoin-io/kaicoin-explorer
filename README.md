@@ -25,33 +25,31 @@ II. Installation on Ubuntu (v16 recommended)
 
   1. Package update
     - sudo apt-get update
-  2. Nginx install
-    - sudo apt-get -y install nginx
-  3. Nodejs install
+  2. Nodejs install
     - sudo apt-get -y install nodejs
     - sudo apt-get -y install nodejs-legacy
-  4. Nodejs update
+  3. Nodejs update
     - sudo npm cache clean -f
     - sudo npm install -g n
     - sudo n stable
     // Nodejs 9.x install
     - curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
     - sudo apt-get install -y nodejs
-  5. Forever install
+  4. Forever install
     - sudo npm i -g forever
-  4. Rethink DB install (refer to this: https://rethinkdb.com/docs/install/ubuntu/)
+  5. Rethink DB install (refer to this: https://rethinkdb.com/docs/install/ubuntu/)
     - source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
     - sudo apt-get -y install rethinkdb 
     - wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
     - sudo apt-get update
     - sudo apt-get install rethinkdb
-  5. Multichain install (refer to this: https://www.multichain.com/download-install/)
+  6. Multichain install (refer to this: https://www.multichain.com/download-install/)
     - wget https://www.multichain.com/download/multichain-1.0.4.tar.gz
     - tar -xvzf multichain-1.0.4.tar.gz
     - cd multichain-1.0.4
     - mv multichaind multichain-cli multichain-util /usr/local/bin (to make easily accessible on the command line)
-  6. Upload files via SFTP/FTP
-  7. Start Services
+  7. Upload files via SFTP/FTP
+  8. Start Services
     1) start rethink DB
       - sudo rethinkdb --daemon
     2) start nodejs
