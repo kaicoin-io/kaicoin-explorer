@@ -50,7 +50,18 @@ module.exports.get = function() {
 
 };
 
-module.exports.getList = function() {
+module.exports.getList = function(conn, tablename, index, length) {
+    return new Promise( function(resolve, reject) {
+        r.table(tablename).orderBy({index: r.desc(index)}).limit(length).run(conn).then(
+            cur1 => {
+                cur1.toArray().then(function(list) {
+                    if (list.length < 1) { resolve([]);
+                    } else { resolve(list); }
+                }).error(console.log);
+            }).error(function (e) {
+            reject(e);
+        });
+    });
 };
 
 function onDBError(res) {

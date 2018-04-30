@@ -34,34 +34,32 @@ table = {
  * r.tableCreate(table.TB_BLOCKS,    {primaryKey: table.PK_BLOCKS})
  * r.tableCreate(table.TB_TXS,       {primaryKey: table.PK_TXS})
  * r.tableCreate(table.TB_LAST_SYNC, {primaryKey: table.PK_LAST_SYNC})
- * @returns {{getConnection: getConnection, disConnect: disConnect, checkScheme: function(*=): Promise<any>, checkTables: checkTables, checkBlocksTable: checkBlocksTable, checkTxsTable: checkTxsTable, checkLastSyncTable: checkLastSyncTable}}
+ * @returns {{getConnection: getConnection, disConnect: disConnect, checkScheme: function(*=): Promise<any>, checkSummaryTable: checkSummaryTable, checkBlocksTable: checkBlocksTable, checkTxsTable: checkTxsTable, checkLastSyncTable: checkLastSyncTable}}
  */
 module.exports = function() {
 
-    // let conn = null;
-    // function connect() {
-    //     if (conn===null) { return r.connect(rethinkdb);
-    //     } else { return conn; }
-    // }
-    // function disConnect() { if (conn!==null) { conn.close(); } }
-
     return {
         checkScheme: function() {
+            job_running = true;
             self = this;
-            console.log('[INFO] ------- scheme checking start -------');
             return new Promise( function(success, fail) {
                 r.connect(rethinkdb).then(function(conn) {
-                    let result = {};
+                    console.log('[INFO] scheme checking started');
                     self.checkDB(conn).then(function(res1) {
-                        return self.checkTables(conn);
                     }).then(function(tables) {
-                        return self.checkBlocksTable(con, tables);
+                        return self.getTables(conn);
+                    }).then(function(tables) {
+                        return self.checkSummaryTable(conn, tables);
+                    }).then(function(tables) {
+                        return self.checkBlocksTable(conn, tables);
                     }).then(function(tables) {
                         return self.checkTxsTable(conn, tables);
                     }).then(function(tables) {
-                        self.checkLastSyncTable(conn, tables);
-                        success(1);
-                    });
+                        return self.checkLastSyncTable(conn, tables);
+                    }).then(function(tables) {
+                        if(conn) { conn.close(); }
+                        success();
+                    }).catch(function(e) { if(conn) { conn.close(); fail(e); } });
                 }).error(fail);
             });
         },
@@ -70,27 +68,36 @@ module.exports = function() {
                 r.dbList().run(conn).then(function(dbs) {
                     let hasDB = dbs.includes(rethinkdb.db);
                     if (hasDB===false) {
-                        console.log('[INFO] DB not exists, creating: ' + rethinkdb.db);
+                        console.log('[INFO] DB ' + rethinkdb.db +  ' creating');
                         r.dbCreate(rethinkdb.db).run(conn).then(function(res1) {
-                            self.checkTables(conn, success, fail);
-                        }).error(fail);
-                    } else { self.checkTables(conn, success, fail); }
-                }).error(fail);
-            });
-        },
-        checkTables: function(conn) {
-            return new Promise(function(success, fail) {
-                r.tableList().run(conn).then(function(tables) {
-                    let hasTable = tables.includes(table.TB_SUMMARY);
-                    if (hasTable===false) {
-                        console.log('[INFO] TABLE not exists, creating: ' + table.TB_SUMMARY);
-                        r.tableCreate(table.TB_SUMMARY, {primaryKey: table.PK_SUMMARY}).run(conn).then(
-                            res1 => { success(tables);
+                            success();
                         }).error(fail);
                     } else {
+                        console.log('[INFO] DB ' + rethinkdb.db +  ' exists');
                         success();
                     }
                 }).error(fail);
+            });
+        },
+        getTables: function(conn) {
+            return new Promise(function(success, fail) {
+               r.tableList().run(conn).then(function(tables) {
+                   success(tables);
+               }).error(fail);
+            });
+        },
+        checkSummaryTable: function(conn, tables) {
+            return new Promise(function(success, fail) {
+                let hasTable = tables.includes(table.TB_SUMMARY);
+                if (hasTable===false) {
+                    console.log('[INFO] ' + table.TB_SUMMARY + ' creating');
+                    r.tableCreate(table.TB_SUMMARY, {primaryKey: table.PK_SUMMARY}).run(conn).then(
+                        res1 => { success(tables);
+                    }).error(fail);
+                } else {
+                    console.log('[INFO] ' + table.TB_SUMMARY + ' exists');
+                    success(tables);
+                }
             });
         },
         checkBlocksTable: function(conn, tables) {
@@ -98,11 +105,14 @@ module.exports = function() {
             let hasTable = tables.includes(table.TB_BLOCKS);
             return new Promise(function(success, fail) {
                 if (hasTable===false) {
-                    console.log('[INFO] TABLE not exists, creating: ' + table.TB_BLOCKS);
+                    console.log('[INFO] ' + table.TB_BLOCKS + ' creating');
                     r.tableCreate(table.TB_BLOCKS, {primaryKey: table.PK_BLOCKS}).run(conn).then(
                         res => { success(tables);
                     }).error(fail);
-                } else { success(tables); }
+                } else {
+                    console.log('[INFO] ' + table.TB_BLOCKS + ' exists');
+                    success(tables);
+                }
             });
 
         },
@@ -111,16 +121,17 @@ module.exports = function() {
             let hasTable = tables.includes(table.TB_TXS);
             return new Promise(function(success, fail) {
                 if (hasTable===false) {
-                    console.log('[INFO] TABLE not exists, creating: ' + table.TB_TXS);
+                    console.log('[INFO] ' + table.TB_TXS + ' creating');
                     r.tableCreate(table.TB_TXS, {primaryKey: table.PK_TXS}).run(conn).then(
                         res1 => {
-                            console.log('[INFO] INDEX not exists, creating: ' + table.IDX_TIME);
+                            console.log('[INFO] ' + table.IDX_TIME + ' creating: ');
                             r.table(table.TB_TXS).indexCreate(table.IDX_TIME).run(conn).then(
                                 res2 => {
                                     success(tables);
                                 }).error(fail);
                         }).error(fail);
                 } else {
+                    console.log('[INFO] ' + table.TB_TXS + ' exists');
                     success(tables);
                 }
             });
@@ -130,14 +141,76 @@ module.exports = function() {
             let hasTable = tables.includes(table.TB_LAST_SYNC);
             return new Promise(function(success, fail) {
                 if (hasTable === false) {
-                    console.log('[INFO] TABLE not exists, creating: ' + table.TB_LAST_SYNC);
+                    console.log('[INFO] ' + table.TB_LAST_SYNC + ' creating');
                     r.tableCreate(table.TB_LAST_SYNC, {primaryKey: table.PK_LAST_SYNC}).run(conn).then(
                         res1 => { success(res1);
                     }).error(fail);
                 } else {
+                    console.log('[INFO] ' + table.TB_LAST_SYNC + ' exists');
                     success();
                 }
             });
-        }
+        },
+        saveOnce: function(tablename, item) {
+            return new Promise( function(success, fail) {
+                r.connect(rethinkdb).then(function(conn) {
+                    r.table(tablename).insert(item, {conflict: 'update', returnChanges: false})
+                        .run(conn).then(function (res1) {
+                        conn.close();
+                        success(res1);
+                    });
+                }).error(fail);
+            });
+        },
+        saveListOnce: function(tablename, list) {
+            return new Promise( function(success, fail) {
+                r.connect(rethinkdb).then(function(conn) {
+                    r.table(tablename).insert(list, {
+                        conflict: 'update', returnChanges: false
+                    }).run(conn).then(function (res1) {
+                        // console.log('savelist: ' + JSON.stringify(res1));
+                        success(res1);
+                    }).error(fail);
+                });
+            });
+        },
+        getOnce: function(tablename, pk) {
+            return new Promise( function(success, fail) {
+                r.connect(rethinkdb).then(function(conn) {
+                    r.table(tablename).get(pk).run(conn).then(function(res1) {
+                        conn.close();
+                        success(res1);
+                    }).error(fail);
+                });
+            });
+        },
+        saveContinueItem: function(conn, tablename, item) {
+            return new Promise( function(success, fail) {
+                r.table(tablename).insert(item, { conflict: 'update', returnChanges: false })
+                    .run(conn).then(function (res1) {
+                    success(res1);
+                });
+            });
+        },
+        saveList: function(conn, tablename, list) {
+            return new Promise( function(success, fail) {
+                r.table(tablename).insert(list, {
+                    conflict: 'update', returnChanges: false
+                }).run(conn).then(function (res1) {
+                    // console.log('savelist: ' + JSON.stringify(res1));
+                    success(res1);
+                }).error(fail);
+            });
+        },
+        getItem: function(conn, tablename, pk) {
+            return new Promise( function(success, fail) {
+                r.table(tablename).get(pk).run(conn).then( res1 => {
+                    success(res1);
+                }).error(function (e) {
+                    onDBError(e, conn);
+                    fail(e);
+                });
+            });
+        },
     }
 };

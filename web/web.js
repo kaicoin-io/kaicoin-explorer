@@ -36,6 +36,7 @@ function onHTTPError(res) {
  */
 fastify.get('/', (req, res) => {
     service.getMainData().then(res1 => {
+        console.log('main data ' + JSON.stringify(res1));
         res.view('index', res1);
     }).catch(function(e) {
         console.log(e);
@@ -59,7 +60,7 @@ fastify.get('/summary', (req, reply) => {
  * Block list
  */
 fastify.get('/blocks', (req, res) => {
-    service.getBlocksPage(LIST_COUNT_PER_PAGE).then(
+    service.getBlocksMain(LIST_COUNT_PER_PAGE).then(
         res1 => {
             res.view('blocks', res1);
     }).catch(function(e) {
@@ -74,7 +75,7 @@ fastify.get('/blocks', (req, res) => {
  */
 fastify.get('/blocks/:q', (req, res) => {
     const json = res.code(200).header('Content-Type', 'application/json');
-    service.getBlocks(LIST_COUNT_PER_PAGE, req.params.q).then(
+    service.getBlocksAjax(LIST_COUNT_PER_PAGE, req.params.q).then(
         res1 => {
             json.send(res1);
     }).catch(function(e) {
@@ -101,7 +102,7 @@ fastify.get('/block/:q', (req, reply) => {
  *   - getmempoolinfo => BLOCKS + BLOCK + TXS + TX  ?
  */
 fastify.get('/txs', (req, reply) => {
-    service.getTxsPage(LIST_COUNT_PER_PAGE).then(
+    service.getTxsMain(LIST_COUNT_PER_PAGE).then(
         res1 => {
             reply.view('txs', res1);
     }).catch(function(e) {
@@ -115,7 +116,7 @@ fastify.get('/txs', (req, reply) => {
  */
 fastify.get('/txs/:q', (req, res) => {
     const json = res.code(200).header('Content-Type', 'application/json');
-    service.getTxs(LIST_COUNT_PER_PAGE, req.params.q).then(res1 => {
+    service.getTxsAjax(LIST_COUNT_PER_PAGE, req.params.q).then(res1 => {
         const list = {q: req.params.q, list: res1, count: 0};
         json.send(list);
     }).catch(function(e) {
@@ -127,7 +128,7 @@ fastify.get('/txs/:q', (req, res) => {
 /**
  * Transaction detail
  */
-fastify.get('/tx/:q', (req, reply) => {
+fastify.get('/tx/:q', (req, res) => {
     // 1.
     //   1) : blockhash, confirmations, time, blocktime, hex, txid, version, locktime
     //   2) vout[n].type = 'pubkeyhash'

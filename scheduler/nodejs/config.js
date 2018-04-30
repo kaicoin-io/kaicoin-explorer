@@ -2,6 +2,7 @@ const { RpcClient } = require('multichain-api/RpcClient');
 
 SERVICE_IP          = '0.0.0.0';
 WEB_PORT            = 80;
+LISTENER_PORT       = 9000;
 
 CHAIN_NAME          = 'kaicoin';
 LIST_COUNT_MAIN     = 8;

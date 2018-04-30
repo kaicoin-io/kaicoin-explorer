@@ -29,23 +29,21 @@ module.exports = function() {
         getMainData: function() {
             const self = this;
             return new Promise(function (success, fail) {
-                r.connect(rethinkdb).then(function(conn) {
-                    let result = {};
-                    self.getStatistics(conn).then(function(res1) {
-                        Object.assign(result, {summary: res1});
-                        return self.getBlocks(conn, LIST_COUNT_MAIN);
-                    }).then(function(res2) {
-                        Object.assign(result, {blocks: res2});
-                        return self.getTxs(conn, LIST_COUNT_MAIN);
-                    }).then(function(res3) {
-                        Object.assign(result, {txs: res3});
-                        return self.getRowCount(conn, table.TB_TXS);
-                    }).then(function(res4) {
-                        conn.close();
-                        Object.assign(result, {txcount: res4});
-                        success(result);
-                    });
-                }).error(function(e) { fail(e); });
+                let result = {};
+                self.getSummary().then(function(res1) {
+                    Object.assign(result, {summary: res1});
+                    return self.getBlocksMain(LIST_COUNT_MAIN);
+                }).then(function(res2) {
+                    Object.assign(result, {blocks: res2});
+                    return self.getTxsMain(LIST_COUNT_MAIN);
+                }).then(function(res3) {
+                    Object.assign(result, {txs: res3});
+                    return self.getRowCount(table.TB_TXS);
+                }).then(function(res4) {
+                    console.log('tx count ' + res4);
+                    Object.assign(result, {txcount: res4});
+                    success(result);
+                });
             });
         },
         /**
@@ -55,50 +53,35 @@ module.exports = function() {
         getSummary: function() {
             const self = this;
             return new Promise(function (success, fail) {
-                let result = {};
                 r.connect(rethinkdb).then(function(conn) {
                     r.table(table.TB_SUMMARY).get(CHAIN_NAME).run(conn).then(function(res1) {
-                        Object.assign(result, res1);
-                        return self.getRowCount(conn, table.TB_TXS);
-                    }).then(function(res2) {
                         conn.close();
                         let date = new Date();
-                        date.setTime(result["genesis-timestamp"]*1000);
-                        result["genesis-datetime"] = date.format("yyyy.MM.dd HH:mm:ss");
-                        result["txcount"] = res2;
-                        success(result);
-                    }).error(function (e) {
-                        fail(e);
-                    });
-                }).error(function(e) { fail(e); });
-            });
-        },
-        getStatistics: function(conn) {
-            return new Promise( function(success, fail) {
-                r.table(table.TB_SUMMARY).get(CHAIN_NAME).run(conn).then(
-                    res1 => { success(res1);
+                        date.setTime(res1["genesis-timestamp"]*1000);
+                        res1["genesis-datetime"] = date.format("yyyy.MM.dd HH:mm:ss");
+                        console.log('summary ' + JSON.stringify(res1));
+                        success(res1);
+                    }).error(fail);
                 }).error(fail);
             });
         },
-        getBlocksPage: function(count) {
+        getBlocksMain: function(count) {
             const self = this;
             return new Promise( function(success, fail) {
                 r.connect(rethinkdb).then(function (conn) {
-                    r.table(table.TB_SUMMARY).get(CHAIN_NAME).run(conn).then(function(res1) {
-                        r.table(table.TB_BLOCKS).orderBy({index: r.desc(table.PK_BLOCKS)}).limit(count)
-                            .run(conn).then(function(cur1) {
-                                cur1.toArray().then(function (list) {
-                                    conn.close();
-                                    self.handleBlocks(list, count);
-                                    let result = {summary: res1, list: list};
-                                    success(result);
-                                }).error(fail);
-                        }).error(fail);
+                    r.table(table.TB_BLOCKS).orderBy({index: r.desc(table.PK_BLOCKS)}).limit(count)
+                        .run(conn).then(function(cur1) {
+                            cur1.toArray().then(function (list) {
+                                conn.close();
+                                self.handleBlocks(list, count);
+                                console.log('blocks ' + JSON.stringify(list));
+                                success(list);
+                            }).error(fail);
                     }).error(fail);
                 });
             });
         },
-        getBlocks: function(count, q) {
+        getBlocksAjax: function(count, q) {
             const self = this;
             return new Promise( function(success, fail) {
                 r.connect(rethinkdb).then(function (conn) {
@@ -142,42 +125,32 @@ module.exports = function() {
                 }).catch(reject);
             });
         },
-        getList: function(conn, tablename, index, length) {
-            return new Promise( function(resolve, reject) {
-                r.table(tablename).orderBy({index: r.desc(index)}).limit(length).run(conn).then(
-                    cur1 => {
-                        cur1.toArray().then(function(list) {
-                            if (list.length < 1) { resolve([]);
-                            } else { resolve(list); }
-                        }).error(console.log);
-                    }).error(function (e) {
-                    reject(e);
-                });
-            });
-        },
-        getRowCount: function(conn, tablename) {
-            const self = this;
-            return new Promise( function(resolve, reject) {
-                r.table(tablename).count().run(conn).then(count => {
-                    resolve(count);
-                }).error(function (e) {
-                    reject(e);
-                });
-            });
-        },
-        getTxsPage: function(count) {
+        getRowCount: function(tablename) {
             const self = this;
             return new Promise( function(resolve, reject) {
                 r.connect(rethinkdb).then(function (conn) {
-                    self.getRowCount(conn, table.TB_TXS).then(res1 => {
-                        r.table(table.TB_TXS).orderBy({index: r.desc(table.IDX_TIME)})
-                            .limit(count).run(conn).then(cur1 => {
-                            cur1.toArray().then(function(list) {
-                                self.convertRawTxs(list, count);
-                                resolve({list: list, count: res1});
-                            }).error(console.log);
-                        }).error(reject);
+                    r.table(tablename).count().run(conn).then(count => {
+                        conn.close();
+                        resolve(count);
+                    }).error(function (e) {
+                        reject(e);
                     });
+                });
+            });
+        },
+        getTxsMain: function(count) {
+            const self = this;
+            return new Promise( function(resolve, reject) {
+                r.connect(rethinkdb).then(function (conn) {
+                    r.table(table.TB_TXS).orderBy({index: r.desc(table.IDX_TIME)})
+                        .limit(count).run(conn).then(cur1 => {
+                        cur1.toArray().then(function(list) {
+                            conn.close();
+                            self.convertRawTxs(list, count);
+                            console.log('txs ' + JSON.stringify(list));
+                            resolve(list);
+                        }).error(console.log);
+                    }).error(reject);
                 });
             });
         },
@@ -190,7 +163,7 @@ module.exports = function() {
          * @param count
          * @returns {Promise<any>}
          */
-        getTxs: function(count, q) {
+        getTxsAjax: function(count, q) {
             const self = this;
             return new Promise( function(resolve, reject) {
                 let qint = q==='0'?count:parseInt(q, 10);
@@ -200,6 +173,7 @@ module.exports = function() {
                     r.table(table.TB_TXS).orderBy({index: r.asc(table.IDX_TIME)})
                         .slice(s, qint).run(conn).then(cur1 => {
                         cur1.toArray().then(function(list) {
+                            conn.close();
                             self.convertRawTxs(list, count);
                             resolve(list);
                         }).error(reject);
