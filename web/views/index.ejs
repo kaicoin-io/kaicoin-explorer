@@ -13,12 +13,12 @@
         <div class="mtd-middle-top-wrapper">
             <table id="summary_table" class="mdl-data-table">
                 <tr>
-                    <th class="center">Blocks</th><th class="center">Transactions</th><th class="center">Addresses</th>
+                    <th class="center">Blocks</th><th class="center">Transactions</th><th class="center">Peers</th>
                 </tr>
                 <tr>
                     <td class="center"><a href="/blocks"><%=Number(summary.blocks).toLocaleString()%></a></td>
                     <td class="center"><a href="/txs"><%=Number(txcount).toLocaleString()%></a></td>
-                    <td class="center">0</td><!-- Addressed Count -->
+                    <td class="center"><%=summary.connections%></td><!-- Addressed Count -->
 
                 </tr>
                 <tr>

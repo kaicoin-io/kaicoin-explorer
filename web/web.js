@@ -60,7 +60,7 @@ fastify.get('/summary', (req, reply) => {
  * Block list
  */
 fastify.get('/blocks', (req, res) => {
-    service.getBlocksMain(LIST_COUNT_PER_PAGE).then(
+    service.getBlocksFirst(LIST_COUNT_PER_PAGE).then(
         res1 => {
             res.view('blocks', res1);
     }).catch(function(e) {
@@ -102,7 +102,7 @@ fastify.get('/block/:q', (req, reply) => {
  *   - getmempoolinfo => BLOCKS + BLOCK + TXS + TX  ?
  */
 fastify.get('/txs', (req, reply) => {
-    service.getTxsMain(LIST_COUNT_PER_PAGE).then(
+    service.getTxsFirst(LIST_COUNT_PER_PAGE).then(
         res1 => {
             reply.view('txs', res1);
     }).catch(function(e) {

@@ -51,15 +51,40 @@ module.exports.get = function() {
 };
 
 module.exports.getList = function(conn, tablename, index, length) {
-    return new Promise( function(resolve, reject) {
+    return new Promise( function(success, fail) {
         r.table(tablename).orderBy({index: r.desc(index)}).limit(length).run(conn).then(
             cur1 => {
                 cur1.toArray().then(function(list) {
-                    if (list.length < 1) { resolve([]);
-                    } else { resolve(list); }
+                    if (list.length < 1) { success([]);
+                    } else { success(list); }
                 }).error(console.log);
             }).error(function (e) {
-            reject(e);
+            fail(e);
+        });
+    });
+};
+
+module.exports.getRowCount = function(tablename) {
+    const self = this;
+    return new Promise( function(success, fail) {
+        r.connect(rethinkdb).then(function (conn) {
+            r.table(tablename).count().run(conn).then(count => {
+                conn.close();
+                success(count);
+            }).error(function (e) {
+                fail(e);
+            });
+        });
+    });
+};
+
+module.exports.getRowCountConnected = function(conn, tablename) {
+    const self = this;
+    return new Promise( function(success, fail) {
+        r.table(tablename).count().run(conn).then(count => {
+            success(count);
+        }).error(function (e) {
+            fail(e);
         });
     });
 };

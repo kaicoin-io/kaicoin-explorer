@@ -1,2 +1,2 @@
 cd scheduler
-forever start -o out-sche.log -e err-sche.log ./scheduler.js
+sudo forever start -o ../scheduler.log -e ../err-scheduler.log ./scheduler.js

@@ -45,8 +45,8 @@ module.exports = function() {
                 }).then(function(res4) {
                     if (typeof(lastblock.txsyncheight) === 'undefined'
                         || lastblock.txsyncheight < lastblock.blocksyncheight) {
-                        // TX Sync
-                        const fromheight = typeof(lastblock.txsyncheight)==='undefined'?0:lastblock.txsyncheight;
+                        // TX Sync: TX of genesis block has no info so skip
+                        const fromheight = (typeof(lastblock.txsyncheight)==='undefined'||lastblock.txsyncheight===0)?1:lastblock.txsyncheight;
                         if (fromheight===lastblock.blocksyncheight) { success(); }
                         return self.getTxsFromBlocks(fromheight, lastblock.blocksyncheight);
                     } else {
@@ -126,7 +126,7 @@ module.exports = function() {
         getTxsFromBlocks: function(fromHeight, toHeight) {
             const self = this;
             console.log('[INFO] synching TXs started');
-            return new Promise( function(success, fail) {
+            return new Promise(function(success, fail) {
                 self.getBlock(success, fail, fromHeight, toHeight);
             });
         },

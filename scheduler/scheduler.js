@@ -10,8 +10,10 @@ const util     = require('./nodejs/common/util');
 
 let job_running = false;
 
-// Runs every 2min
-const job = schedule.scheduleJob('*/1 * * * *', function(){
+/**
+ * Runs every 20sec
+ */
+const job = schedule.scheduleJob('*/20 * * * * *', function(){
     syncBlocks();
 });
 

@@ -38,7 +38,7 @@ module.exports = function() {
                     return self.getTxsMain(LIST_COUNT_MAIN);
                 }).then(function(res3) {
                     Object.assign(result, {txs: res3});
-                    return self.getRowCount(table.TB_TXS);
+                    return dao.getRowCount(table.TB_TXS);
                 }).then(function(res4) {
                     console.log('tx count ' + res4);
                     Object.assign(result, {txcount: res4});
@@ -71,12 +71,33 @@ module.exports = function() {
                 r.connect(rethinkdb).then(function (conn) {
                     r.table(table.TB_BLOCKS).orderBy({index: r.desc(table.PK_BLOCKS)}).limit(count)
                         .run(conn).then(function(cur1) {
+                        cur1.toArray().then(function (list) {
+                            conn.close();
+                            self.handleBlocks(list, count);
+                            console.log('blocks ' + JSON.stringify(list));
+                            success(list);
+                        }).error(fail);
+                    }).error(fail);
+                });
+            });
+        },
+        getBlocksFirst: function(count) {
+            const self = this;
+            return new Promise( function(success, fail) {
+                r.connect(rethinkdb).then(function (conn) {
+                    r.table(table.TB_SUMMARY).get(CHAIN_NAME).run(conn).then(function(res1) {
+                        let date = new Date();
+                        date.setTime(res1["genesis-timestamp"]*1000);
+                        res1["genesis-datetime"] = date.format("yyyy.MM.dd HH:mm:ss");
+                        r.table(table.TB_BLOCKS).orderBy({index: r.desc(table.PK_BLOCKS)}).limit(count)
+                            .run(conn).then(function(cur1) {
                             cur1.toArray().then(function (list) {
                                 conn.close();
                                 self.handleBlocks(list, count);
                                 console.log('blocks ' + JSON.stringify(list));
-                                success(list);
+                                success({summary: res1, list: list});
                             }).error(fail);
+                        }).error(fail);
                     }).error(fail);
                 });
             });
@@ -116,31 +137,18 @@ module.exports = function() {
          * { hash, miner, confirmations, size, height, version, merkleroot, tx:[], time, nonce, bits, difficulty, chainwork, previousblockhash }
          */
         getBlock: function(q) {
-            return new Promise( function(resolve, reject) {
+            return new Promise( function(success, fail) {
                 rpc(GetBlock(q)).then(res => {
                     const now = new Date().getTime();
                     let item = Object.assign(res.result,
                         {date: toHumanReadableTimestampAgo(res.result.time*1000, now)});
-                    resolve({q: q, item: item, raw: res.result });
-                }).catch(reject);
-            });
-        },
-        getRowCount: function(tablename) {
-            const self = this;
-            return new Promise( function(resolve, reject) {
-                r.connect(rethinkdb).then(function (conn) {
-                    r.table(tablename).count().run(conn).then(count => {
-                        conn.close();
-                        resolve(count);
-                    }).error(function (e) {
-                        reject(e);
-                    });
-                });
+                    success({q: q, item: item, raw: res.result });
+                }).catch(fail);
             });
         },
         getTxsMain: function(count) {
             const self = this;
-            return new Promise( function(resolve, reject) {
+            return new Promise( function(success, fail) {
                 r.connect(rethinkdb).then(function (conn) {
                     r.table(table.TB_TXS).orderBy({index: r.desc(table.IDX_TIME)})
                         .limit(count).run(conn).then(cur1 => {
@@ -148,9 +156,30 @@ module.exports = function() {
                             conn.close();
                             self.convertRawTxs(list, count);
                             console.log('txs ' + JSON.stringify(list));
-                            resolve(list);
+                            success(list);
                         }).error(console.log);
-                    }).error(reject);
+                    }).error(fail);
+                });
+            });
+        },
+        getTxsFirst: function(count) {
+            const self = this;
+            return new Promise( function(success, fail) {
+                r.connect(rethinkdb).then(function (conn) {
+                    dao.getRowCountConnected(conn, table.TB_TXS).then(function(res1) {
+                        r.table(table.TB_TXS).orderBy({index: r.desc(table.IDX_TIME)})
+                            .limit(count).run(conn).then(cur1 => {
+                            cur1.toArray().then(function(list) {
+                                conn.close();
+                                self.convertRawTxs(list, count);
+                                for (let i=0; i<list.length; i++) {
+                                    list[i].seq = res1-i;
+                                }
+                                console.log('txs ' + JSON.stringify(list));
+                                success({count: res1, list: list});
+                            }).error(console.log);
+                        }).error(fail);
+                    });
                 });
             });
         },
@@ -165,7 +194,7 @@ module.exports = function() {
          */
         getTxsAjax: function(count, q) {
             const self = this;
-            return new Promise( function(resolve, reject) {
+            return new Promise( function(success, fail) {
                 let qint = q==='0'?count:parseInt(q, 10);
                 const s = qint-count<0?0:qint-count;
                 console.log('pagenated ' + s + '~' + qint);
@@ -175,9 +204,12 @@ module.exports = function() {
                         cur1.toArray().then(function(list) {
                             conn.close();
                             self.convertRawTxs(list, count);
-                            resolve(list);
-                        }).error(reject);
-                    }).error(reject);
+                            for (let i=0; i<list.length; i++) {
+                                list[i].seq = s+i;
+                            }
+                            success(list.reverse());
+                        }).error(fail);
+                    }).error(fail);
                 });
             });
         },
@@ -234,18 +266,18 @@ module.exports = function() {
          */
         getRawTx: function(txid) {
             const self = this;
-            return new Promise( function(resolve, reject) {
+            return new Promise( function(success, fail) {
                 rpc(GetRawTransaction(txid, 1)).then(res1 => {
                     let raw = {};
                     Object.assign(raw, res1.result);
                     self.convertRawTx(res1.result, new Date().getTime());
-                    resolve({ raw: raw, item: res1.result });
-                }).catch(e => { onRpcError(e); reject(e); });
+                    success({ raw: raw, item: res1.result });
+                }).catch(e => { onRpcError(e); fail(e); });
             });
         },
         getRawTxs: function(txidarray, txarray) {
             const self = this;
-            return new Promise( function(resolve, reject) {
+            return new Promise( function(success, fail) {
                 const idx = txarray.length;
                 rpc(GetRawTransaction(txidarray[idx], 1)).then(res1 => {
                     // blockhash, confirmations, time, blocktime, hex, txid, version, locktime
@@ -273,9 +305,9 @@ module.exports = function() {
                     if (txarray.length<txidarray.length) {
                         self.getRawTxs(txidarray, txarray);
                     } else {
-                        resolve(txarray);
+                        success(txarray);
                     }
-                }).catch(e => { onRpcError(e); reject(e); });
+                }).catch(e => { onRpcError(e); fail(e); });
             });
         }
     }
@@ -421,13 +453,13 @@ function toHumanReadableTimestampAgo(thattime, nowtime) {
                                         res1.unshift(res3[i]);
                                     }
                                 }
-                                self.convertRawTxs(res1, count, resolve);
+                                self.convertRawTxs(res1, count, success);
                                 console.log('mem merged txs ' + JSON.stringify(res1));
                             });
                         } else {
-                            self.convertRawTxs(res1, count, resolve);
+                            self.convertRawTxs(res1, count, success);
                             console.log('txs ' + JSON.stringify(res1));
                         }
-                    }).catch(e => { onRpcError(e); reject(e); });
+                    }).catch(e => { onRpcError(e); fail(e); });
                 */
 

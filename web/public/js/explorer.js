@@ -29,7 +29,6 @@ var app = {
             diagTextAlert.querySelector('.mtd-diag-content-area').innerHTML = msg;
             diagTextAlert.showModal();
         };
-
         if (document.getElementById('search-keyword')!==null) {
             document.getElementById('search-keyword').onkeydown = function(e){
                 if(e.keyCode===13){ self.beforeSearch(this.value); }
@@ -56,7 +55,6 @@ var app = {
             $(this).hide();
         });
         $("#im-scroll-left").click(function() {
-            console.log("clicked");
             $(".mtd-middle-top-wrapper").scrollLeft(-200);
             $("#im-scroll-right").show();
             $(this).hide();
@@ -64,13 +62,16 @@ var app = {
         console.log('path ' + window.location.pathname + ' ' + location.hash);
         // when 'block height' hash URL exists
         const pathname = window.location.pathname;
-        if (pathname==='/blocks' && location.hash.startsWith("#")){
+        if (pathname.startsWith("/summary")) {
+            $(".mdl-navigation__link.btn-summary").addClass("on");
+        } else if (pathname==='/blocks' && location.hash.startsWith("#")){
             console.log('go to paginate');
             $(".thumb > .value").html(location.hash.substring(1, location.hash.length));
             self.paginateBlocks();
-        }
-        if (pathname.startsWith("/summary")) {
-            $(".mdl-navigation__link.btn-summary").addClass("on");
+        } else if (pathname==='/txs' && location.hash.startsWith("#")){
+            console.log('go to paginate');
+            $(".thumb > .value").html(location.hash.substring(1, location.hash.length));
+            self.paginateTxs();
         } else if (pathname.startsWith("/block")) {
             $(".mdl-navigation__link.btn-blocks").addClass("on");
         } else if (pathname.startsWith("/tx")) {
@@ -123,7 +124,7 @@ var app = {
             const labelSpanType = data[i].txtype==='mine'?'<span class="label">'
                 :data[i].txtype==='send'?'<span class="label label-primary">':'<span class="label label-success">';
             const from = data[i].from.length<1?'':'<div>' + data[i].from + '</div>';
-            rows += '<tr><td class="mtd-td-label center">' + labelSpanType + data[i].txtype + '</span></td>'
+            rows += '<tr><td class="mtd-td-label center">' + data[i].seq + '</td><td class="mtd-td-label center">' + labelSpanType + data[i].txtype + '</span></td>'
                 + '<td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis">' + '<a href="/tx/'+data[i].txid+'">'
                 + data[i].txid + '</a></td>'
                 + '<td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis hide-under-small">'

@@ -21,6 +21,7 @@
                 <table id="mtd-txs-table" class="mdl-data-table mdl-js-data-table match-parent mdl-shadow--2dp">
                     <thead>
                     <tr>
+                        <th>Seq</th>
                         <th>Type</th><th>TX ID</th><th class="hide-under-small">From <i class="fas fa-arrow-right"></i> To</th>
                         <th><span class="hide-under-small">Amount</span><i class="fas fa-dollar-sign hide-over-small" style="float: right;"></i></th>
                         <th><span class="hide-under-small">Confirm</span><i class="far fa-check-circle hide-over-small"></i></th><th>Time</th>
@@ -32,6 +33,7 @@
                     <% } else { %>
                         <% for(var i=0; i<list.length; i++) { %>
                         <tr>
+                            <td class="mtd-td-label center"><%=list[i].seq%></td>
                             <td class="mtd-td-label center">
                                 <% if (list[i].txtype==='mine') { %><span class="label"><%=list[i].txtype%></span>
                                 <% } else if (list[i].txtype==='send') { %><span class="label label-primary"><%=list[i].txtype%></span>

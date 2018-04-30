@@ -12,7 +12,7 @@ table = {
     TB_SUMMARY    : "TB_SUMMARY",
     TB_BLOCKS     : "TB_BLOCKS",
     TB_TXS        : "TB_TXS",
-    TB_LAST_SYNC  : "TB_LAST_SYNC",   // {chainname:$(chainname), blocksyncheight:$(height), txsyncheight:$(height)}
+    TB_LAST_SYNC  : "TB_LAST_SYNC",   // chainname:${chainname}, blocksyncheight:${height}, txsyncheight:${height}, addrsyncheight:${height}
     TB_ADDR_ACTIVE: "TB_ADDR_ACTIVE", // address
     TB_ADDR_HIST  : "TB_ADDR_HIST",   // type, fromaddr, toaddr, value, time
 
@@ -124,7 +124,7 @@ module.exports = function() {
                     console.log('[INFO] ' + table.TB_TXS + ' creating');
                     r.tableCreate(table.TB_TXS, {primaryKey: table.PK_TXS}).run(conn).then(
                         res1 => {
-                            console.log('[INFO] ' + table.IDX_TIME + ' creating: ');
+                            console.log('[INFO] INDEX ' + table.IDX_TIME + ' creating');
                             r.table(table.TB_TXS).indexCreate(table.IDX_TIME).run(conn).then(
                                 res2 => {
                                     success(tables);
