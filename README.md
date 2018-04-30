@@ -32,8 +32,8 @@ II. Installation on Ubuntu (v16 recommended)
     - sudo npm cache clean -f
     - sudo npm install -g n
     - sudo n stable
-    // Nodejs 9.x install
-    - curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
+    // Nodejs 8.x install (latest 10.x)
+    - curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
     - sudo apt-get install -y nodejs
   4. Forever install
     - sudo npm i -g forever
