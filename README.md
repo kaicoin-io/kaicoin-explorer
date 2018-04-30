@@ -23,29 +23,29 @@ I. Ingredients
 
 II. Installation on Ubuntu (v16 recommended)
 
-  1. Package update
+  1. Nodejs & Forever install // Nodejs 8.x stable (latest 10.x)
     - sudo apt-get update
-  2. Nodejs install // Nodejs 8.x install (latest 10.x)
     - curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
     - sudo apt-get install -y nodejs
-  4. Forever install
-    - sudo npm i -g forever
-  5. Rethink DB install (refer to this: https://rethinkdb.com/docs/install/ubuntu/)
+    - sudo npm i -g forever
+  2. Rethink DB install (refer to this: https://rethinkdb.com/docs/install/ubuntu/)
     - source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
     - wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
     - sudo apt-get update
     - sudo apt-get -y install rethinkdb 
-  6. Multichain install (refer to this: https://www.multichain.com/download-install/)
+  3. Multichain install (refer to this: https://www.multichain.com/download-install/)
     - wget https://www.multichain.com/download/multichain-1.0.4.tar.gz
     - tar -xvzf multichain-1.0.4.tar.gz
     - cd multichain-1.0.4
     - mv multichaind multichain-cli multichain-util /usr/local/bin (to make easily accessible on the command line)
-  7. Upload files via SFTP/FTP
-  8. Start Services
-    1) start rethink DB
+  4. Upload files via SFTP/FTP
+  5. Start Services
+    1) start multichain
+      - 
+    2) start rethink DB
       - sudo rethinkdb --daemon
-    2) start nodejs
+    3) start nodejs
       - nohup node app.js start &
-  8 Register service on boo start up (upload to /etc/init.d/kaicoin-explorer.sh and run script below)
+  6 Register service on boot start up (upload to /etc/init.d/kaicoin-explorer.sh and run script below)
     - update-rc.d kaicoin-explorer.sh defaults
     - service kaicoin-explorer.sh start
