@@ -1,5 +1,6 @@
 'use strict'
 
+const r = require('rethinkdb');
 const fastify = require('fastify')();
 const path = require('path');
 const resolve = path.resolve;
@@ -232,119 +233,60 @@ fastify.listen(WEB_PORT, SERVICE_IP, err => {
     if (err) throw err;
     const io = require('socket.io')(fastify.server);
     io.origins('*:*');
-    io.on('connection', function(client){
-        console.log('user socket con');
-        client.on('message', function(data){ console.log('message received'); });
-        client.on('disconnect', function(){ console.log('user socket discon'); });
-    });
     handleRealtime(io);
     console.log(`fastify server listening on ${fastify.server.address().port}`);
 });
 
-/*
-
-io.on('connection', function (socket) {
-
-    var addedUser = false;
-
-    // when the client emits 'new message', this listens and executes
-    socket.on('new message', function (data) {
-        // we tell the client to execute 'new message'
-        socket.broadcast.emit('new message', {
-            username: socket.username,
-            message: data
-        });
-    });
-
-    // when the client emits 'add user', this listens and executes
-    socket.on('add user', function (username) {
-        if (addedUser) return;
-
-        // we store the username in the socket session for this client
-        socket.username = username;
-        ++numUsers;
-        addedUser = true;
-        socket.emit('login', {
-            numUsers: numUsers
-        });
-        // echo globally (all clients) that a person has connected
-        socket.broadcast.emit('user joined', {
-            username: socket.username,
-            numUsers: numUsers
-        });
-    });
-
-    // when the client emits 'typing', we broadcast it to others
-    socket.on('typing', function () {
-        socket.broadcast.emit('typing', {
-            username: socket.username
-        });
-    });
-
-    // when the client emits 'stop typing', we broadcast it to others
-    socket.on('stop typing', function () {
-        socket.broadcast.emit('stop typing', {
-            username: socket.username
-        });
-    });
-
-    // when the user disconnects.. perform this
-    socket.on('disconnect', function () {
-        if (addedUser) {
-            --numUsers;
-
-            // echo globally that this client has left
-            socket.broadcast.emit('user left', {
-                username: socket.username,
-                numUsers: numUsers
-            });
-        }
-    });
-});
-*/
-
 let connected_user = [];
-let msocket = null;
 
 function handleRealtime(io) {
-
-    io.on('connection', function (socket) {
-        console.log('io connection req ' + socket.id);
-        connected_user.push(socket.id);
-        msocket = socket;
-        socket.emit('message', {'stat': 'connection'});
-        socket.on('message', function(data) {
-            console.log('io message req ' + JSON.stringify(data));
-            socket.emit('message', {'name': "i'm server"});
-        });
-        socket.on('disconnect', function(user) {
-            console.log('disconnect ' + JSON.stringify(user));
-            // connected_user.pop(socket.id);
-            // if (connected_user.id !== undefined) {
-            //     delete usersonline[connected_user.id];
-            //     console.log("[DEBUG][io.sockets][disconnect] user: %s(@%s) disconnected", connected_user.username, connected_user.id);
-            // } else {
-            //     console.log("[WARN][io.sockets][disconnect] Received disconnect message from another universe");
+    let sockets = [];
+    io.sockets.on('connection', function(socket){
+        console.log('connected ' + socket.id);
+        sockets.push(socket.id);
+        socket.on('disconnect', function(e) {
+            console.log('disconnect ' + e);
+            // const idx = sockets.indexOf(socket.id);
+            // console.log('idx ' + idx);
+            // if (idx>-1) {
+            //     sockets.splice(idx, 1);
             // }
         });
     });
-    // socket.broadcast.emit('us', {'msg': 'hi message'});
-/*    r.connect(rethinkdb, function(e, conn) {
-        if (e) {
-            console.warn("could not connect to the database, " + e.message);
-            if (conn) { conn.close(); }
+    r.connect(rethinkdb, function(e, conn) {
+        if (e) { console.warn("could not connect to the database, " + e.message);
             return;
         }
-        console.log("realtime handler");
-        // r.table(table.TB_SUMMARY).get('kaicoin').changes().run(conn).then(function(cur1){
-        r.table(table.TB_SUMMARY).changes().run(conn, function(err, cur1) {
-            console.log('table changes() ' + msocket);
-            if (msocket===null) { return; }
-            cur1.each(function(err, row) {
-                if (err) throw err;
-                console.log('changed ' + JSON.stringify(row));
-                msocket.broadcast.emit('message', {changed: row});
-            });
-        });
-    });*/
+        // io.sockets.broadcast.emit('message', {changed: res2});
+        r.table(table.TB_SUMMARY).changes().run(conn).then(cur1 => {
+            const now = new Date().getTime();
+            cur1.each(function(err, item) {
+                if (item && item.new_val) {
+                    // service.convertRawTx(item.new_val, now, LIST_COUNT_MAIN);
+                    console.log(table.TB_SUMMARY + ' changed ' + JSON.stringify(item.new_val));
+                    io.sockets.emit("summary", item.new_val);
+                }
+            }).error(console.error);
+        }).error(console.error);
+        r.table(table.TB_TXS).changes().run(conn).then(cur1 => {
+            const now = new Date().getTime();
+            cur1.each(function(err, item) {
+                if (item && item.new_val) {
+                    service.convertRawTx(item.new_val, now, LIST_COUNT_MAIN);
+                    console.log(table.TB_TXS + ' changed ' + JSON.stringify(item.new_val));
+                    io.sockets.emit("recenttx", item.new_val);
+                }
+            }).error(console.error);
+        }).error(console.error);
+        r.table(table.TB_BLOCKS).changes().run(conn).then(cur1 => {
+            const now = new Date().getTime();
+            cur1.each(function(err, item) {
+                if (item && item.new_val) {
+                    service.convertRawTx(item.new_val, now, LIST_COUNT_MAIN);
+                    console.log(table.TB_BLOCKS + ' changed ' + JSON.stringify(item.new_val));
+                    io.sockets.emit("recentblock", item.new_val);
+                }
+            }).error(console.error);
+        }).error(console.error);
+    });
 }

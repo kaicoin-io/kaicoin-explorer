@@ -87,6 +87,13 @@ module.exports.getRowCountConnected = function(conn, tablename) {
     });
 };
 
+module.exports.initFeed = function() {
+    r.table(table.TB_SUMMARY).changes().run(conn, function(err, res1) {
+        console.log(table.TB_SUMMARY + ' changed ' + res1);
+        msocket.broadcast.emit('message', {changed: row});
+    });
+};
+
 function onDBError(res) {
     return function(error) {
         res.send(500, {error: error.message});

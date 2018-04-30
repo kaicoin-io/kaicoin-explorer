@@ -53,7 +53,7 @@
                         <th class="confirm"><i class="far fa-check-circle"></i></th><th>Size</th><th class="time">Time</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="latest-blocks">
                     <% for(var i=0; i<blocks.length; i++) { %>
                     <tr>
                         <td class="center"><span class="label"><%=blocks[i].height%></span></td>
@@ -69,7 +69,7 @@
                         </td>
                         <td class="center confirm"><span class="label"><%=blocks[i].confirmations%></span></td>
                         <td><%=Number(blocks[i].size).toLocaleString()%></td>
-                        <td class="left"><i class="fas fa-arrow-down"></i><%=blocks[i].date%></td>
+                        <td class="left"><i class="fas fa-arrow-up"></i><%=blocks[i].date%></td>
                     </tr>
                     <% } %>
                     </tbody>
@@ -93,7 +93,7 @@
                         <th class="confirm"><i class="far fa-check-circle"></i></th><th class="time">Time</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="latest-transactions">
                     <% if(txcount<1) { %>
                     <tr>
                         <td colspan="5">TRANSACTIONS ARE NOT FOUND
@@ -120,7 +120,7 @@
                                 <%=txs[i].amount%><span class=" hide-under-small"> KAI</span>
                             </td>
                             <td class="center confirm"><span class="label"><%=txs[i].confirmations%></span></td>
-                            <td class="left"><i class="fas fa-arrow-down"></i><%=txs[i].date%></td>
+                            <td class="left"><i class="fas fa-arrow-up"></i><%=txs[i].date%></td>
                         </tr>
                         <% } %>
                     <% } %>

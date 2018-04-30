@@ -183,7 +183,7 @@ module.exports = function() {
                                 success({count: res1, list: list});
                             }).error(fail);
                         }).error(fail);
-                    }).error(fail);
+                    }).catch(fail);
                 });
             });
         },
@@ -260,6 +260,8 @@ module.exports = function() {
                     item.from = item.vout[1].scriptPubKey.addresses[0];
                 }
             }
+            delete item['hex'];
+            delete item['data'];
             delete item['vin'];
             delete item['vout'];
         },
@@ -329,31 +331,31 @@ function toHumanReadableTimestampMain(thattime, nowtime) {
     const secs = Math.floor(diff);
     let ret = "";
     if (years>1) {
-        ret = years + "yrs";
+        ret = years + "y";
     } else if (years===1) {
-        ret = "1yrs";
+        ret = "1y";
     } else if (months>1) {
-        ret = months + "mons";
+        ret = months + "mo";
     } else if (months===1) {
-        ret = "1mon";
+        ret = "1mo";
     } else if (weeks>1) {
-        ret = weeks + "wks";
+        ret = weeks + "w";
     } else if (weeks===1) {
-        ret = "1wk";
+        ret = "1w";
     } else if (days>1) {
-        ret = days + "days";
+        ret = days + "d";
     } else if (days===1) {
-        ret = "1day";
+        ret = "1d";
     } else if (hours>1) {
-        ret = hours + "hrs";
+        ret = hours + "h";
     } else if (hours===1) {
-        ret = "1hr";
+        ret = "1h";
     } else if (mins>1) {
-        ret = mins + "mins";
+        ret = mins + "m";
     } else if (mins===1) {
-        ret = "1min";
+        ret = "1m";
     } else if (secs>2) {
-        ret = secs + "secs";
+        ret = secs + "s";
     } else {
         ret = "now";
     }

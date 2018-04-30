@@ -12,7 +12,7 @@
                 <h4>Transactions</h4>
                 <div id="current-position">
                     <div>
-                        <% if (count>0) { %><i class="fas fa-arrow-down"></i>&nbsp;<%=count%><% } else { %>0<% } %>
+                        <% if (count>0) { %><i class="fas fa-arrow-up"></i>&nbsp;<%=count%><% } else { %>0<% } %>
                     </div>&nbsp;/&nbsp;<%=count%>
                 </div>
             </div>
@@ -54,7 +54,7 @@
                             <td class="center">
                                 <span class="label"><%=list[i].confirmations%></span>
                             </td>
-                            <td class="center"><i class="fas fa-arrow-down"></i>&nbsp;<%=list[i].date%></td>
+                            <td class="center"><i class="fas fa-arrow-up"></i>&nbsp;<%=list[i].date%></td>
                         </tr>
                         <% } %>
                     <% } %>

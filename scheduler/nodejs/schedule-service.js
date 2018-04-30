@@ -46,7 +46,8 @@ module.exports = function() {
                     if (typeof(lastblock.txsyncheight) === 'undefined'
                         || lastblock.txsyncheight < lastblock.blocksyncheight) {
                         // TX Sync: TX of genesis block has no info so skip
-                        const fromheight = (typeof(lastblock.txsyncheight)==='undefined'||lastblock.txsyncheight===0)?1:lastblock.txsyncheight;
+                        const fromheight = (typeof(lastblock.txsyncheight)==='undefined'
+                            ||lastblock.txsyncheight===0)?1:lastblock.txsyncheight;
                         if (fromheight===lastblock.blocksyncheight) { success(); }
                         return self.getTxsFromBlocks(fromheight, lastblock.blocksyncheight);
                     } else {

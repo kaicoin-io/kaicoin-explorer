@@ -77,7 +77,32 @@ var app = {
         } else if (pathname.startsWith("/tx")) {
             $(".mdl-navigation__link.btn-txs").addClass("on");
         }
+        self.initSocket();
 
+    },
+    initSocket: function() {
+        const self = this;
+        let socket = io.connect();
+        socket.on("message",     function(data) { self.onMessage('message', data)});
+        socket.on("summary",     function(data) { self.onMessage('summary', data)});
+        socket.on("recentblock", function(data) { self.onMessage('recentblock', data)});
+        socket.on("recenttx",    function(data) { self.onMessage('recenttx', data)});
+    },
+    onMessage: function(type, data) {
+        const self = this;
+        if (type==='summary') {
+            console.log('[message]' + type + ' ' + JSON.stringify(data));
+        } else if (type==='recenttx') {
+            const row = self.makeMainTxRow(data);
+            // console.log('[message]' + type + ' ' + row);
+            $("#latest-transactions").prepend(row);
+            $("#latest-transactions tr:last-child").remove();
+        } else if (type==='recentblock') {
+            const row = self.makeMainBlockRow(data);
+            // console.log('[message]' + type + ' ' + row);
+            $("#latest-blocks").prepend(row);
+            $("#latest-blocks tr:last-child").remove();
+        }
     },
     showQRPopup: function(title, qrString) {
         alert('<div class=mtd-work-break>'+title+'</div><img class=mtd-diag-content-img src=https://api.qrserver.com/v1/create-qr-code/?size=208x208&data='+qrString+' onload=app.hidePopupLoader()>');
@@ -95,7 +120,7 @@ var app = {
         $.getJSON('/blocks/' + q, function(data) {
             console.log('blockheight ' + q);
             $("#progress-loader").removeClass("is-active");
-            $("#current-position > div").html('<i class="fas fa-arrow-down"></i>&nbsp;' + data.q);
+            $("#current-position > div").html('<i class="fas fa-arrow-up"></i>&nbsp;' + data.q);
             $("#mtd-blocks-table > tbody").empty().html(self.makeBlockRow(data.list));
             window.location.href = '#' + q;
         });
@@ -107,34 +132,45 @@ var app = {
         $.getJSON('/txs/' + q, function(data) {
             console.log('tx idx ' + q);
             $("#progress-loader").removeClass("is-active");
-            $("#current-position > div").html('<i class="fas fa-arrow-down"></i>&nbsp;' + data.q);
-            $("#mtd-txs-table > tbody").empty().html(self.makeTxRow(data.list));
+            $("#current-position > div").html('<i class="fas fa-arrow-up"></i>&nbsp;' + data.q);
+            $("#mtd-txs-table > tbody").empty().html(self.makeTxRows(data.list));
             window.location.href = '#' + q;
         });
     },
-    makeTxRow: function(data) {
+    makeTxRows: function(data) {
         const self = this;
         let rows = '';
         for (let i=0; i<data.length; i++) {
-
-            // const from = (data[i].txtype==='send' && data[i].vout[1])
-            //     ?'<div>' + data[i].vout[1].scriptPubKey.addresses[0] + '</div>':'';
-            // const to = ((data[i].txtype==='send' || data[i].txtype==='mine') && data[i].vout && data[i].vout[0])
-            //     ?'<div><i class="fas fa-arrow-right"></i>&nbsp;' + data[i].vout[0].scriptPubKey.addresses[0] + '</div>':'';
-            const labelSpanType = data[i].txtype==='mine'?'<span class="label">'
-                :data[i].txtype==='send'?'<span class="label label-primary">':'<span class="label label-success">';
-            const from = data[i].from.length<1?'':'<div>' + data[i].from + '</div>';
-            rows += '<tr><td class="mtd-td-label center">' + data[i].seq + '</td><td class="mtd-td-label center">' + labelSpanType + data[i].txtype + '</span></td>'
-                + '<td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis">' + '<a href="/tx/'+data[i].txid+'">'
-                + data[i].txid + '</a></td>'
-                + '<td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis hide-under-small">'
-                + from + '<div><i class="fas fa-arrow-right"></i>&nbsp;' + data[i].to + '</div></td>'
-                + '<td class="mtd-text-right">' + data[i].amount + ' KAI</td>'
-                + '<td class="center"><span class="label">' + data[i].confirmations + '</span></td>'
-                + '<td class="center"><i class="fas fa-arrow-down"></i>&nbsp;' + data[i].date + '</td></tr>';
-        }
+            rows += self.makeTxRow(data[i]);
+         }
         console.log('data[0] ' + JSON.stringify(data[0]));
         return rows;
+    },
+    makeTxRow: function(datum) {
+        const labelSpanType = datum.txtype==='mine'?'<span class="label">'
+            :datum.txtype==='send'?'<span class="label label-primary">':'<span class="label label-success">';
+        const from = datum.from.length<1?'':'<div>' + datum.from + '</div>';
+        return '<tr><td class="mtd-td-label center">' + datum.seq + '</td><td class="mtd-td-label center">' + labelSpanType + datum.txtype + '</span></td>'
+            + '<td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis">' + '<a href="/tx/'+datum.txid+'">'
+            + datum.txid + '</a></td>'
+            + '<td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis hide-under-small">'
+            + from + '<div><i class="fas fa-arrow-right"></i>&nbsp;' + datum.to + '</div></td>'
+            + '<td class="mtd-text-right">' + datum.amount + ' KAI</td>'
+            + '<td class="center"><span class="label">' + datum.confirmations + '</span></td>'
+            + '<td class="center"><i class="fas fa-arrow-up"></i>&nbsp;' + datum.date + '</td></tr>';
+    },
+    makeMainTxRow: function(datum) {
+        const labelSpanType = datum.txtype==='mine'?'<span class="label">'
+            :datum.txtype==='send'?'<span class="label label-primary">':'<span class="label label-success">';
+        return '<tr><td class="center">' + labelSpanType + datum.txtype + '</span></td>'
+            + '<td class="left-align mtd-txs-cell-tx hash mtd-work-break-middle-ellipsis">' + '<a href="/tx/'+datum.txid+'">'
+            + datum.txid + '</a><br>'
+            + '<div class="mtd-small-chars hide-under-small" style="line-height: 16px;overflow-x: hidden;">'
+            + datum.from + '<i class="fas fa-arrow-right"></i>' + datum.to + '</div>'
+            + '<td class="mtd-text-right" style="overflow-x: hidden; text-overflow: clip">' + datum.amount + '<span class="hide-under-small"> KAI</span></td>'
+            + '<td class="center confirm"><span class="label">' + datum.confirmations + '</span></td>'
+            + '<td class="left"><i class="fas fa-arrow-up"></i>' + datum.date + '</td></tr>';
+
     },
     makeBlockRow: function(data) {
         const self = this;
@@ -155,12 +191,22 @@ var app = {
                 + data[i].miner+'</td><td>'
                 + Number(data[i].size).toLocaleString() + '</td><td class="center">'
                 + txCount + '</td><td class="center"><span class="label">'
-                + data[i].confirmations+'</span></td><td class="center"><i class="fas fa-arrow-down"></i>&nbsp;'
+                + data[i].confirmations+'</span></td><td class="center"><i class="fas fa-arrow-up"></i>&nbsp;'
                 + data[i].date+'</td></tr>';
         }
 
         console.log('data[0] ' + JSON.stringify(data[0]));
         return rows;
+    },
+    makeMainBlockRow: function(datum) {
+        const label = datum.txcount>1?'<span class="label label-info">':'<span class="label">';
+        return '<tr><td class="center"><span class="label">' + datum.height + '</span></td>'
+            + '<td class="left-align hash mtd-work-break-ellipsis"><a href="/block/'
+            + datum.height + '">' + datum.hash + '</a></td><td class="center">'
+            + label + datum.txcount + '</span></td><td class="center confirm"><span class="label">'
+            + datum.confirmations + '</span></td><td>'
+            + datum.size + '</td><td class="left"><i class="fas fa-arrow-up"></i>'
+            + datum.date + '</td></tr>';
     },
     beforeSearch: function(q) {
         if (q.length<1) return;
@@ -178,16 +224,3 @@ var app = {
         });
     }
 };
-/*
-const socket = io('/'); // '/'
-socket.on('connect', function () {
-    console.log('io connected');
-});
-socket.on('connection', function (data) {
-    console.log('io connection');
-});
-socket.on('message', function (data) {
-    console.log('io message ' + JSON.stringify(data));
-    // socket.emit('message', {'name': 'client'});
-});
-*/
