@@ -1,1 +1,1 @@
-curl http://127.0.0.1/api/walletnotify/%1
+curl http://127.0.0.1:9000/api/walletnotify/%1

@@ -1,1 +1,1 @@
-curl http://127.0.0.1/api/blocknotify/%1
+curl http://127.0.0.1:9000/api/blocknotify/%1

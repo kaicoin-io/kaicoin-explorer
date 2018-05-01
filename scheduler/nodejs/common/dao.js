@@ -16,17 +16,12 @@ table = {
     TB_ADDR_ACTIVE: "TB_ADDR_ACTIVE", // address
     TB_ADDR_HIST  : "TB_ADDR_HIST",   // type, fromaddr, toaddr, value, time
 
-    TB_PRICE      : "TB_KAI_PRICE",
-    TB_SYMBOLS    : "TB_SYMBOLS",
-
     PK_SUMMARY    : "chainname",
     PK_BLOCKS     : "height",
     PK_TXS        : "txid",
     PK_LAST_SYNC  : "chainname",
-    IDX_TIME       : "time",
+    IDX_TIME      : "time"
 
-    PK_MINING    : "chainname",
-    PK_TB_PRICE  : "server_time"
 };
 
 /**
@@ -124,12 +119,12 @@ module.exports = function() {
                     console.log('[INFO] ' + table.TB_TXS + ' creating');
                     r.tableCreate(table.TB_TXS, {primaryKey: table.PK_TXS}).run(conn).then(
                         res1 => {
-                            console.log('[INFO] INDEX ' + table.IDX_TIME + ' creating');
-                            r.table(table.TB_TXS).indexCreate(table.IDX_TIME).run(conn).then(
-                                res2 => {
-                                    success(tables);
-                                }).error(fail);
-                        }).error(fail);
+                        console.log('[INFO] INDEX ' + table.IDX_TIME + ' creating');
+                        r.table(table.TB_TXS).indexCreate(table.IDX_TIME).run(conn).then(
+                            res2 => {
+                                success(tables);
+                            }).error(fail);
+                    }).error(fail);
                 } else {
                     console.log('[INFO] ' + table.TB_TXS + ' exists');
                     success(tables);
@@ -171,7 +166,7 @@ module.exports = function() {
                         // console.log('savelist: ' + JSON.stringify(res1));
                         success(res1);
                     }).error(fail);
-                });
+                }).error(fail);
             });
         },
         getOnce: function(tablename, pk) {
@@ -181,18 +176,18 @@ module.exports = function() {
                         conn.close();
                         success(res1);
                     }).error(fail);
-                });
+                }).error(fail);
             });
         },
-        saveContinueItem: function(conn, tablename, item) {
+        saveContinue: function(conn, tablename, item) {
             return new Promise( function(success, fail) {
                 r.table(tablename).insert(item, { conflict: 'update', returnChanges: false })
                     .run(conn).then(function (res1) {
                     success(res1);
-                });
+                }).error(fail);
             });
         },
-        saveList: function(conn, tablename, list) {
+        saveListContinue: function(conn, tablename, list) {
             return new Promise( function(success, fail) {
                 r.table(tablename).insert(list, {
                     conflict: 'update', returnChanges: false
@@ -202,14 +197,11 @@ module.exports = function() {
                 }).error(fail);
             });
         },
-        getItem: function(conn, tablename, pk) {
+        getItemContinue: function(conn, tablename, pk) {
             return new Promise( function(success, fail) {
                 r.table(tablename).get(pk).run(conn).then( res1 => {
                     success(res1);
-                }).error(function (e) {
-                    onDBError(e, conn);
-                    fail(e);
-                });
+                }).error(fail);
             });
         },
     }

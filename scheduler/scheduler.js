@@ -24,16 +24,15 @@ const job = schedule.scheduleJob('*/20 * * * * *', function(){
  */
 function syncBlocks() {
     if (job_running===false) {
-        // console.log('[INFO] block sync scheduler started at ' + datestr);
         job_running = true;
         service.syncBlocks().then(function(res1) {
             job_running = false;
             const datestr = new Date().format("yyyy.MM.dd HH:mm:ss");
-            console.log('[INFO] block sync scheduler finished at ' + datestr);
+            console.log('[INFO]' + datestr + ' block sync scheduler finished');
         }).catch(function(e) {
             job_running = false;
-            const datestr = new Date().format("yyyy.MM.dd HH:mm:ss");
-            console.error('[INFO] block sync scheduler error at ' + datestr + ', message ' + e);
+            const datestr = new Date().format("[yyyy/MM/dd HH:mm:ss]");
+            console.error('[INFO]' + datestr + ' block sync scheduler ' + e);
         });
     }
 }

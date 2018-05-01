@@ -4,9 +4,9 @@
     <!-- 1) Block list -->
     <div class="mdl-list__item">
         <span class="mdl-list__item-primary-content">
-            <h5><i class="far fa-compass"></i>&nbsp;SUMMARY</h5>
+            <h5><i class="far fa-compass"></i>&nbsp;&nbsp;SUMMARY</h5>
         </span>
-        <a class="mdl-list__item-secondary-action" href="/summary"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-angle-double-right"></i></button></a>
+        <a class="mdl-list__item-secondary-action" href="/summary"><button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--kaicoin"><i class="fas fa-angle-double-right"></i></button></a>
     </div>
     <div class="x-overflow">
 
@@ -41,16 +41,17 @@
         <div class="mdl-cell mdl-cell--6-col">
             <div class="mdl-list__item">
                 <span class="mdl-list__item-primary-content">
-                  <h5><i class="fab fa-codepen"></i>&nbsp;LATEST BLOCKS</h5>
+                  <h5><i class="fab fa-codepen"></i>&nbsp;&nbsp;LATEST BLOCKS</h5>
                 </span>
-                <a class="mdl-list__item-secondary-action" href="/blocks"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-angle-double-right"></i></button></a>
+                <a class="mdl-list__item-secondary-action" href="/blocks"><button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--kaicoin"><i class="fas fa-angle-double-right"></i></button></a>
             </div>
-            <div id="recent-blocks" class="x-overflow mtd-main-recent-list">
+            <div id="recent-blocks" class="mtd-main-recent-list">
                 <table class="mdl-data-table mdl-js-data-table match-parent small-table">
                     <thead>
                     <tr>
                         <th>Height</th><th>Hash</th><th>TXNS</th>
-                        <th class="confirm"><i class="far fa-check-circle"></i></th><th class="right">Size</th><th class="time">Time</th>
+                        <th class="confirm"><i class="fas fa-check"></i></th><th class="right">Size</th>
+                        <th class="time">Time</th>
                     </tr>
                     </thead>
                     <tbody id="latest-blocks">
@@ -81,16 +82,16 @@
         <div class="mdl-cell mdl-cell--6-col">
             <div class="mdl-list__item">
                 <span class="mdl-list__item-primary-content">
-                  <h5><i class="far fa-paper-plane"></i>&nbsp;LATEST TRANSACTIONS</h5>
+                  <h5><i class="far fa-paper-plane"></i>&nbsp;&nbsp;LATEST TRANSACTIONS</h5>
                 </span>
-                <a class="mdl-list__item-secondary-action" href="/txs"><button class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="fas fa-angle-double-right"></i></button></a>
+                <a class="mdl-list__item-secondary-action" href="/txs"><button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--kaicoin"><i class="fas fa-angle-double-right"></i></button></a>
             </div>
-            <div id="recent-txs" class="x-overflow mtd-main-recent-list">
-                <table class="mdl-data-table mdl-js-data-table match-parent small-table">
+            <div id="recent-txs" class="mtd-main-recent-list">
+                <table class="mdl-data-table mdl-js-data-table match-parent small-table" style="border-left: 0;">
                     <thead>
                     <tr>
                         <th>Type</th><th>TX ID</th><th class="right">Am<span class="hide-under-small">oun</span>t</th>
-                        <th class="confirm"><i class="far fa-check-circle"></i></th><th class="time">Time</th>
+                        <th class="confirm"><i class="fas fa-check"></i></th><th class="time">Time</th>
                     </tr>
                     </thead>
                     <tbody id="latest-transactions">
