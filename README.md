@@ -39,13 +39,15 @@ II. Installation on Ubuntu (v16 recommended)
     - cd multichain-1.0.4
     - mv multichaind multichain-cli multichain-util /usr/local/bin (to make easily accessible on the command line)
   4. Upload files via SFTP/FTP
-  5. Start Services
-    1) start multichain
-      - 
-    2) start rethink DB
-      - sudo rethinkdb --daemon
-    3) start nodejs
-      - nohup node app.js start &
-  6 Register service on boot start up (upload to /etc/init.d/kaicoin-explorer.sh and run script below)
-    - update-rc.d kaicoin-explorer.sh defaults
-    - service kaicoin-explorer.sh start
+    - sudo chown ubuntu -R {explorer-path}
+  5 Register service on boot start up (upload to /etc/init.d/kaicoin-explorer.sh and run script below)
+    - sudo update-rc.d kaicoin-explorer-startup.sh defaults
+    - sudo service kaicoin-explorer-startup.sh start
+  6. Reboot to apply package update
+    - sudo apt-get update
+    - sudo reboot
+  7. Check all precess are right
+    - ps -ef | grep multichain
+    - ps -ef | grep rethinkdb
+    - ps -ef | grep nodejs
+  
