@@ -14,7 +14,5 @@ rpc = RpcClient({
     host: '127.0.0.1',
     port: 8888,
     username: 'KaicoinExplorer',
-    password: 'Ch68iSofMDXfWwnXbJR8dGW3Mk9sy88rBycudV8eNhAq'    // Company
-    // password: 'Hcf5hR3GvHyo9kek4t33V3nMmjagbyKataUGmNDt5riG' // Home
-    // password: '9mFcgZEZquhu86r4uALu5djnEutRjueUia9pxjkqmCti' // naver
+    password: 'Ch68iSofMDXfWwnXbJR8dGW3Mk9sy88rBycudV8eNhAq'    // TEST environment
 });

@@ -1,1 +1,1 @@
-rethinkdb --bind-http all --daemon
+rethinkdb --no-http-admin --daemon

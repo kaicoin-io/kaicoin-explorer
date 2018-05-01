@@ -3,10 +3,10 @@
 # /etc/init.d/kaicoin-explorer.sh
 #
 # description: "Kaicoin Explorer"
-# processname: kaicoinExplorer
-# pidfile: "/var/run/kaicoinExplorer.pid"
+# processname: kaicoinexplorer
+# pidfile: "/var/run/kaicoinexplorer.pid"
 
-# Provides:          kaicoinExplorer
+# Provides:          kaicoinexplorer
 # Required-Start:    $remote_fs $syslog
 # Required-Stop:     $remote_fs $syslog
 # Default-Start:     2 3 4 5
@@ -23,17 +23,16 @@
 . /etc/rc.d/init.d/functions
 
 start() {
-    echo "Starting kaicoin-explorer"
-    cd /home/explorer/
+    echo "starting kaicoin-explorer"
+    cd /home/ubuntu/new-explorer/
 	./startmultichain.sh
 	./startrethink.sh
-	./startsched.sh
-	./startweb.sh
+	./startexplorer.sh
     return 0
 }
 
 stop() {
-    prockill kaicoinExplorer   
+    prockill kaicoinexplorer   
     return 2
 }
 
@@ -52,10 +51,10 @@ case "$1" in
         restart
     ;;
     status)
-        status kaicoinExplorer
+        status kaicoinexplorer
     ;;
     *)
-        echo "Usage: kaicoinExplorer [start|stop|restart|status]"
+        echo "Usage: kaicoinexplorer [start|stop|restart|status]"
         exit 1
     ;;
 esac
