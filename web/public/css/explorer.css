@@ -152,16 +152,15 @@ button i.fa, button i.fas { margin-left: -1px; }
 .mdl-data-table td.mtd-dt-short { font-size: 12px; }
 .mdl-data-table thead tr:first-of-type th { text-align: center; border-bottom: 1px solid rgba(0,0,0,.12); }
 .mdl-data-table thead th { text-align: center; }
-
+.mdl-data-table td.hash { padding-left: 3px; }
+.mdl-data-table.small-table td, .mdl-data-table.small-table th { padding-left:3px; padding-right: 3px; }
 .mdl-data-table__cell--non-numeric p { margin-top: 10px; margin-bottom: 10px; }
 .mdl-data-table td.mtd-td-empty { height: 500px; background-color: #fafafa; font-size: 32px; color: #e0e0e0; }
 
 .mtd-page-index .mdl-data-table td:last-of-type, .mtd-page-index .mdl-data-table th:last-of-type {
     padding-right: 18px;
 }
-.mtd-page-index .mdl-data-table td:first-of-type {
-    padding-left: 0;
-}
+.mdl-data-table td:first-of-type, .mdl-data-table th:first-of-type { padding-left:6px; padding-right: 6px; }
 .mtd-slider-pager :first-child { float: left; }
 .no-underline {
     text-decoration: none;
