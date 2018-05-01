@@ -50,7 +50,7 @@
                     <thead>
                     <tr>
                         <th>Height</th><th>Hash</th><th>TXNS</th>
-                        <th class="confirm"><i class="far fa-check-circle"></i></th><th>Size</th><th class="time">Time</th>
+                        <th class="confirm"><i class="far fa-check-circle"></i></th><th class="right">Size</th><th class="time">Time</th>
                     </tr>
                     </thead>
                     <tbody id="latest-blocks">
@@ -69,7 +69,7 @@
                         </td>
                         <td class="center confirm"><span class="label"><%=blocks[i].confirmations%></span></td>
                         <td><%=Number(blocks[i].size).toLocaleString()%></td>
-                        <td class="left"><i class="fas fa-arrow-up"></i><%=blocks[i].date%></td>
+                        <td class="left"><i class="fas fa-arrow-up"></i>&nbsp;<%=blocks[i].date%></td>
                     </tr>
                     <% } %>
                     </tbody>
@@ -89,7 +89,7 @@
                 <table class="mdl-data-table mdl-js-data-table match-parent small-table">
                     <thead>
                     <tr>
-                        <th>Type</th><th>TX ID</th><th>Amount</th>
+                        <th>Type</th><th>TX ID</th><th class="right">Am<span class="hide-under-small">oun</span>t</th>
                         <th class="confirm"><i class="far fa-check-circle"></i></th><th class="time">Time</th>
                     </tr>
                     </thead>
@@ -117,10 +117,10 @@
                                 </div>
                             </td>
                             <td class="mtd-text-right" style="overflow-x: hidden; text-overflow: clip">
-                                <%=txs[i].amount%><span class=" hide-under-small"> KAI</span>
+                                <%=txs[i].amount.split('.')[0]%>
                             </td>
                             <td class="center confirm"><span class="label"><%=txs[i].confirmations%></span></td>
-                            <td class="left"><i class="fas fa-arrow-up"></i><%=txs[i].date%></td>
+                            <td class="left"><i class="fas fa-arrow-up"></i>&nbsp;<%=txs[i].date%></td>
                         </tr>
                         <% } %>
                     <% } %>

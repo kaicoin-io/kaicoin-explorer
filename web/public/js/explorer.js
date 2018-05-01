@@ -155,21 +155,21 @@ var app = {
             + datum.txid + '</a></td>'
             + '<td class="mdl-data-table__cell--non-numeric hash mtd-work-break-ellipsis hide-under-small">'
             + from + '<div><i class="fas fa-arrow-right"></i>&nbsp;' + datum.to + '</div></td>'
-            + '<td class="mtd-text-right">' + datum.amount + ' KAI</td>'
+            + '<td class="mtd-text-right">' + datum.amount.split('.')[0] + '<span class="hide-under-small"> KAI</span></td>'
             + '<td class="center"><span class="label">' + datum.confirmations + '</span></td>'
             + '<td class="center"><i class="fas fa-arrow-up"></i>&nbsp;' + datum.date + '</td></tr>';
     },
     makeMainTxRow: function(datum) {
         const labelSpanType = datum.txtype==='mine'?'<span class="label">'
             :datum.txtype==='send'?'<span class="label label-primary">':'<span class="label label-success">';
-        return '<tr><td class="center">' + labelSpanType + datum.txtype + '</span></td>'
+        return '<tr class="blink_me"><td class="center">' + labelSpanType + datum.txtype + '</span></td>'
             + '<td class="left-align mtd-txs-cell-tx hash mtd-work-break-middle-ellipsis">' + '<a href="/tx/'+datum.txid+'">'
             + datum.txid + '</a><br>'
             + '<div class="mtd-small-chars hide-under-small" style="line-height: 16px;overflow-x: hidden;">'
             + datum.from + '<i class="fas fa-arrow-right"></i>' + datum.to + '</div>'
-            + '<td class="mtd-text-right" style="overflow-x: hidden; text-overflow: clip">' + datum.amount + '<span class="hide-under-small"> KAI</span></td>'
+            + '<td class="mtd-text-right" style="overflow-x: hidden; text-overflow: clip">' + datum.amount.split('.')[0] + '</td>'
             + '<td class="center confirm"><span class="label">' + datum.confirmations + '</span></td>'
-            + '<td class="left"><i class="fas fa-arrow-up"></i>' + datum.date + '</td></tr>';
+            + '<td class="left"><i class="fas fa-arrow-up"></i>&nbsp;' + datum.date + '</td></tr>';
 
     },
     makeBlockRow: function(data) {
@@ -200,12 +200,12 @@ var app = {
     },
     makeMainBlockRow: function(datum) {
         const label = datum.txcount>1?'<span class="label label-info">':'<span class="label">';
-        return '<tr><td class="center"><span class="label">' + datum.height + '</span></td>'
+        return '<tr class="blink_me"><td class="center"><span class="label">' + datum.height + '</span></td>'
             + '<td class="left-align hash mtd-work-break-ellipsis"><a href="/block/'
             + datum.height + '">' + datum.hash + '</a></td><td class="center">'
             + label + datum.txcount + '</span></td><td class="center confirm"><span class="label">'
             + datum.confirmations + '</span></td><td>'
-            + datum.size + '</td><td class="left"><i class="fas fa-arrow-up"></i>'
+            + datum.size + '</td><td class="left"><i class="fas fa-arrow-up"></i>&nbsp;'
             + datum.date + '</td></tr>';
     },
     beforeSearch: function(q) {

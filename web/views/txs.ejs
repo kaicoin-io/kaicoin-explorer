@@ -23,7 +23,7 @@
                     <tr>
                         <th>Seq</th>
                         <th>Type</th><th>TX ID</th><th class="hide-under-small">From <i class="fas fa-arrow-right"></i> To</th>
-                        <th><span class="hide-under-small">Amount</span><i class="fas fa-dollar-sign hide-over-small" style="float: right;"></i></th>
+                        <th class="right">Am<span class="hide-under-small">oun</span>t</th>
                         <th><span class="hide-under-small">Confirm</span><i class="far fa-check-circle hide-over-small"></i></th><th>Time</th>
                     </tr>
                     </thead>
@@ -49,7 +49,7 @@
                                 <% if (list[i].to) { %><div><i class="fas fa-arrow-right"></i>&nbsp;<%=list[i].to%></div><% } %>
                             </td>
                             <td class="mtd-text-right">
-                                <%=list[i].amount%><span class=" hide-under-small"> KAI</span>
+                                <%=list[i].amount.split('.')[0]%><span class="hide-under-small"> KAI</span>
                             </td>
                             <td class="center">
                                 <span class="label"><%=list[i].confirmations%></span>
