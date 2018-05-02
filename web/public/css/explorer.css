@@ -130,11 +130,11 @@ button i.fa, button i.fas { margin-left: -1px; }
     50% { background-color: #00bfa5; }
 }
 .mtd-cell-txs { vertical-align: top; min-height: 113px; }
-.mtd-page-block, .mtd-page-tx, .mtd-page-summ {
-    background-image: url(/res/img/bg-summary.gif);
+/*.mtd-page-block, .mtd-page-tx, .mtd-page-summ {
+    background-image: url(/res/img/bg-summary.jpg);
     background-repeat: no-repeat;
     background-position: 0 60px;
-}
+}*/
 .mtd-about-contents { background-color: #f2f2f2; }
 .mtd-title-about-wrapper { padding-bottom: 2px; }
 .mtd-summary-about p { margin: 0; }
